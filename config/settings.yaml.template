@@ -1,0 +1,16 @@
+shared:
+    :example_setting: 'example value'
+development:
+  :port: 1111
+  :db_username: joe_blow
+  :db_password: 
+staging:
+  :port: 2222
+  :db_username: jane_blogs
+  :db_password: 
+  :amazon_key:
+production:
+  :port: 2222
+  :db_username: jane_bloggs
+  :db_password: 
+  :amazon_key:

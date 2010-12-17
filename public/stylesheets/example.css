@@ -1,0 +1,10 @@
+.tooltip {
+    display:none;
+    background:transparent url(http://development.example.org);
+    font-size:10px;
+    height:59px;
+    margin-top: 16px;
+    width:116px;
+    padding:15px;
+    color: #666666;
+}
