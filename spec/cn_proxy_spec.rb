@@ -10,32 +10,39 @@ describe "Example" do
     @app ||= Sinatra::Application
   end
   
-  it "Returns 404s" do
-    get '/doesnotexist'
-    last_response.status.should == 404
-    last_response.headers['Content-Type'].should == 'text/html;charset=utf-8'
-    last_response.body.should include 'This is nowhere to be found.'
-  end
-  
-  it "Shows custom application error page" do
-    get '/error'
+  it "Returns 500" do
+    get '/doidoesnotexist'
     last_response.status.should == 500
     last_response.headers['Content-Type'].should == 'text/html;charset=utf-8'
-    last_response.body.should include 'Example was unable to do something is was supposed to'
+    last_response.body.should include 'Invalid DOI'
   end
   
-  it "Returns HTML" do
-    get '/example'
-    last_response.status.should == 200
-    last_response.headers['Content-Type'].should == 'text/html;charset=utf-8'
-    last_response.body.should include 'Hello from Sinatra Skeleton Example'
+  it "/echo_doi/10.1037/0003-066X.59.1.29 using content negotiation for JSON" do
+      get '/echo_doi/10.1037/0003-066X.59.1.29', {}, {'HTTP_ACCEPT' => 'application/json'} 
+      last_response.status.should == 200
+      last_response.headers['Content-Type'].should == 'application/json'
+      last_response.body.should == '10.1037/0003-066X.59.1.29' 
   end
-   
-  it "Returns JSON" do
-    get '/example', {}, {'HTTP_ACCEPT' => 'application/json'} 
-    last_response.status.should == 200
-    last_response.headers['Content-Type'].should == 'application/json' 
-    last_response.body.should include "[\"Hello\",\"from\",\"Sinatra\",\"Skeleton\",\"Example\"]"
+  
+  it "/10.1037/0003-066X.59.1.29 using content negotiation for unixref" do
+      get '/10.1037/0003-066X.59.1.29', {}, {'HTTP_ACCEPT' => 'application/unixref+xml'} 
+      last_response.status.should == 200
+      last_response.headers['Content-Type'].should == 'application/unixref+xml'
+      last_response.body.should include '10.1037/0003-066X.59.1.29' 
+  end
+  
+  it "/10.1037/0003-066X.59.1.29 using content negotiation for JSON" do
+      get '/10.1037/0003-066X.59.1.29', {}, {'HTTP_ACCEPT' => 'application/json'} 
+      last_response.status.should == 200
+      last_response.headers['Content-Type'].should == 'application/json'
+      last_response.body.should include 'Render json' 
+  end
+  
+  it "/10.1037/0003-066X.59.1.29 using content negotiation for ATOM" do
+      get '/10.1037/0003-066X.59.1.29', {}, {'HTTP_ACCEPT' => 'application/atom+xml'} 
+      last_response.status.should == 200
+      last_response.headers['Content-Type'].should == 'application/atom+xml'
+      last_response.body.should include '10.1037/0003-066X.59.1.29' 
   end
    
 end

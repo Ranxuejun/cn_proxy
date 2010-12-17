@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sru="info:srw/xmlns/1/sru-2-0-v1" xmlns:prism="http://prismstandard.org/namespaces/basic/2.0/" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:npg="http://www.nature.com/opensearch/ns/sru/" xmlns:diag="http://www.loc.gov/zing/srw/diagnostic/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <title>CrossRef Metadata</title>
+    <subtitle>The crossref.org metadata service provides a structured resource discovery facility for publisher metadata hosted on crossref.org.</subtitle>
+    <link href="<%=feed_link%>"/>
+    <id>urn:uuid:<%=uuid.generate%></id>
+    <author>
+        <name>CrossRef</name>
+        <uri>http://www.crossref.org</uri>
+        <email>support@crossref.org</email>
+    </author>
+    <updated><%= feed_updated %></updated>
+    <rights>(c) 2010 CrosssRef</rights>
+    <icon>http://labs.crossref.org/metadata_icon.jpg></icon>
+    <link type="application/atom+xml" href="<%= feed_link %>" rel="self"/>
+    <link type="application/atom+xml" href="<%= feed_link %>" rel="first"/>
+    <link type="application/atom+xml" href="<%= feed_link %>" rel="last"/>
+    <link type="application/opensearchdescription+xml" href="http://labs.crossref.org/opensearch/osd.xml" rel="search"/>
+    <dc:publisher>CrossRef</dc:publisher>
+    <dc:language>en</dc:language>
+    <dc:rights>(c) 2010 CrossRef</dc:rights>
+    <prism:copyright>(c) 2010 CrossRef</prism:copyright>
+    <prism:rightsAgent>permissions@crossref.org</prism:rightsAgent>
+    <opensearch:totalResults><%= metadata.records.size %></opensearch:totalResults>
+    <opensearch:startIndex>1</opensearch:startIndex>
+    <opensearch:itemsPerPage>metadata.records.size</opensearch:itemsPerPage>
+    <opensearch:Query searchTerms="<%= metadata.search_terms %>" role="request"/>
+    <% metadata.records.each do |record| %>
+      <%= erb(:atom_entry, :locals => {  :record=>record, :uuid => uuid, :feed_updated => feed_updated}, :layout => false) %>
+    <% end %> 
+</feed>
