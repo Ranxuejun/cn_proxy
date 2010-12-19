@@ -1,4 +1,8 @@
 require 'cgi'
+require 'json'
+require 'crack'
+require 'tilt'
+require "rexml/document"
 
 helpers do
 
@@ -33,7 +37,7 @@ helpers do
     tidy_request_for_testing   
     detect_doi
   end
-  
+
   def entire_url
     base = "http://#{request.env['SERVER_NAME']}"
     port = request.env['SERVER_PORT'] == 80 ? base : base = base +  ":#{request.env['SERVER_PORT']}"
@@ -48,9 +52,21 @@ helpers do
   def render_atom unixref
     # Fake several results. Will need to support this for eventual search results.
     metadata = CrossrefMetadataResults.new()
-    metadata.records << CrossrefMetadataRecord.new(unixref)
+    record = REXML::Document.new(unixref)
+    metadata.records << CrossrefMetadataRecord.new(record) 
     uuid = UUID.new
-    erb :atom_feed, :locals => {  :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 }
+    erb :atom_feed, :locals => {  :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 }  
+  end
+
+  def render_json unixref
+    # Bascially translate the ATOM XML into JSON using Tilt to bind redenering to variable.
+    metadata = CrossrefMetadataResults.new()
+    record = REXML::Document.new(unixref)
+    metadata.records << CrossrefMetadataRecord.new(record) 
+    uuid = UUID.new
+    template = Tilt.new('views/atom_feed.erb', :trim => '<>')
+    xml = template.render( self, :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 )
+    json = (Crack::XML.parse(xml)).to_json  
   end
 
   def render_representation
@@ -59,7 +75,7 @@ helpers do
     when ".unixref"
       unixref   
     when ".json"
-      "Render json"
+      render_json unixref
     when ".atom"
       render_atom unixref
     end

@@ -22,8 +22,6 @@ before do
   handle_dois
 end
 
-
-
 get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :ntriples, :jsonrdf] do
   request.env['doi']
 end
