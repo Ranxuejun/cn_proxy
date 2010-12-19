@@ -28,6 +28,7 @@ class CrossrefMetadataRecord
     @record = Nokogiri::XML(metadata) { |config| config.strict }
     # Turn off namepaces.
     @record.remove_namespaces!()
+    # STDERR.puts @record.xpath["//title"].text
     add_contributors
   end
 
@@ -54,11 +55,11 @@ class CrossrefMetadataRecord
   end
 
   def title
-    #    return "title" # @record.xpath["//title"].text
+    "title" #   return @record.xpath["//title"].text
   end
 
   def volume
-    return  "volume" # @record.xpath["//volume"].text
+    return "volume" # @record.xpath["//volume"].text
   end
 
   def issue
