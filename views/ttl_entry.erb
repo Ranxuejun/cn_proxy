@@ -1,0 +1,43 @@
+
+
+<info:doi/<%= record.doi %>> a bibo:AcademicArticle ;
+
+ 
+    dc:title "<%= record.title %>"@en ;
+    dc:date "<%= record.publication_date %>" ;
+    dc:publisher "<%= record.publisher_name %>" ;
+    
+    <% xissn = record.pissn ? record.pissn : record.eissn %>
+    
+    dc:isPartOf <urn:issn:<%= xissn %>> ;
+    
+    bibo:volume "<%= record.volume %>" ;
+    bibo:issue "<%= record.issue %>" ;
+    bibo:pageStart "<%= record.first_page %>" ;
+    bibo:pageEnd "<%= record.last_page %>" ;
+    
+    <% count = 0 %>
+    <% author_list = "" %>
+    <% record.contributors.each do |contributor| %>
+      <% count += 1 %>
+      <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+      dc:creator <%= identifier %> ;
+      <% author_list += identifier %>
+    <% end %>
+    bibo:authorList ( <%= author_list %> ) .
+    
+
+<urn:issn:<%= xissn %>> a bibo:Journal ;
+    dc:title "<%= record.publication_title %>"@en ;
+    bibo:shortTitle "<%= record.publication_title %>"@en .
+    
+    <% count = 0 %>
+    <% author_list = "" %>
+    <% record.contributors.each do |contributor| %>
+      <% count += 1 %>
+      <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+      <%= identifier %> a foaf:Person;
+      foaf:givenname "<%= contributor.given_name %>" ;
+    	foaf:family_name "<%= contributor.surname %>" .     
+    <% end %>
+

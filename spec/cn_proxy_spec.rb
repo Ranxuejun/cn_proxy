@@ -1,5 +1,6 @@
 require 'spec_helper.rb'
 require 'cn_proxy.rb'
+
 Sinatra::Application.app_file = File.join(File.dirname(__FILE__), '..', 'cn_proxy.rb')
 
 describe "Example" do
@@ -35,7 +36,7 @@ describe "Example" do
       get '/10.1037/0003-066X.59.1.29', {}, {'HTTP_ACCEPT' => 'application/json'} 
       last_response.status.should == 200
       last_response.headers['Content-Type'].should == 'application/json'
-      last_response.body.should include 'Render json' 
+      last_response.body.should include '10.1037/0003-066X.59.1.29' 
   end
   
   it "/10.1037/0003-066X.59.1.29 using content negotiation for ATOM" do

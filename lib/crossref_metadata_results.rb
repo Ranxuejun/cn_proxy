@@ -6,7 +6,13 @@ class CrossrefMetadataResults
   attr_reader :records
   attr_reader :search_terms
   
-  def initialize
+  def initialize 
     @records = []
+  end
+  
+  def ninitialize dois
+    @records = []
+    dois.each do |doi| 
+    end   
   end
 end

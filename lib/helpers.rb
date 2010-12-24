@@ -64,7 +64,7 @@ helpers do
     record = REXML::Document.new(unixref)
     metadata.records << CrossrefMetadataRecord.new(record) 
     uuid = UUID.new
-    template = Tilt.new('views/atom_feed.erb', :trim => '<>')
+    template = Tilt.new("#{Sinatra::Application.root}/views/atom_feed.erb", :trim => '<>')
     xml = template.render( self, :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 )
     json = (Crack::XML.parse(xml)).to_json  
   end
