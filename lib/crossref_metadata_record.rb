@@ -2,8 +2,6 @@ require 'rubygems'
 require "rexml/document"
 include REXML
 
-
-
 class CrossrefMetadataRecord
 
   attr_reader :contributors
@@ -26,29 +24,24 @@ class CrossrefMetadataRecord
     end
   end
 
-
   def initialize record
     @record=record  
     add_contributors
   end
 
-  # def timestamp
-  #     return @xml.root.elements["//doi_record"].attributes["timestamp"] 
-  #   end
-  # 
-    def owner_prefix
-        return @record.root.elements["//doi_record"].attributes['owner']
-      end
-  # 
-  #   def pubtype
-  #     return "journal" if @xml.root.elements["//journal"]
-  #     return "confproc" if @xml.root.elements["//confproc"]
-  #   end
-  # 
-  #   def article_title
-  #     return @xml.root.elements["//title"].text     
-  #   end
-  # 
+  def owner_prefix
+    return @record.root.elements["//doi_record"].attributes['owner']
+  end
+
+  def publication_type
+    return :journal if @xml.root.elements["//journal"].text
+    return :book if @xml.root.elements["//book"].text
+    return :disseration if @xml.root.elements["//disseration"].text
+    return :confproc if @xml.root.elements["//conference"].text
+    return :report if @xml.root.elements["//report-paper"].text
+    return :standard if @xml.root.elements["//standard"].text
+  end
+
   def doi
     @record.root.elements["//doi"].text
   end
@@ -64,10 +57,6 @@ class CrossrefMetadataRecord
   def pissn
     return issn_of_type 'print' 
   end
-  # 
-  #   def content_type
-  #     return  @xml.root.elements["//journal_article"].attributes["publication_type"] 
-  #   end
 
   def title
     return  @record.root.elements["//title"].text 
@@ -104,7 +93,6 @@ class CrossrefMetadataRecord
   def publication_date
     return (publication_day and publication_month) ? "#{publication_year}-#{publication_month}-#{publication_day}" : "#{publication_year}"
   end
-
 
   def url
     return @record.root.elements["//resource"].text if @format == :unixref
