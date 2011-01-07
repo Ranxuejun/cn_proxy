@@ -34,15 +34,20 @@ class CrossrefMetadataRecord
   end
 
   def publication_type
-    return :journal if @xml.root.elements["//journal"].text
-    return :book if @xml.root.elements["//book"].text
-    return :disseration if @xml.root.elements["//disseration"].text
-    return :confproc if @xml.root.elements["//conference"].text
-    return :report if @xml.root.elements["//report-paper"].text
-    return :standard if @xml.root.elements["//standard"].text
+    return :journal if @record.root.elements["//journal"].text
+    return :book if @record.root.elements["//book"].text
+    return :disseration if @record.root.elements["//disseration"].text
+    return :confproc if @record.root.elements["//conference"].text
+    return :report if @record.root.elements["//report-paper"].text
+    return :standard if @record.root.elements["//standard"].text
   end
 
+  # TODO Most of these defs looking at //something should be looking
+  # at //metadata_element_for_pub_type/something to disambiguate.
+
   def doi
+    # TODO May be multiple doi elements, some of which point to components,
+    # series, chapters?
     @record.root.elements["//doi"].text
   end
 
@@ -60,6 +65,15 @@ class CrossrefMetadataRecord
 
   def title
     return  @record.root.elements["//title"].text 
+  end
+
+  # TODO Use me.
+  def titles
+    titles = []
+    @record.root.elements["//titles"].each do |title|
+      titles.push title
+    end
+    titles
   end
 
   def volume
