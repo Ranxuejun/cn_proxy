@@ -49,13 +49,18 @@ helpers do
     Rack::Mime::MIME_TYPES.index(request.env['HTTP_ACCEPT'])
   end 
 
-  def render_atom unixref
+  def render_feed feed_template, unixref
     # Fake several results. Will need to support this for eventual search results.
     metadata = CrossrefMetadataResults.new()
     record = REXML::Document.new(unixref)
     metadata.records << CrossrefMetadataRecord.new(record) 
     uuid = UUID.new
-    erb :atom_feed, :locals => {  :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 }  
+    erb feed_template, :locals => { 
+      :metadata => metadata, 
+      :feed_link => entire_url, 
+      :uuid => uuid, 
+      :feed_updated => Time.now.iso8601 
+    }  
   end
 
   def render_json unixref
@@ -77,7 +82,9 @@ helpers do
     when ".json"
       render_json unixref
     when ".atom"
-      render_atom unixref
+      render_feed :atom_feed, unixref
+    when ".ttl"
+      render_feed :ttl_feed, unixref
     end
   end
 end

@@ -122,8 +122,6 @@ class CrossrefMetadataRecord
     return @publisher.root.elements["//publisher_location"].text.gsub(/\n/,"")
   end
 
-  private
-
   def lookup_publisher
     require 'net/http'
     prefix = owner_prefix
