@@ -32,6 +32,7 @@ get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :ntriples, :jsonrdf]
   render_representation
 end
 
+
 get '/*' do 
   raise InvalidDOI unless request.env['doi']
   redirect "http://dx.doi.org/#{request.env['doi']}", 303

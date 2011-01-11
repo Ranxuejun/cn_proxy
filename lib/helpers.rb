@@ -2,7 +2,10 @@ require 'cgi'
 require 'json'
 require 'crack'
 require 'tilt'
-require "rexml/document"
+require 'rexml/document'
+require 'rdf/raptor'
+require 'rdf/json'
+require 'rdf/ntriples'
 
 helpers do
 
@@ -74,6 +77,28 @@ helpers do
     json = (Crack::XML.parse(xml)).to_json  
   end
 
+  def render_rdf format, unixref
+    # Generate turtle and translate to desired format.
+    metadata = CrossrefMetadataResults.new()
+    record = REXML::Document.new(unixref)
+    metadata.records << CrossrefMetadataRecord.new(record)
+    template = Tilt.new("#{Sinatra::Application.root}/views/ttl_feed.erb", :trim => '<>')
+    ttl = template.render(self, 
+      :metadata => metadata,
+      :feed_link => entire_url,
+      :uuid => UUID.new,
+      :feed_updated => Time.now.iso8601
+    )
+
+    RDF::Writer.for(format).buffer do |writer|
+      RDF::Reader.for(:turtle).new(ttl) do |reader|
+        reader.each_statement do |statement|
+          writer << statement
+        end
+      end
+    end
+  end
+    
   def render_representation
     unixref = CrossrefMetadataQuery.new(request.env['doi']).unixref
     case representation
@@ -85,6 +110,12 @@ helpers do
       render_feed :atom_feed, unixref
     when ".ttl"
       render_feed :ttl_feed, unixref
+    when ".rdf"
+      render_rdf :rdfxml, unixref
+    when ".jsonrdf"
+      render_rdf :rdfjson, unixref
+    when ".ntriples"
+      render_rdf :ntriples, unixref
     end
   end
 end

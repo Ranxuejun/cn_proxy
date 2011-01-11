@@ -42,12 +42,7 @@ class CrossrefMetadataRecord
     return :standard if @record.root.elements["//standard"].text
   end
 
-  # TODO Most of these defs looking at //something should be looking
-  # at //metadata_element_for_pub_type/something to disambiguate.
-
   def doi
-    # TODO May be multiple doi elements, some of which point to components,
-    # series, chapters?
     @record.root.elements["//doi"].text
   end
 
@@ -61,6 +56,10 @@ class CrossrefMetadataRecord
 
   def pissn
     return issn_of_type 'print' 
+  end
+
+  def isbn
+    return @record.root.elements['//isbn'].text
   end
 
   def title
