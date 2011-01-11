@@ -1,0 +1,42 @@
+#!/bin/bash -l
+# Bootstrap Ubuntu 10.10 EC2 instance in preparation for CrossMark services
+#
+# Designed to work with ami-cef405a7 or equivalent.
+
+### make sure we have latest updates
+aptitude update
+aptitude upgrade -y
+
+### emacs and raptor (for rdf-raptor gem)
+aptitude install -y emacs raptor
+
+### to run ruby and native gems with extensions we need those:
+aptitude install -y libruby1.8 zlib1g-dev libssl-dev libreadline5-dev build-essential libxslt-dev libxml2-dev curl git-core
+curl -s -L http://bit.ly/rvm-install-system-wide > rvm-install-system-wide
+bash -l < rvm-install-system-wide
+
+### add our user to the rvm group
+usermod -a -G rvm $USER
+
+### add the rvm script so it is run by all users and run it so it is available in the current session
+cat > rvm.sh <<EOF                                                                                              
+[[ -s "/usr/local/lib/rvm" ]] && . "/usr/local/lib/rvm" # This loads RVM into a shell session
+EOF
+cp rvm.sh /etc/profile.d/
+chmod a+x /etc/profile.d/rvm.sh
+source /etc/profile.d/rvm.sh
+
+### install and set ruby 1.9.2 as default 
+rvm install 1.9.2
+rvm use 1.9.2 --default
+
+### Add the "deploy" user and make them part of rvm group
+ADDUSER="sudo adduser --gecos \"\" --disabled-password deploy"
+echo $ADDUSER >file_tmp.$$
+sh file_tmp.$$
+rm file_tmp.$$
+usermod -a -G rvm deploy
+
+### install gems needed for cn proxy
+rvmsudo gem install tilt rack sinatra rspec rspec-core thin capistrano crack rexml json rdf rdf-raptor rdf-json rdf-n3 uuid
+
