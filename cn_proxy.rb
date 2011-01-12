@@ -1,16 +1,15 @@
-require 'rubygems'
 require 'sinatra'
 require 'json'
+require 'uuid'
+require 'time'
+
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__),'lib')
 require 'configuration'
 require 'helpers'
 require 'errors'
-require 'uuid'
-require 'time'
 require 'crossref_metadata_query'
 require 'crossref_metadata_results'
 require 'crossref_metadata_record'
-
 
 mime_type :rdf, "application/rdf+xml"
 mime_type :unixref, "application/unixref+xml"

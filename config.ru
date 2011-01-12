@@ -1,2 +1,2 @@
-require 'cn_proxy.rb'
+require './cn_proxy.rb'
 run Sinatra::Application

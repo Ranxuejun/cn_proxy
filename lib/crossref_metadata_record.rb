@@ -1,5 +1,4 @@
-require 'rubygems'
-require "rexml/document"
+require 'rexml/document'
 include REXML
 
 class CrossrefMetadataRecord
