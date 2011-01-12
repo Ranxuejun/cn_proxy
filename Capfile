@@ -4,15 +4,18 @@ load 'deploy' if respond_to?(:namespace) # cap2 differentiator
 set :user, "deploy"
 set :use_sudo, false
 set :scm, :git
-set :repository,  "git@github.com:user/example.git"
+set :repository,  "git@github.com:CrossRef/cn_proxy.git"
 set :branch, 'master'
 set :git_shallow_clone, 1
 set :deploy_via, :copy
-set :application, "example"
+set :application, "cn_proxy"
 
 set :stage, "development" unless variables[:stage]
 
 case stage
+when "new"
+  set :user, "ubuntu"
+  set(:domain, Capistrano::CLI.ui.ask("Enter DNS of the new machine:" ))
 when "development"
   set :domain, "#{application}-development.example.org"
   set :deploy_to, "/home/webapps/#{application}-development"
@@ -70,6 +73,15 @@ namespace :deploy do
     puts ""
   end
 
+end
+
+namespace :ec2 do
+  desc "Bootstrap EC2 AMI instance on domain: #{domain}"
+  task :bootstrap do
+    bash_script = File.open(File.join('scripts','bootstrap')).read()
+    put(bash_script,"/home/#{user}/bootstrap")
+    stream("cd /home/#{user}/; sudo bash bootstrap")
+  end
 end
 
 namespace :rake do
