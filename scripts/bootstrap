@@ -38,5 +38,5 @@ rm file_tmp.$$
 usermod -a -G rvm deploy
 
 ### install gems needed for cn proxy
-rvmsudo gem install tilt rack sinatra rspec rspec-core thin capistrano crack rexml json rdf rdf-raptor rdf-json rdf-n3 uuid
+rvmsudo gem install tilt rack sinatra rspec rspec-core thin capistrano crack rexml json rdf rdf-raptor rdf-json rdf-n3 uuid shotgun
 

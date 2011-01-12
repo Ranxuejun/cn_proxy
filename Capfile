@@ -73,6 +73,11 @@ namespace :deploy do
     puts ""
   end
 
+  desc "Run a test instance of cnproxy via shotgun"
+  task :shotgun do
+    run "shotgun"
+  end
+
 end
 
 namespace :ec2 do
