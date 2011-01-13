@@ -8,4 +8,5 @@ err.txt
 *.log
 *.tmp
 settings.yaml
+.emacs.desktop
 

@@ -1,10 +1,9 @@
 load 'deploy' if respond_to?(:namespace) # cap2 differentiator
 
-
 set :user, "deploy"
 set :use_sudo, false
 set :scm, :git
-set :repository,  "git@github.com:CrossRef/cn_proxy.git"
+set :repository, "git@github.com:CrossRef/cn_proxy.git"
 set :branch, 'master'
 set :git_shallow_clone, 1
 set :deploy_via, :copy
@@ -72,6 +71,7 @@ namespace :deploy do
     puts "    $ cap deploy -S stage=production"
     puts ""
   end
+
 
   desc "Run a test instance of cnproxy via shotgun"
   task :shotgun do

@@ -113,7 +113,7 @@ helpers do
     when ".rdf"
       render_rdf :rdfxml, unixref
     when ".jsonrdf"
-      render_rdf :rdfjson, unixref
+      render_rdf :json, unixref
     when ".ntriples"
       render_rdf :ntriples, unixref
     end

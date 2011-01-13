@@ -25,12 +25,10 @@ get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :ntriples, 
   request.env['doi']
 end
 
-
 get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :ntriples, :jsonrdf] do
   raise InvalidDOI unless request.env['doi']
   render_representation
 end
-
 
 get '/*' do 
   raise InvalidDOI unless request.env['doi']
