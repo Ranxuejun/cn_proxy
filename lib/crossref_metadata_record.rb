@@ -57,6 +57,10 @@ class CrossrefMetadataRecord
     return issn_of_type 'print' 
   end
 
+  def preferred_issn
+    return (pissn and not pissn.empty?) ? pissn : eissn
+  end
+
   def isbn
     return @record.root.elements['//isbn'].text
   end

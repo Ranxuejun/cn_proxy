@@ -41,8 +41,7 @@
       <dc:identifier><%= record.doi %></dc:identifier>
       <dc:title><%= record.title %></dc:title>
       % maybe_tag("dc:publisher", record.publisher_name)
-      % xissn = record.pissn ? record.pissn : record.eissn
-      % maybe_tag("dc:isPartOf", xissn)
+      % maybe_tag("dc:isPartOf", record.preferred_issn)
       <prism:alternateTitle><%= record.publication_title %></prism:alternateTitle>
       <% record.contributors.each do |contributor| %>
       <dc:creator><%= contributor.given_name %> <%= contributor.surname %></dc:creator>

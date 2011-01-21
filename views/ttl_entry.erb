@@ -8,29 +8,27 @@
 
 % def maybe_po_ref predicate object_ref
 %   if object_ref and not object_ref.empty? then
-%     "#{predicate} #{object_ref} ;"
+%     "#{predicate} <#{ref_type}:#{object_ref}> ;"
 %   else
 %     ""
 %   end
 % end
 
-% def maybe_subject type, subject, owl_thing
+% def maybe_subject ref_type, subject, owl_thing
 %   if subject and not subject.empty? then
-%     "<#{type}>#{subject}</#{type}> a #{owl_thing} ;"
+%     "<#{ref_type}:#{subject}> a #{owl_thing} ;"
 %     yield
 %   else
 %     ""
 %   end
 % end
 
-% xissn = record.pissn ? record.pissn : record.eissn
-
 <info:doi/<%= record.doi %>> a bibo:AcademicArticle ;
     dc:title "<%= record.title %>"@en ;
     % maybe_po("dc:date", record.publication_date)
     % maybe_po("dc:publisher", record.publisher_name)
     
-    % maybe_po_ref("dc:isPartOf", "<urn:issn:#{xissn}>")
+    % maybe_po_ref("dc:isPartOf", "urn:issn", record.preferred_issn)
     
     % maybe_po("bibo:volume", record.volume)
     % maybe_po("bibo:number", record.edition_number)
@@ -48,19 +46,19 @@
     <% end %>
     bibo:authorList ( <%= author_list %> ) .
     
-% maybe_subject "urn:issn", xissn, "bibo:Journal" do
+% maybe_subject "urn:issn", record.preferred_issn, "bibo:Journal" do
   dc:title "<%= record.publication_title %>"@en ;
-  bibo:shortTitle "<%= record.publication_title %>"@en .
-    
-  <% count = 0 %>
-  <% author_list = "" %>
-  <% record.contributors.each do |contributor| %>
-    <% count += 1 %>
-    <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
-    <%= identifier %> a foaf:Person;
-    foaf:givenname "<%= contributor.given_name %>" ;
-      foaf:family_name "<%= contributor.surname %>" .     
-  <% end %>
+  bibo:shortTitle "<%= record.publication_title %>"@en
+  bibo:issn "<%= record.preferred_issn %>" .
 % end
+
+<% count = 0 %>
+<% author_list = "" %>
+<% record.contributors.each do |contributor| %>
+  <% count += 1 %>
+  <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+  <%= identifier %> a foaf:Person ;
+  foaf:name "<%= contributor.given_name %> <%= contributor.surname %>" .
+<% end %>
     
 
