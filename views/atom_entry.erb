@@ -1,47 +1,59 @@
-<entry>
-    <% encoded_doi = CGI.escape(record.doi) %>
-    <title><%=record.title%></title>
-    <link href="http://dx.doi.org/<%=encoded_doi%>"/>
-    <id>http://dx.doi.org/<%=record.doi%></id>
-    <updated><%= feed_updated %></updated>
-    <content type="xhtml">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-              <p>
-                <b><%=record.title%></b>
-            </p>
-            <p><%= record.publication_title %>. <a href="http://dx.doi.org/<%= encoded_doi %>">doi:<%= record.doi %></a></p>
-            <p>Authors:
-            <% count = 0 %>
-            <% record.contributors.each do |contributor| %>
-              <%= contributor.given_name %> <%= contributor.surname %>
-              <% count += 1 %>
-              <%= (count < record.contributors.size) ? "," : "" %>
-            <% end %></p>    
-            
-            
-        </div>
-    </content>
-    <pam:message xmlns:pam="http://prismstandard.org/namespaces/pam/2.0/" xsi:schemaLocation="http://prismstandard.org/namespaces/pam/2.0/ http://www.prismstandard.org/schemas/pam/2.1/pam.xsd">
-<pam:article>
-<xhtml:head xmlns:xhtml="http://www.w3.org/1999/xhtml">
-</xhtml:head>
-<dc:identifier><%= record.doi %></dc:identifier>
-<dc:title><%= record.title %></dc:title>
-<prism:alternateTitle><%= record.publication_title %></prism:alternateTitle>
-<% record.contributors.each do |contributor| %>
-  <dc:creator><%= contributor.given_name %> <%= contributor.surname %></dc:creator>
-<% end %>
-<prism:publicationName><%= record.publication_title %></prism:publicationName>
-<prism:issn><%= record.pissn %></prism:issn>
-<prism:eIssn><%= record.eissn %></prism:eIssn>
-<prism:doi><%= record.doi %></prism:doi>
-<dc:publisher><%= record.publisher_name %></dc:publisher>
-<prism:publicationDate><%= record.publication_date %></prism:publicationDate>
-<prism:volume><%= record.volume %></prism:volume>
-<prism:number><%= record.issue %></prism:number>
-<prism:startingPage><%= record.first_page %></prism:startingPage>
-<prism:url>http://dx.doi.org/<%= encoded_doi %></prism:url>
+% def tag name, content
+%   if content
+%     "<#{name}>#{content}</#{name}>"
+%   else
+%     ""
+% end
 
-</pam:article>
-    </pam:message>
+<entry>
+  <% encoded_doi = CGI.escape(record.doi) %>
+  <title><%=record.title%></title>
+  <link href="http://dx.doi.org/<%=encoded_doi%>"/>
+  <id>http://dx.doi.org/<%=record.doi%></id>
+  <updated><%= feed_updated %></updated>
+  <content type="xhtml">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <p>
+	<b><%=record.title%></b>
+      </p>
+      <p>
+	<%= record.publication_title %>. 
+	<a href="http://dx.doi.org/<%= encoded_doi %>">doi:<%= record.doi %></a>
+      </p>
+      <p>
+	Authors:
+	<% count = 0 %>
+	<% record.contributors.each do |contributor| %>
+	<%= contributor.given_name %> <%= contributor.surname %>
+	<% count += 1 %>
+	<%= (count < record.contributors.size) ? "," : "" %>
+	<% end %>
+      </p>    
+    </div>
+  </content>
+
+  <pam:message xmlns:pam="http://prismstandard.org/namespaces/pam/2.0/" 
+	       xsi:schemaLocation="http://prismstandard.org/namespaces/pam/2.0/ 
+				   http://www.prismstandard.org/schemas/pam/2.1/pam.xsd">
+    <pam:article>
+      <xhtml:head xmlns:xhtml="http://www.w3.org/1999/xhtml"></xhtml:head>
+      <dc:identifier><%= record.doi %></dc:identifier>
+      <dc:title><%= record.title %></dc:title>
+      % tag("dc:publisher", record.publisher_name)
+      <prism:alternateTitle><%= record.publication_title %></prism:alternateTitle>
+      <% record.contributors.each do |contributor| %>
+      <dc:creator><%= contributor.given_name %> <%= contributor.surname %></dc:creator>
+      <% end %>
+      <prism:publicationName><%= record.publication_title %></prism:publicationName>
+      % tag("prism:issn", record.pissn)
+      % tag("prism:eIssn", record.eissn)
+      <prism:doi><%= record.doi %></prism:doi>
+      % tag("prism:publicationDate", record.publication_date)
+      % tag("prism:volume", record.volume)
+      % tag("prism:number", record.number)
+      % tag("prism:startingPage", record.first_page)
+      % tag("prism:isbn", record.isbn)
+      <prism:url>http://dx.doi.org/<%= encoded_doi %></prism:url>
+    </pam:article>
+  </pam:message>
 </entry>
