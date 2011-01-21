@@ -33,12 +33,49 @@ class CrossrefMetadataRecord
   end
 
   def publication_type
-    return :journal if @record.root.elements["//journal"].text
-    return :book if @record.root.elements["//book"].text
-    return :disseration if @record.root.elements["//disseration"].text
-    return :confproc if @record.root.elements["//conference"].text
-    return :report if @record.root.elements["//report-paper"].text
-    return :standard if @record.root.elements["//standard"].text
+    return :journal if @record.root.elements["//journal"]
+    return :book if @record.root.elements["//book"]
+    return :dissertation if @record.root.elements["//dissertation"]
+    return :conference if @record.root.elements["//conference"]
+    return :report if @record.root.elements["//report-paper"]
+    return :standard if @record.root.elements["//standard"]
+    return :database if @record.root.elements["//database"]
+    return :unknown
+  end
+
+  def bibo_things
+    case publication_type
+    when :journal then {
+        :component => "bibo:AcademicArticle",
+        :container => "bibo:Journal",
+        :container_id => "urn:issn:#{preferred_issn}"
+      }
+    when :confproc then {
+        :component => "bibo:AcademicArticle",
+        :container => "bibo:Proceedings",
+        :container_id => "urn:isbn:#{isbn}"
+      }
+    when :report then {
+        :component => "bibo:Report",
+        :container => nil
+      }
+    when :standard then {
+        :component => "bibo:Standard",
+        :container => nil
+      }
+    when :dissertation then {
+        :component => "bibo:Thesis",
+        :container => nil
+      }
+    when :database then {
+        :component => "owl:Thing",
+        :container => nil
+      }
+    when :book then {
+        :component => "bibo:Book"
+        :container => nil
+      }
+    end
   end
 
   def doi
@@ -46,7 +83,8 @@ class CrossrefMetadataRecord
   end
 
   def publication_title
-    return @record.root.elements["//full_title"].text 
+    #return @record.root.elements["//full_title"].text 
+    return ""
   end
 
   def eissn
@@ -67,15 +105,6 @@ class CrossrefMetadataRecord
 
   def title
     return  @record.root.elements["//title"].text 
-  end
-
-  # Unused in templates
-  def titles
-    titles = []
-    @record.root.elements["//titles"].each do |title|
-      titles.push title
-    end
-    titles
   end
 
   def volume

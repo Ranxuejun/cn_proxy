@@ -8,7 +8,7 @@
 
 % def maybe_po_ref predicate object_ref
 %   if object_ref and not object_ref.empty? then
-%     "#{predicate} <#{ref_type}:#{object_ref}> ;"
+%     "#{predicate} <#{object_ref}> ;"
 %   else
 %     ""
 %   end
@@ -16,49 +16,51 @@
 
 % def maybe_subject ref_type, subject, owl_thing
 %   if subject and not subject.empty? then
-%     "<#{ref_type}:#{subject}> a #{owl_thing} ;"
+%     "<#{subject}> a #{owl_thing} ;"
 %     yield
 %   else
 %     ""
 %   end
 % end
 
-<info:doi/<%= record.doi %>> a bibo:AcademicArticle ;
+% things = record.owl_things
+
+<info:doi/<%= record.doi %>> a <%= record.bibo_things[:component] %> ;
     dc:title "<%= record.title %>"@en ;
     % maybe_po("dc:date", record.publication_date)
     % maybe_po("dc:publisher", record.publisher_name)
     
-    % maybe_po_ref("dc:isPartOf", "urn:issn", record.preferred_issn)
+    % maybe_po_ref("dc:isPartOf", things[:container_id])
     
+    bibo:doi, "<%= record.doi %>" ;
     % maybe_po("bibo:volume", record.volume)
     % maybe_po("bibo:number", record.edition_number)
     % maybe_po("bibo:pageStart", record.first_page)
     % maybe_po("bibo:pageEnd", record.last_page)
+    % maybe_po("bibo:issn", record.preferred_issn)
     % maybe_po("bibo:isbn", record.isbn)
     
     <% count = 0 %>
     <% author_list = "" %>
     <% record.contributors.each do |contributor| %>
-      <% count += 1 %>
-      <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
-      dc:creator <%= identifier %> ;
-      <% author_list += identifier %>
+    <% count += 1 %>
+    <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+    dc:creator <%= identifier %> ;
+    <% author_list += identifier %>
     <% end %>
     bibo:authorList ( <%= author_list %> ) .
     
-% maybe_subject "urn:issn", record.preferred_issn, "bibo:Journal" do
-  dc:title "<%= record.publication_title %>"@en ;
-  bibo:shortTitle "<%= record.publication_title %>"@en
-  bibo:issn "<%= record.preferred_issn %>" .
+% maybe_subject things[:container_id], things[:container] do
+    dc:title "<%= record.publication_title %>"@en ;
+    bibo:shortTitle "<%= record.publication_title %>"@en .
 % end
 
 <% count = 0 %>
 <% author_list = "" %>
 <% record.contributors.each do |contributor| %>
-  <% count += 1 %>
-  <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
-  <%= identifier %> a foaf:Person ;
-  foaf:name "<%= contributor.given_name %> <%= contributor.surname %>" .
+<% count += 1 %>
+<% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+<%= identifier %> a foaf:Person ;
+% maybe_po("foaf:givenname", contributor.given_name)
+foaf:surname <%= contributor.surname %> .
 <% end %>
-    
-
