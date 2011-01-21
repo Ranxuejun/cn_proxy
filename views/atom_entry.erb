@@ -1,8 +1,9 @@
 % def maybe_tag name, content
-%   if content
+%   if content and not content.empty? then
 %     "<#{name}>#{content}</#{name}>"
 %   else
 %     ""
+%   end
 % end
 
 <entry>

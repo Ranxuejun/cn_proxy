@@ -11,7 +11,6 @@ set :branch, 'master'
 set :git_shallow_clone, 1
 set :deploy_via, :copy
 set :deploy_to, "/home/webapps/#{application}"
-
 set :domain, "cnproxy" unless variables[:domain]
 
 desc "Bootstrap EC2 AMI instance on domain: #{domain}"
