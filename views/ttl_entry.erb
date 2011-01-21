@@ -14,6 +14,15 @@
 %   end
 % end
 
+% def maybe_subject type, subject, owl_thing
+%   if subject and not subject.empty? then
+%     "<#{type}>#{subject}</#{type}> a #{owl_thing} ;"
+%     yield
+%   else
+%     ""
+%   end
+% end
+
 % xissn = record.pissn ? record.pissn : record.eissn
 
 <info:doi/<%= record.doi %>> a bibo:AcademicArticle ;
@@ -39,17 +48,19 @@
     <% end %>
     bibo:authorList ( <%= author_list %> ) .
     
-<urn:issn:<%= xissn %>> a bibo:Journal ;
-    dc:title "<%= record.publication_title %>"@en ;
-    bibo:shortTitle "<%= record.publication_title %>"@en .
+% maybe_subject "urn:issn", xissn, "bibo:Journal" do
+  dc:title "<%= record.publication_title %>"@en ;
+  bibo:shortTitle "<%= record.publication_title %>"@en .
     
-    <% count = 0 %>
-    <% author_list = "" %>
-    <% record.contributors.each do |contributor| %>
-      <% count += 1 %>
-      <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
-      <%= identifier %> a foaf:Person;
-      foaf:givenname "<%= contributor.given_name %>" ;
-    	foaf:family_name "<%= contributor.surname %>" .     
-    <% end %>
+  <% count = 0 %>
+  <% author_list = "" %>
+  <% record.contributors.each do |contributor| %>
+    <% count += 1 %>
+    <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+    <%= identifier %> a foaf:Person;
+    foaf:givenname "<%= contributor.given_name %>" ;
+      foaf:family_name "<%= contributor.surname %>" .     
+  <% end %>
+% end
+    
 
