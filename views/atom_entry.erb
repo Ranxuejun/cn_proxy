@@ -1,4 +1,4 @@
-% def tag name, content
+% def maybe_tag name, content
 %   if content
 %     "<#{name}>#{content}</#{name}>"
 %   else
@@ -39,20 +39,20 @@
       <xhtml:head xmlns:xhtml="http://www.w3.org/1999/xhtml"></xhtml:head>
       <dc:identifier><%= record.doi %></dc:identifier>
       <dc:title><%= record.title %></dc:title>
-      % tag("dc:publisher", record.publisher_name)
+      % maybe_tag("dc:publisher", record.publisher_name)
       <prism:alternateTitle><%= record.publication_title %></prism:alternateTitle>
       <% record.contributors.each do |contributor| %>
       <dc:creator><%= contributor.given_name %> <%= contributor.surname %></dc:creator>
       <% end %>
       <prism:publicationName><%= record.publication_title %></prism:publicationName>
-      % tag("prism:issn", record.pissn)
-      % tag("prism:eIssn", record.eissn)
+      % maybe_tag("prism:issn", record.pissn)
+      % maybe_tag("prism:eIssn", record.eissn)
       <prism:doi><%= record.doi %></prism:doi>
-      % tag("prism:publicationDate", record.publication_date)
-      % tag("prism:volume", record.volume)
-      % tag("prism:number", record.number)
-      % tag("prism:startingPage", record.first_page)
-      % tag("prism:isbn", record.isbn)
+      % maybe_tag("prism:publicationDate", record.publication_date)
+      % maybe_tag("prism:volume", record.volume)
+      % maybe_tag("prism:number", record.number)
+      % maybe_tag("prism:startingPage", record.first_page)
+      % maybe_tag("prism:isbn", record.isbn)
       <prism:url>http://dx.doi.org/<%= encoded_doi %></prism:url>
     </pam:article>
   </pam:message>
