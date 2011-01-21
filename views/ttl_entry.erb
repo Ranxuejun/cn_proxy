@@ -1,20 +1,33 @@
+% def maybe_po predicate object
+%   if object and not object.empty? then
+%     "#{predicate} \"#{object}\" ;"
+%   else
+%     ""
+%   end
+% end
 
+% def maybe_po_ref predicate object_ref
+%   if object_ref and not object_ref.empty? then
+%     "#{predicate} #{object_ref} ;"
+%   else
+%     ""
+%   end
+% end
+
+% xissn = record.pissn ? record.pissn : record.eissn
 
 <info:doi/<%= record.doi %>> a bibo:AcademicArticle ;
-
- 
     dc:title "<%= record.title %>"@en ;
-    dc:date "<%= record.publication_date %>" ;
-    dc:publisher "<%= record.publisher_name %>" ;
+    % maybe_po("dc:date", record.publication_date)
+    % maybe_po("dc:publisher", record.publisher_name)
     
-    <% xissn = record.pissn ? record.pissn : record.eissn %>
+    % maybe_po_ref("dc:isPartOf", "<urn:issn:#{xissn}>")
     
-    dc:isPartOf <urn:issn:<%= xissn %>> ;
-    
-    bibo:volume "<%= record.volume %>" ;
-    bibo:issue "<%= record.issue %>" ;
-    bibo:pageStart "<%= record.first_page %>" ;
-    bibo:pageEnd "<%= record.last_page %>" ;
+    % maybe_po("bibo:volume", record.volume)
+    % maybe_po("bibo:number", record.edition_number)
+    % maybe_po("bibo:pageStart", record.first_page)
+    % maybe_po("bibo:pageEnd", record.last_page)
+    % maybe_po("bibo:isbn", record.isbn)
     
     <% count = 0 %>
     <% author_list = "" %>
@@ -26,7 +39,6 @@
     <% end %>
     bibo:authorList ( <%= author_list %> ) .
     
-
 <urn:issn:<%= xissn %>> a bibo:Journal ;
     dc:title "<%= record.publication_title %>"@en ;
     bibo:shortTitle "<%= record.publication_title %>"@en .
