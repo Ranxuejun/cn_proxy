@@ -65,7 +65,7 @@ class CrossrefMetadataRecord
     return  @record.root.elements["//title"].text 
   end
 
-  # TODO Use me.
+  # Unused in templates
   def titles
     titles = []
     @record.root.elements["//titles"].each do |title|
@@ -78,8 +78,13 @@ class CrossrefMetadataRecord
     return  @record.root.elements["//volume"].text
   end
 
+  # Unused in templates
   def issue
     return  @record.root.elements["//issue"].text
+  end
+
+  def edition_number
+    return @record.root.elements["//edition_number"].text
   end
 
   def first_page
@@ -106,6 +111,7 @@ class CrossrefMetadataRecord
     return (publication_day and publication_month) ? "#{publication_year}-#{publication_month}-#{publication_day}" : "#{publication_year}"
   end
 
+  # Unused in templates
   def url
     return @record.root.elements["//resource"].text if @format == :unixref
   end

@@ -51,8 +51,9 @@
       <prism:doi><%= record.doi %></prism:doi>
       % maybe_tag("prism:publicationDate", record.publication_date)
       % maybe_tag("prism:volume", record.volume)
-      % maybe_tag("prism:number", record.number)
+      % maybe_tag("prism:number", record.edition_number)
       % maybe_tag("prism:startingPage", record.first_page)
+      % maybe_tag("prism:endingPage", record.last_page)
       % maybe_tag("prism:isbn", record.isbn)
       <prism:url>http://dx.doi.org/<%= encoded_doi %></prism:url>
     </pam:article>
