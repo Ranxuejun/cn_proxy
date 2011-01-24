@@ -50,32 +50,33 @@ class CrossrefMetadataRecord
         :container => "bibo:Journal",
         :container_id => "urn:issn:#{preferred_issn}"
       }
-    when :confproc then {
+    when :conference then {
         :component => "bibo:AcademicArticle",
         :container => "bibo:Proceedings",
         :container_id => "urn:isbn:#{isbn}"
       }
     when :report then {
-        :component => "bibo:Report",
-        :container => nil
+        :component => "bibo:Report"
       }
     when :standard then {
-        :component => "bibo:Standard",
-        :container => nil
+        :component => "bibo:Standard"
       }
     when :dissertation then {
-        :component => "bibo:Thesis",
-        :container => nil
+        :component => "bibo:Thesis"
       }
     when :database then {
-        :component => "owl:Thing",
-        :container => nil
+        :component => "owl:Thing"
       }
     when :book then {
         :component => "bibo:Book"
-        :container => nil
       }
+    else {}
     end
+  end
+
+  def maybe_text path
+    element = @record.root.elements[path]
+    element.text if element
   end
 
   def doi
@@ -83,8 +84,12 @@ class CrossrefMetadataRecord
   end
 
   def publication_title
-    #return @record.root.elements["//full_title"].text 
-    return ""
+    # todo ; other title elements
+    maybe_text 'full_title'
+  end
+
+  def title
+    maybe_text '//title'
   end
 
   def eissn
@@ -100,32 +105,28 @@ class CrossrefMetadataRecord
   end
 
   def isbn
-    return @record.root.elements['//isbn'].text
-  end
-
-  def title
-    return  @record.root.elements["//title"].text 
+    maybe_text '//isbn'
   end
 
   def volume
-    return  @record.root.elements["//volume"].text
+    maybe_text '//volume'
   end
 
   # Unused in templates
   def issue
-    return  @record.root.elements["//issue"].text
+    maybe_text '//issue'
   end
 
   def edition_number
-    return @record.root.elements["//edition_number"].text
+    maybe_text '//edition_number'
   end
 
   def first_page
-    return  @record.root.elements["//first_page"].text
+    maybe_text '//first_page'
   end
 
   def last_page
-    return  @record.root.elements["//last_page"].text
+    maybe_text '//last_page'
   end
 
   def publication_year
@@ -154,6 +155,7 @@ class CrossrefMetadataRecord
     return @publisher.root.elements["//publisher_name"].text
   end
 
+  # Unused in templates
   def publisher_location
     lookup_publisher unless @publisher
     return @publisher.root.elements["//publisher_location"].text.gsub(/\n/,"")
@@ -178,5 +180,36 @@ class CrossrefMetadataRecord
     end
   end
 
+  def maybe_po predicate, object
+    if object and not object.empty? then
+      "#{predicate} \"#{object}\" ;"
+    else
+      ""
+    end
+  end
+
+  def maybe_po_ref predicate, object_ref
+    if object_ref and not object_ref.empty? then
+      "#{predicate} <#{object_ref}> ;"
+    else
+      ""
+    end
+  end
+
+  def maybe_subject subject, owl_thing
+    if subject and not subject.empty? then
+      "<#{subject}> a #{owl_thing} ;\n" + yield
+    else
+      ""
+    end
+  end 
+
+  def maybe_tag name, content
+    if content and not content.empty? then
+      "<#{name}>#{content}</#{name}>"
+    else
+      ""
+    end
+  end
 
 end

@@ -1,11 +1,3 @@
-% def maybe_tag name, content
-%   if content and not content.empty? then
-%     "<#{name}>#{content}</#{name}>"
-%   else
-%     ""
-%   end
-% end
-
 <entry>
   <% encoded_doi = CGI.escape(record.doi) %>
   <title><%=record.title%></title>
@@ -40,22 +32,22 @@
       <xhtml:head xmlns:xhtml="http://www.w3.org/1999/xhtml"></xhtml:head>
       <dc:identifier><%= record.doi %></dc:identifier>
       <dc:title><%= record.title %></dc:title>
-      % maybe_tag("dc:publisher", record.publisher_name)
-      % maybe_tag("dc:isPartOf", record.preferred_issn)
+      <%= record.maybe_tag("dc:publisher", record.publisher_name) %>
+      <%= record.maybe_tag("dc:isPartOf", record.preferred_issn) %>
       <prism:alternateTitle><%= record.publication_title %></prism:alternateTitle>
       <% record.contributors.each do |contributor| %>
       <dc:creator><%= contributor.given_name %> <%= contributor.surname %></dc:creator>
       <% end %>
       <prism:publicationName><%= record.publication_title %></prism:publicationName>
-      % maybe_tag("prism:issn", record.pissn)
-      % maybe_tag("prism:eIssn", record.eissn)
+      <%= record.maybe_tag("prism:issn", record.pissn) %>
+      <%= record.maybe_tag("prism:eIssn", record.eissn) %>
       <prism:doi><%= record.doi %></prism:doi>
-      % maybe_tag("prism:publicationDate", record.publication_date)
-      % maybe_tag("prism:volume", record.volume)
-      % maybe_tag("prism:number", record.edition_number)
-      % maybe_tag("prism:startingPage", record.first_page)
-      % maybe_tag("prism:endingPage", record.last_page)
-      % maybe_tag("prism:isbn", record.isbn)
+      <%= record.maybe_tag("prism:publicationDate", record.publication_date) %>
+      <%= record.maybe_tag("prism:volume", record.volume) %>
+      <%= record.maybe_tag("prism:number", record.edition_number) %>
+      <%= record.maybe_tag("prism:startingPage", record.first_page) %>
+      <%= record.maybe_tag("prism:endingPage", record.last_page) %>
+      <%= record.maybe_tag("prism:isbn", record.isbn) %>
       <prism:url>http://dx.doi.org/<%= encoded_doi %></prism:url>
     </pam:article>
   </pam:message>
