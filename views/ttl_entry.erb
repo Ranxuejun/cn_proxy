@@ -5,7 +5,7 @@
     <%= record.maybe_po("dc:date", record.publication_date) %>
     <%= record.maybe_po("dc:publisher", record.publisher_name) %>
     <%= record.maybe_po_ref("dc:isPartOf", things[:container_id]) %>
-    bibo:doi, "<%= record.doi %>" ;
+    bibo:doi "<%= record.doi %>" ;
     <%= record.maybe_po("bibo:volume", record.volume) %>
     <%= record.maybe_po("bibo:number", record.edition_number) %>
     <%= record.maybe_po("bibo:pageStart", record.first_page) %>
