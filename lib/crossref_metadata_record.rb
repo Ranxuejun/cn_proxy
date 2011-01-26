@@ -51,7 +51,7 @@ class CrossrefMetadataRecord
         :container_id => "urn:issn:#{preferred_issn}"
       }
     when :conference then {
-        :component => "bibo:AcademicArticle",
+        :component => "bibo:Article",
         :container => "bibo:Proceedings",
         :container_id => "urn:isbn:#{isbn}"
       }

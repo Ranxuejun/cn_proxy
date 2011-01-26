@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'cgi'
 
 class CrossRefError < StandardError
   attr_accessor :status
@@ -19,7 +20,9 @@ class CrossrefMetadataQuery
   private
 
   def get_unixref doi
-    @unixref = open("http://www.crossref.org/openurl/?id=#{doi}&noredirect=true&pid=gbilder@crossref.org&format=unixref").read
+    safe_doi = CGI.escape doi
+    puts "http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=gbilder@crossref.org&format=unixref"
+    @unixref = open("http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=gbilder@crossref.org&format=unixref").read
     scrape_for_errors    
   end
 
