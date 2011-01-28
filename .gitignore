@@ -8,5 +8,6 @@ err.txt
 *.log
 *.tmp
 settings.yaml
+vhosts
 .emacs.desktop
 

@@ -17,7 +17,6 @@ spec = Gem::Specification.new do |s|
   s.description = s.summary
   s.author = ''
   s.email = ''
-  # s.executables = ['example_executable_here']
   s.files = %w(LICENSE README Rakefile) + Dir.glob("{bin,lib,spec}/**/*")
   s.require_path = "lib"
   s.bindir = "bin"
@@ -47,12 +46,26 @@ RSpec::Core::RakeTask.new do |t|
   t.pattern = 'spec/**/*_spec.rb'
 end
 
-
-desc "Show environment variables"
-task :show_env do
-  ENV.each {|e| puts "#{e}\n"}
+desc "Construct vhosts configuration file."
+task :build_vhosts
+  apply_template 'config/__vhosts'
 end
 
+desc "Construct cnproxy configuration file."
+task :build_config
+  apply_template 'config/__settings.yaml'
+end
+
+def apply_template filename
+  erb = ERB.new(File.read(vhosts))
+  File.open(target_filename(vhosts), 'w') { |f|
+    f.write(erb.result(binding))
+  }
+end
+
+def target_filename template
+  target = File.join(File.dirname(template),File.basename(template).sub(/^__/,''))
+end
 
 
 

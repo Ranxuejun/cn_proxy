@@ -21,9 +21,8 @@ class CrossrefMetadataQuery
 
   def get_unixref doi
     safe_doi = CGI.escape doi
-    puts "http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=gbilder@crossref.org&format=unixref"
     @unixref = open("http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=gbilder@crossref.org&format=unixref").read
-    scrape_for_errors    
+    scrape_for_errors
   end
 
   def scrape_for_errors 

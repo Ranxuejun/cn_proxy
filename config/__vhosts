@@ -1,0 +1,31 @@
+<Proxy balancer://cnproxy>
+<% thin_servers.times do |i| %>    BalancerMember http://127.0.0.1:<%= 3000 + i %>
+<% end %></Proxy>
+
+# Virtual host configuration
+<VirtualHost *:80>
+
+  ServerName          <%= server_name %>
+  AllowEncodedSlashes On
+
+  ServerAdmin      kward@crossref.org
+  ErrorLog         /var/log/apache2/cnproxy_error_log
+  TransferLog      /var/log/apache2/cnproxy_access_log
+  UseCanonicalName Off
+
+  ProxyRequests Off
+
+  <Proxy *>
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ProxyPass / balancer://cnproxy/
+  ProxyPassReverse / balancer://cnproxy/
+
+  <Location />
+    Order allow,deny
+    Allow from all
+  </Location>
+
+</VirtualHost>
