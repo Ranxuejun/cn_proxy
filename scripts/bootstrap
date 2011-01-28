@@ -11,7 +11,7 @@ aptitude upgrade -y
 aptitude install -y libraptor1 libraptor-dev raptor-utils
 
 ### Ruby
-aptitude install -y libruby1.8 zlib1g-dev libssl-dev libreadline5-dev build-essential libxslt-dev libxml2-dev
+aptitude install -y libruby1.8 zlib1g-dev libssl-dev libreadline5-dev build-essential libxslt-dev libxml2-dev rubygems
 
 ### Curl
 aptitude install -y curl
@@ -23,5 +23,5 @@ aptitude install -y git-core
 aptitude install -y apache2
 
 ### Gems for cnproxy
-sudo gem install tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin rake
+gem install tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin rake
 
