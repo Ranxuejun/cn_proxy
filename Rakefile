@@ -6,7 +6,6 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 require 'rspec/core/rake_task'
 require 'erb'
-require 'highline/import'
 
 spec = Gem::Specification.new do |s|
   s.name = 'cn_proxy'
@@ -47,21 +46,18 @@ RSpec::Core::RakeTask.new do |t|
 end
 
 desc "Construct vhosts configuration file."
-task :build_vhosts
-  server_name = ENV['server_name']
-  thin_servers = ENV['thin_servers']
+task :build_vhosts do
   apply_template 'config/__vhosts'
 end
 
 desc "Construct cnproxy configuration file."
-task :build_config
-  pid = ENV['pid']
+task :build_config do
   apply_template 'config/__settings.yaml'
 end
 
 def apply_template filename
-  erb = ERB.new(File.read(vhosts))
-  File.open(target_filename(vhosts), 'w') { |f|
+  erb = ERB.new(File.read(filename))
+  File.open(target_filename(filename), 'w') { |f|
     f.write(erb.result(binding))
   }
 end

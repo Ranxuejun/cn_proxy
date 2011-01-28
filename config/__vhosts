@@ -1,11 +1,11 @@
 <Proxy balancer://cnproxy>
-<% thin_servers.times do |i| %>    BalancerMember http://127.0.0.1:<%= 3000 + i %>
+<% ENV['thin_servers'].to_i.times do |i| %>    BalancerMember http://127.0.0.1:<%= 3000 + i %>
 <% end %></Proxy>
 
 # Virtual host configuration
 <VirtualHost *:80>
 
-  ServerName          <%= server_name %>
+  ServerName          <%= ENV['server_name'] %>
   AllowEncodedSlashes On
 
   ServerAdmin      kward@crossref.org
