@@ -31,13 +31,6 @@ source /etc/profile.d/rvm.sh
 rvm install 1.9.2
 rvm use 1.9.2 --default
 
-### Add the "deploy" user and make them part of rvm group
-ADDUSER="sudo adduser --gecos \"\" --disabled-password deploy"
-echo $ADDUSER >file_tmp.$$
-sh file_tmp.$$
-rm file_tmp.$$
-usermod -a -G rvm deploy
-
 ### install gems needed for cn proxy
 rvmsudo gem install tilt rack sinatra rspec rspec-core thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin
 

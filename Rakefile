@@ -48,11 +48,14 @@ end
 
 desc "Construct vhosts configuration file."
 task :build_vhosts
+  server_name = ENV['server_name']
+  thin_servers = ENV['thin_servers']
   apply_template 'config/__vhosts'
 end
 
 desc "Construct cnproxy configuration file."
 task :build_config
+  pid = ENV['pid']
   apply_template 'config/__settings.yaml'
 end
 
