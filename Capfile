@@ -3,7 +3,7 @@ load 'deploy' if respond_to?(:namespace) # cap2 differentiator
 set :application, 'cn_proxy'
 set :thin_servers, 4 unless variables[:thin_servers]
 
-set :user, 'deploy'
+set :user, 'ubuntu' unless variables[:user]
 set :use_sudo, false
 set :scm, :git
 set :repository, 'git@github.com:CrossRef/cn_proxy.git'
@@ -13,12 +13,15 @@ set :deploy_via, :copy
 set :deploy_to, "/home/ubuntu/#{application}"
 set :domain, "cnproxy" unless variables[:domain]
 
-desc "Bootstrap EC2 AMI instance on domain: #{domain}"
+role :app, domain
+role :web, domain
+role :db, domain, :primary => true
+
+desc "Bootstrap EC2 AMI instance"
 task :bootstrap do
-  set :user, 'ubuntu'
   bash_script = File.open(File.join('scripts','bootstrap')).read()
   put(bash_script,"/home/#{user}/bootstrap")
-  stream("cd /home/#{user}/; sudo bash bootstrap")
+  stream("cd /home/#{user}; sudo bash bootstrap")
 end
 
 desc "Create apache vhosts and application config, install vhosts"
