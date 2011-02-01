@@ -5,7 +5,6 @@ require 'uuid'
 require 'time'
 
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__),'lib')
-require 'configuration'
 require 'helpers'
 require 'errors'
 require 'crossref_metadata_query'

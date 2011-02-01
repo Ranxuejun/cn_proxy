@@ -3,31 +3,44 @@
 #
 # Designed to work with ami-cef405a7 or equivalent.
 
-### Make sure we have latest updates
-aptitude update
-aptitude upgrade -y
+DEPLOYUSER=deploy
+DEPLOYHOME=/home/$DEPLOYUSER
+DEPLOYKEY=<<EOF
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA1+ryPnD7q2FHCdb7j6hSGytLDpxnZ1jcEJkbR67OCUE6w/HEg1ipbBUhDON+qnJXEIf4k2rQNXuhC38JTml/zmfj+7n46h0y/AIT9ft6x43cLwcJ9bgs0vv2jbgHHVLAqDoTnFXbjDGg56c/CCzbo2RAwA8mVdZY7ttNyYPlcOqI7ib+r3N/WEwfVti5L7SDvaX/eJDYEpFxWepyo0P3G9OYBnrX7DXWRPMfO+ynOk5v/x+IMP09NuZimxxjpYtYvEqjriAHCHVcEB+lG5FNmVdYkJvnV9e3Xo9SS7dpULfWPbdJZDFncgdcZ6L78AOMCq7MPRp34DZTWaYEuYsCGQ== gbilder@Yagharek.local
+EOF
 
-### Misc
-aptitude install -y zlib1g-dev libssl-dev libreadline5-dev build-essential
+WEBAPPSHOME=/home/webapps
 
-### Raptor (for rdf-raptor gem)
-aptitude install -y libraptor1 libraptor-dev raptor-utils
+GEMS=<<EOF
+tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin rake
+EOF
 
-### Xml
-aptitude install -y libxslt-dev libxml2-dev
+PACKAGES=<<EOF
+zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev ruby1.8 ruby1.8-dev rubygems1.8 curl git-core apache2 apache2-dev
+EOF
 
-### Ruby
-aptitude install -y ruby1.8 ruby1.8-dev rubygems1.8
+### Install package deps
+aptitude update -q
+aptitude upgrade -y -q
+aptitude install -y -q $PACKAGES
 
-### Curl
-aptitude install -y curl
+### Install gem deps
+gem install --quiet --no-rdoc --no-ri $GEMS
 
-### Git
-aptitude install -y git-core
+### Create a deploy user
+adduser --gecos \"\" --disabled-password $DEPLOYUSER
 
-### Apache
-aptitude install -y apache2
+### Hand over an ssh pk for deploy
+mkdir -p $DEPLOYHOME/.ssh
+echo $DEPLOYKEY >/home/deploy/.ssh/authorized_keys2
+chown -R $DEPLOYUSER:$DEPLOYUSER $DEPLOYHOME/.ssh
 
-### Gems for cnproxy
-gem install tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin rake
+### Create the webapps deployment directory
+mkdir -p $WEBAPPSHOME
+chown -R $DEPLOYUSER:$DEPLOYUSER $WEBAPPSHOME
 
+### Setup apache and mod proxy
+
+### Setup thin
+
+reboot
