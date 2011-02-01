@@ -84,8 +84,7 @@ class CrossrefMetadataRecord
   end
 
   def publication_title
-    # todo ; other title elements
-    maybe_text 'full_title'
+    maybe_text '//full_title' or maybe_text '//proceedings_title'
   end
 
   def title

@@ -20,7 +20,7 @@
     <% end %>
     bibo:authorList ( <%= author_list %> ) .
     
-<%= record.maybe_subject things[:container_id], things[:container] do "    " + record.maybe_po("bibo:issn", record.preferred_issn) + "\n    " + record.maybe_po("bibo:isbn", record.isbn) + "\n    dc:title \"#{record.publication_title}\"@en ;\n    " + "bibo:shortTitle \"#{record.publication_title}\"@en .\n"end %>
+<%= record.maybe_subject things[:container_id], things[:container] do "    " + record.maybe_po("dc:title", record.publication_title) + "\n    " + record.maybe_po("bibo:issn", record.preferred_issn) + "\n    " + record.maybe_po("bibo:isbn", record.isbn) + "\n    dc:title \"#{record.publication_title}\"@en ;\n    " + "bibo:shortTitle \"#{record.publication_title}\"@en .\n"end %>
 
 <% count = 0 %>
 <% author_list = "" %>
