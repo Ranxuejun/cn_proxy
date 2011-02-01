@@ -13,15 +13,15 @@ class CrossrefMetadataQuery
 
   attr_reader :unixref
 
-  def initialize doi 
-    get_unixref doi  
+  def initialize doi, pid
+    get_unixref doi, pid
   end
 
   private
 
-  def get_unixref doi
+  def get_unixref doi, pid
     safe_doi = CGI.escape doi
-    @unixref = open("http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=gbilder@crossref.org&format=unixref").read
+    @unixref = open("http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=#{pid}&format=unixref").read
     scrape_for_errors
   end
 

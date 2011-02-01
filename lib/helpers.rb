@@ -99,8 +99,8 @@ helpers do
     end
   end
     
-  def render_representation
-    unixref = CrossrefMetadataQuery.new(request.env['doi']).unixref
+  def render_representation query_pid
+    unixref = CrossrefMetadataQuery.new(request.env['doi'], query_pid).unixref
     case representation
     when ".unixref"
       unixref   
