@@ -10,7 +10,7 @@ set :repository, 'git@github.com:CrossRef/cn_proxy.git'
 set :branch, 'master'
 set :git_shallow_clone, 1
 set :deploy_via, :copy
-set :deploy_to, "/home/ubuntu/#{application}"
+set :deploy_to, "/home/webapps/#{application}"
 set :domain, "cnproxy" unless variables[:domain]
 
 role :app, domain
@@ -25,32 +25,49 @@ task :bootstrap do
   stream("cd /home/#{user}; sudo bash bootstrap")
 end
 
-desc "Create apache vhosts and application config, install vhosts"
+desc "Create apache vhosts and application config"
 task :configure do
   server_name = Capistrano::CLI.ui.ask("Enter the vhost server name: ")
   pid = Capistrano::CLI.ui.ask("Enter the CrossRef query pid: ")
-  stream("cd #{deploy_to}; rake pid=#{pid} build_config ")
-  stream("cd #{deploy_to}; rake server_name=#{server_name} thin_servers=#{thin_servers} build_vhosts")
-  
-  stream <<-APACHE
-  sudo touch /etc/apache2/sites-available/cnproxy &&
-  sudo sh -c "cat #{deploy_to}/config/vhosts > /etc/apache2/sites-available/cnproxy" &&
-  sudo ln -nsf /etc/apache2/sites-available/cnproxy /etc/apache2/sites-enabled/cnproxy
-  APACHE
+  stream("cd #{deploy_to}/current; rake pid=#{pid} build_config ")
+  stream("cd #{deploy_to}/current; rake server_name=#{server_name} thin_servers=#{thin_servers} build_vhosts")
+end
+
+desc "Install vhosts"
+task :install do
+  set :user, 'ubuntu'
+  stream ("sudo bash -c 'touch /etc/apache2/sites-available/#{application}'")
+  stream ("sudo bash -c 'cat #{deploy_to}/current/config/vhosts > /etc/apache2/sites-available/#{application}'")
+  stream("sudo bash -c 'ln -nsf /etc/apache2/sites-available/#{application} /etc/apache2/sites-enabled/#{application}'")
+end
+
+
+namespace :deploy do
+
+  # TODO Should try to integrate :control:start/:end and :configure
+  # into the deploy namespace.
+  task :start do ; end
+  task :stop do ; end
+  task :restart do ; end
+
 end
 
 namespace :control do
    
-  desc "Start apache and thin servers"
+  desc "Start thin servers"
   task :start do
-    stream("thin start -d -s#{thin_servers} -R config.ru")
-    stream("sudo apachectl start")
+    stream("cd #{deploy_to}/current; thin start -d -s#{thin_servers} -R config.ru")
   end
 
   desc "Stop apache and thin servers"
   task :stop do
-    stream("sudo apachectl stop")
-    stream("thin stop")
+    stream("cd #{deploy_to}/current; thin stop")
+  end
+
+  desc "Restart apache"
+  task :restart_apache do
+    set :user, 'ubuntu'
+    stream("sudo bash -c 'apachectl restart'")
   end
 
 end

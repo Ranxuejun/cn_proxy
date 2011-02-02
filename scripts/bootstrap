@@ -9,30 +9,30 @@ DEPLOYKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA1+ryPnD7q2FHCdb7j6hSGytLDpxnZ1jcE
 
 WEBAPPSHOME="/home/webapps"
 
-GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin rake"
+GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog"
 
-PACKAGES="zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev ruby1.8 ruby1.8-dev rubygems1.8 curl git-core apache2 apache2-dev"
+PACKAGES="zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev ruby1.8 ruby1.8-dev rubygems1.8 curl git-core apache2 apache2-dev rake thin"
 
-OUTFILE="$DEPLOYHOME/bootstrap.log"
+OUTFILE="/home/ubuntu/bootstrap.log"
 
 echo "Bootstrapping... see $OUTFILE for output."
 touch $OUTFILE
 
 ### Install package deps
 echo "Installing package dependencies..."
-aptitude update -q &>$OUTFILE
-aptitude upgrade -y -q &>$OUTFILE 
-aptitude install -y -q $PACKAGES &>$OUTFILE
+aptitude update -q &>>$OUTFILE
+aptitude upgrade -y -q &>>$OUTFILE 
+aptitude install -y -q $PACKAGES &>>$OUTFILE
 
 ### Install gem deps
 echo "Installing gem dependencies..."
-gem install --quiet --no-rdoc --no-ri $GEMS &>$OUTFILE
+gem install --quiet --no-rdoc --no-ri $GEMS &>>$OUTFILE
 
 ### Create a deploy user
 echo "Creating deploy user..."
 ADDUSER="adduser --gecos \"\" --disabled-password $DEPLOYUSER"
 echo $ADDUSER >adduser_tmp.$$
-sh adduser_tmp.$$ &>$OUTFILE
+sh adduser_tmp.$$ &>>$OUTFILE
 rm adduser_tmp.$$
 
 ### Hand over an ssh pk for deploy
