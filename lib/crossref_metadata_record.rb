@@ -1,6 +1,13 @@
 require 'rexml/document'
 include REXML
 
+# Awful patch for rdf library on ruby 1.8.7 .
+class StringIO
+  def readpartial n
+    sysread n
+  end
+end
+
 class CrossrefMetadataRecord
 
   attr_reader :contributors
