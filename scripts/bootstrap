@@ -16,12 +16,13 @@ PACKAGES="zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libr
 OUTFILE="$DEPLOYHOME/bootstrap.log"
 
 echo "Bootstrapping... see $OUTFILE for output."
+touch $OUTFILE
 
 ### Install package deps
 echo "Installing package dependencies..."
 aptitude update -q &>$OUTFILE
 aptitude upgrade -y -q &>$OUTFILE 
-aptitude install -y -q $PACKAGES&>$OUTFILE
+aptitude install -y -q $PACKAGES &>$OUTFILE
 
 ### Install gem deps
 echo "Installing gem dependencies..."
