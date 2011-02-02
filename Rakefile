@@ -1,3 +1,4 @@
+
 require 'rubygems'
 require 'rake'
 require 'rake/clean'
@@ -6,6 +7,7 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 require 'rspec/core/rake_task'
 require 'erb'
+require 'fog'
 
 spec = Gem::Specification.new do |s|
   s.name = 'cn_proxy'
@@ -64,6 +66,14 @@ end
 
 def target_filename template
   target = File.join(File.dirname(template),File.basename(template).sub(/^__/,''))
+end
+
+desc "Create a new EC2 instance"
+task :create do
+  compute = Fog::Compute.new(:provider => 'AWS', :region => 'eu-west-1')
+  server = compute.servers.create(:image_id => 'ami-e59ca991', :key_name => 'karl')
+  # TODO AWS credentials (don't take from ~/.fog ?)
+  # TODO architecture and secuity group
 end
 
 

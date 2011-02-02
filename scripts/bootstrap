@@ -3,44 +3,73 @@
 #
 # Designed to work with ami-cef405a7 or equivalent.
 
-DEPLOYUSER=deploy
-DEPLOYHOME=/home/$DEPLOYUSER
-DEPLOYKEY=<<EOF
-ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA1+ryPnD7q2FHCdb7j6hSGytLDpxnZ1jcEJkbR67OCUE6w/HEg1ipbBUhDON+qnJXEIf4k2rQNXuhC38JTml/zmfj+7n46h0y/AIT9ft6x43cLwcJ9bgs0vv2jbgHHVLAqDoTnFXbjDGg56c/CCzbo2RAwA8mVdZY7ttNyYPlcOqI7ib+r3N/WEwfVti5L7SDvaX/eJDYEpFxWepyo0P3G9OYBnrX7DXWRPMfO+ynOk5v/x+IMP09NuZimxxjpYtYvEqjriAHCHVcEB+lG5FNmVdYkJvnV9e3Xo9SS7dpULfWPbdJZDFncgdcZ6L78AOMCq7MPRp34DZTWaYEuYsCGQ== gbilder@Yagharek.local
-EOF
+DEPLOYUSER="deploy"
+DEPLOYHOME="/home/$DEPLOYUSER"
+DEPLOYKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA1+ryPnD7q2FHCdb7j6hSGytLDpxnZ1jcEJkbR67OCUE6w/HEg1ipbBUhDON+qnJXEIf4k2rQNXuhC38JTml/zmfj+7n46h0y/AIT9ft6x43cLwcJ9bgs0vv2jbgHHVLAqDoTnFXbjDGg56c/CCzbo2RAwA8mVdZY7ttNyYPlcOqI7ib+r3N/WEwfVti5L7SDvaX/eJDYEpFxWepyo0P3G9OYBnrX7DXWRPMfO+ynOk5v/x+IMP09NuZimxxjpYtYvEqjriAHCHVcEB+lG5FNmVdYkJvnV9e3Xo9SS7dpULfWPbdJZDFncgdcZ6L78AOMCq7MPRp34DZTWaYEuYsCGQ== gbilder@Yagharek.local"
 
-WEBAPPSHOME=/home/webapps
+WEBAPPSHOME="/home/webapps"
 
-GEMS=<<EOF
-tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin rake
-EOF
+GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid thin rake"
 
-PACKAGES=<<EOF
-zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev ruby1.8 ruby1.8-dev rubygems1.8 curl git-core apache2 apache2-dev
-EOF
+PACKAGES="zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev ruby1.8 ruby1.8-dev rubygems1.8 curl git-core apache2 apache2-dev"
+
+OUTFILE="$DEPLOYHOME/bootstrap.log"
+
+echo "Bootstrapping... see $OUTFILE for output."
 
 ### Install package deps
-aptitude update -q
-aptitude upgrade -y -q
-aptitude install -y -q $PACKAGES
+echo "Installing package dependencies..."
+aptitude update -q &>$OUTFILE
+aptitude upgrade -y -q &>$OUTFILE 
+aptitude install -y -q $PACKAGES&>$OUTFILE
 
 ### Install gem deps
-gem install --quiet --no-rdoc --no-ri $GEMS
+echo "Installing gem dependencies..."
+gem install --quiet --no-rdoc --no-ri $GEMS &>$OUTFILE
 
 ### Create a deploy user
-adduser --gecos \"\" --disabled-password $DEPLOYUSER
+echo "Creating deploy user..."
+ADDUSER="adduser --gecos \"\" --disabled-password $DEPLOYUSER"
+echo $ADDUSER >adduser_tmp.$$
+sh adduser_tmp.$$ &>$OUTFILE
+rm adduser_tmp.$$
 
 ### Hand over an ssh pk for deploy
+echo "Copying deploy key..."
 mkdir -p $DEPLOYHOME/.ssh
 echo $DEPLOYKEY >/home/deploy/.ssh/authorized_keys2
-chown -R $DEPLOYUSER:$DEPLOYUSER $DEPLOYHOME/.ssh
+chown -R $DEPLOYUSER.$DEPLOYUSER $DEPLOYHOME/.ssh
 
 ### Create the webapps deployment directory
+echo "Creating webapps dir..."
 mkdir -p $WEBAPPSHOME
-chown -R $DEPLOYUSER:$DEPLOYUSER $WEBAPPSHOME
+chown -R $DEPLOYUSER.$DEPLOYUSER $WEBAPPSHOME
+ 
+### Setup apache mod proxy
+echo "Enabling mod proxy and proxy balancer..."
+ln -nsf /etc/apache2/mods-available/proxy.load /etc/apache2/mods-enabled/proxy.load
+ln -nsf /etc/apache2/mods-available/proxy.conf /etc/apache2/mods-enabled/proxy.conf
+ln -nsf /etc/apache2/mods-available/proxy_http.load /etc/apache2/mods-enabled/proxy_http.load
 
-### Setup apache and mod proxy
+ln -nsf /etc/apache2/mods-available/proxy_balancer.load /etc/apache2/mods-enabled/proxy_balancer.load
+touch /etc/apache2/mods-available/proxy_balancer.conf
+ln -nsf /etc/apache2/mods-available/proxy_balancer.conf /etc/apache2/mods-enabled/proxy_balancer.conf
 
-### Setup thin
+cat > /etc/apache2/mods-available/proxy_balancer.conf <<PBCONF
+<IfModule mod_proxy_balancer.c>
 
-reboot
+# Balancer manager enables dynamic update of balancer members
+# (needs mod_status). Uncomment to enable.
+#
+<IfModule mod_status.c>
+<Location /balancer-manager>
+    SetHandler balancer-manager
+    Order deny,allow
+    Deny from all
+    Allow from 127.0.0.1 ::1
+    Satisfy all
+</Location>
+</IfModule>
+
+</IfModule>
+PBCONF
