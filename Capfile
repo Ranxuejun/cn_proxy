@@ -61,7 +61,7 @@ namespace :control do
 
   desc "Stop apache and thin servers"
   task :stop do
-    stream("cd #{deploy_to}/current; thin stop")
+    stream("cd #{deploy_to}/current; thin -s#{thin_servers} stop")
   end
 
   desc "Restart apache"
