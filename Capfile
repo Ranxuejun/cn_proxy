@@ -67,7 +67,7 @@ namespace :control do
   desc "Restart apache"
   task :restart_apache do
     set :user, 'ubuntu'
-    stream("sudo bash -c 'apachectl restart'")
+    stream("sudo bash -c 'apache2ctl restart'")
   end
 
 end

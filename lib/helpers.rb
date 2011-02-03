@@ -109,7 +109,7 @@ helpers do
     when ".atom"
       render_feed :atom_feed, unixref
     when ".ttl"
-      render_feed :ttl_feed, unixref
+      render_rdf :turtle, unixref
     when ".rdf"
       render_rdf :rdfxml, unixref
     when ".jsonrdf"
