@@ -176,9 +176,10 @@ class CrossrefMetadataRecord
   end
 
   def issn_of_type type
-    @record.root.each_element("//issn") { |issn| 
+    @record.root.each_element("//issn") { |issn|
       return issn.text.sub("-","") if issn.attributes['media_type'] == type 
     }
+    return maybe_text("//issn").sub("-", "")
   end
 
   def add_contributors
