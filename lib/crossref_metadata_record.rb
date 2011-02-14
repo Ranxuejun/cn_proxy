@@ -87,7 +87,11 @@ class CrossrefMetadataRecord
   end
 
   def doi
-    @record.root.elements["//doi"].text
+    last_doi = nil
+    @record.root.elements.each("//doi") do |doi|
+      last_doi = doi
+    end
+    return last_doi.text
   end
 
   def publication_title
