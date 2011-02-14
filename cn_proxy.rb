@@ -19,9 +19,10 @@ mime_type :jsonrdf, "application/rdf+json"
 
 configure do
   set :query_pid, YAML.load_file("#{Dir.pwd}/config/settings.yaml")['query_pid']
+  set :show_exceptions, false
 end
 
-before do  
+before do
   handle_dois
 end
 
