@@ -1,6 +1,10 @@
 <% things = record.bibo_things %>
 
-<info:doi/<%= record.doi %>> a <%= things[:component] %> ;
+<http://cn.crossref.org/<%= record.doi %>>
+    foaf:primaryTopic <http://dx.doi.org/<%= record.doi %>> .
+
+<http://dx.doi.org/<%= record.doi %>> a <%= things[:component] %> ;
+    owl:sameAs <info:doi/<%= record.doi %>> ;
     dc:title "<%= record.title %>"@en ;
     <%= record.maybe_po("dc:date", record.publication_date) %>
     <%= record.maybe_po("dc:publisher", record.publisher_name) %>
