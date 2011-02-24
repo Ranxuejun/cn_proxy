@@ -139,14 +139,12 @@ class CrossrefMetadataRecord
     maybe_text '//title'
   end
 
-  def 
-
   def eissn
-    return issn_of_type 'electronic' 
+    return issn_of_type 'electronic'
   end
 
   def pissn
-    return issn_of_type 'print' 
+    return issn_of_type 'print'
   end
 
   def preferred_issn
@@ -220,9 +218,10 @@ class CrossrefMetadataRecord
 
   def issn_of_type type
     @record.root.each_element("//issn") { |issn|
-      return issn.text.sub("-","") if issn.attributes['media_type'] == type 
+      return issn.text if issn.attributes['media_type'] == type 
+      return issn.text if issn.attributes['media_type'] == nil and type == 'print'
     }
-    return maybe_text("//issn").sub("-", "")
+    return ''
   end
 
   def add_contributors
@@ -233,7 +232,7 @@ class CrossrefMetadataRecord
   end
 
   def contributor_path c
-    'contributor/' + doi + '/' + c.unique_slug
+    'contributors/' + doi + '/' + c.unique_slug
   end
 
   def maybe_po predicate, object

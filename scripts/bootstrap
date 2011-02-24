@@ -11,7 +11,7 @@ WEBAPPSHOME="/home/webapps"
 
 GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog"
 
-PACKAGES="zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev ruby1.8 ruby1.8-dev rubygems1.8 curl git-core apache2 apache2-dev rake thin"
+PACKAGES="zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev ruby1.8 ruby1.8-dev rubygems1.8 curl git-core apache2 apache2-dev rake thin unidecode"
 
 OUTFILE="/home/ubuntu/bootstrap.log"
 

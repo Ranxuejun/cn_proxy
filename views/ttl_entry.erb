@@ -1,17 +1,23 @@
 <% things = record.bibo_things %>
 
 <http://dx.doi.org/<%= record.doi %>> a <%= things[:component] %> ;
+    dc:identifier <http://dx.doi.org/<%= record.doi %>> ;
     owl:sameAs <info:doi/<%= record.doi %>> ;
     owl:sameAs <doi:<%= record.doi %>> ;
+    prism:doi "<%= record.doi %>" ;
     dc:title "<%= record.title %>" ;
     <%= record.maybe_po("dc:date", record.publication_date) %>
     <%= record.maybe_po("dc:publisher", record.publisher_name) %>
     <%= record.maybe_po_ref("dc:isPartOf", things[:container_id]) %>
     bibo:doi "<%= record.doi %>" ;
     <%= record.maybe_po("bibo:volume", record.volume) %>
+    <%= record.maybe_po("prism:volume", record.volume) %>
     <%= record.maybe_po("bibo:number", record.edition_number) %>
+    <%= record.maybe_po("prism:number", record.edition_number) %>
     <%= record.maybe_po("bibo:pageStart", record.first_page) %>
     <%= record.maybe_po("bibo:pageEnd", record.last_page) %>
+    <%= record.maybe_po("prism:startingPage", record.first_page) %>
+    <%= record.maybe_po("prism:endingPage", record.last_page) %>
     <% author_list = "" %>
     <% record.contributors.each do |contributor| %>
     <% identifier = '<http://crossref.org/' + record.contributor_path(contributor) + '> ' %>
@@ -20,7 +26,7 @@
     <% end %>
     bibo:authorList ( <%= author_list %> ) .
     
-<%= record.maybe_subject things[:container_id], things[:container] do "    " + record.maybe_po("dc:title", record.publication_title) + "\n    " + record.maybe_po("bibo:issn", record.preferred_issn) + "\n    " + record.maybe_po("bibo:isbn", record.isbn) + "\n    dc:title \"#{record.publication_title}\" .\n" end %>
+<%= record.maybe_subject things[:container_id], things[:container] do "    " + record.maybe_po("dc:title", record.publication_title) + "\n    " + record.maybe_po("bibo:issn", record.pissn) + "\n    " + record.maybe_po("bibo:eissn", record.eissn) + "\n    " + record.maybe_po("prism:issn", record.pissn) + "\n    " + record.maybe_po("prism:eIssn", record.eissn) + "\n    " + record.maybe_po("prism:isbn", record.isbn) + "\n    " + record.maybe_po("bibo:isbn", record.isbn) + "\n    dc:title \"#{record.publication_title}\" .\n" end %>
 
 <% record.contributors.each do |contributor| %>
 <% identifier = '<http://crossref.org/' + record.contributor_path(contributor) + '> ' %>
