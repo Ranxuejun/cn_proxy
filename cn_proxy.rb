@@ -14,7 +14,6 @@ require 'crossref_metadata_record'
 mime_type :rdf, "application/rdf+xml"
 mime_type :unixref, "application/unixref+xml"
 mime_type :ttl, "text/turtle"
-mime_type :ntriples, "text/n3"
 mime_type :jsonrdf, "application/rdf+json"
 
 configure do
@@ -26,11 +25,11 @@ before do
   handle_dois
 end
 
-get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :ntriples, :jsonrdf] do
+get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
   request.env['doi']
 end
 
-get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :ntriples, :jsonrdf] do
+get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
   raise InvalidDOI unless request.env['doi']
   render_representation options.query_pid
 end

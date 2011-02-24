@@ -1,11 +1,9 @@
 <% things = record.bibo_things %>
 
-<http://cn.crossref.org/<%= record.doi %>>
-    foaf:primaryTopic <http://dx.doi.org/<%= record.doi %>> .
-
 <http://dx.doi.org/<%= record.doi %>> a <%= things[:component] %> ;
     owl:sameAs <info:doi/<%= record.doi %>> ;
-    dc:title "<%= record.title %>"@en ;
+    owl:sameAs <doi:<%= record.doi %>> ;
+    dc:title "<%= record.title %>" ;
     <%= record.maybe_po("dc:date", record.publication_date) %>
     <%= record.maybe_po("dc:publisher", record.publisher_name) %>
     <%= record.maybe_po_ref("dc:isPartOf", things[:container_id]) %>
@@ -14,24 +12,20 @@
     <%= record.maybe_po("bibo:number", record.edition_number) %>
     <%= record.maybe_po("bibo:pageStart", record.first_page) %>
     <%= record.maybe_po("bibo:pageEnd", record.last_page) %>
-    <% count = 0 %>
     <% author_list = "" %>
     <% record.contributors.each do |contributor| %>
-    <% count += 1 %>
-    <% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+    <% identifier = '<http://crossref.org/' + record.contributor_path(contributor) + '> ' %>
     dc:creator <%= identifier %> ;
     <% author_list += identifier %>
     <% end %>
     bibo:authorList ( <%= author_list %> ) .
     
-<%= record.maybe_subject things[:container_id], things[:container] do "    " + record.maybe_po("dc:title", record.publication_title) + "\n    " + record.maybe_po("bibo:issn", record.preferred_issn) + "\n    " + record.maybe_po("bibo:isbn", record.isbn) + "\n    dc:title \"#{record.publication_title}\"@en ;\n    " + "bibo:shortTitle \"#{record.publication_title}\"@en .\n"end %>
+<%= record.maybe_subject things[:container_id], things[:container] do "    " + record.maybe_po("dc:title", record.publication_title) + "\n    " + record.maybe_po("bibo:issn", record.preferred_issn) + "\n    " + record.maybe_po("bibo:isbn", record.isbn) + "\n    dc:title \"#{record.publication_title}\" .\n" end %>
 
-<% count = 0 %>
-<% author_list = "" %>
 <% record.contributors.each do |contributor| %>
-<% count += 1 %>
-<% identifier = '<http://crossref.org/contributors/' + record.doi + '/' + count.to_s + '> ' %>
+<% identifier = '<http://crossref.org/' + record.contributor_path(contributor) + '> ' %>
 <%= identifier %> a foaf:Person ;
-    <%= record.maybe_po("foaf:givenname", contributor.given_name) %>
-    foaf:surname "<%= contributor.surname %>" .
+    foaf:name "<%= contributor.name %>" ;
+    <%= record.maybe_po("foaf:givenName", contributor.given_name) %>
+    foaf:familyName "<%= contributor.surname %>" .
 <% end %>

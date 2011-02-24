@@ -1,5 +1,7 @@
+require 'rubygems'
 require 'rexml/document'
 include REXML
+require 'unidecode'
 
 # Awful patch for rdf library on ruby 1.8.7 .
 class StringIO
@@ -13,20 +15,55 @@ class CrossrefMetadataRecord
   attr_reader :contributors
 
   class Contributor
+
+    attr_reader :ordinal
+
     def initialize node
       @xml = node
     end
+
     def sequence
       return @xml.attributes['sequence'] if @xml.attributes['sequence']
     end
+
     def contributor_role
       return @xml.attributes['contributor_role'] if @xml.attributes['contributor_role']
     end
+
     def surname
       return @xml.elements["surname"].text if @xml.elements["surname"]
     end
+
     def given_name
       return @xml.elements["given_name"].text if @xml.elements["given_name"]
+    end
+
+    def name
+      if @xml.elements['given_name'] then
+        @xml.elements['given_name'].text + ' ' + @xml.elements['surname'].text
+      else
+        @xml.elements['surname'].text
+      end
+    end
+
+    def slug
+      decoded = Unidecoder.decode name.strip
+      decrufted = decoded.gsub(/\./, ' ').gsub(/\s+/, '-').downcase
+      slug_str = ''
+      decrufted.each_byte do |c|
+        if (c >= ?a and c <= ?z) or c == ?- then
+          slug_str << c.chr
+        end
+      end
+      slug_str
+    end
+
+    def unique_slug
+      if ordinal and ordinal != 0 then
+        slug + '-' + ordinal.to_s
+      else
+        slug
+      end
     end
   end
 
@@ -101,6 +138,8 @@ class CrossrefMetadataRecord
   def title
     maybe_text '//title'
   end
+
+  def 
 
   def eissn
     return issn_of_type 'electronic' 
@@ -191,6 +230,10 @@ class CrossrefMetadataRecord
     @record.root.elements.each("//contributors/person_name") do |contributor_node|
       @contributors << c = Contributor.new( contributor_node )     
     end
+  end
+
+  def contributor_path c
+    'contributor/' + doi + '/' + c.unique_slug
   end
 
   def maybe_po predicate, object

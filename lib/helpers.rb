@@ -89,6 +89,7 @@ helpers do
       :uuid => UUID.new,
       :feed_updated => Time.now.iso8601
     )
+    puts ttl
 
     RDF::Writer.for(format).buffer do |writer|
       RDF::Reader.for(:turtle).new(ttl) do |reader|
