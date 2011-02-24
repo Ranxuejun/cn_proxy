@@ -74,7 +74,15 @@ def create_graph record
 
     # We describe each contributor and attach them to the doi subject.
     
-    
+    record.contributors.each do |c|
+      c_id = RDF::URI.new('http://crossref.org/' + record.contributor_path(c))
+
+      graph << [id, RDF::DC.creator, c_id]
+
+      graph << [c_id, RDF::FOAF.name, c.name]
+      graph << [c_id, RDF::FOAF.givenName, c.given_name]
+      graph << [c_id, RDF::FOAF.surname, c.surname]
+    end
 
   end
 end
