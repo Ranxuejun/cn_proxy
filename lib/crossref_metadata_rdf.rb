@@ -1,4 +1,7 @@
 
+@prism = RDF::Vocabulary.new 'http://prismstandard.org/namespaces/basic/2.0/'
+@bibo = RDF::Vocabulary.new 'http://purl.org/ontology/bibo/'
+
 def create_graph record
   RDF::Graph.new do |graph|
 
@@ -13,17 +16,17 @@ def create_graph record
     graph << [id, RDF::DC.identifier, RDF::URI.new(record.doi)]
     graph << [id, RDF::OWL.sameAs, RDF::URI.new('info:doi/' + record.doi)]
     graph << [id, RDF::OWL.sameAs, RDF::URI.new('doi:' + record.doi)]
-    graph << [id, RDF::PRISM.doi, record.doi]
-    graph << [id, RDF::BIBO.doi, record.doi]
+    graph << [id, @prism.doi, record.doi]
+    graph << [id, @bibo.doi, record.doi]
     graph << [id, RDF::DC.date, record.publication_date]
-    graph << [id, RDF::BIBO.volume, record.volume]
-    graph << [id, RDF::PRISM.volume, record.volume]
-    graph << [id, RDF::BIBO.number, record.edition_number]
-    graph << [id, RDF::PRISM.number, record.edition_number]
-    graph << [id, RDF::BIBO.pageStart, record.first_page]
-    graph << [id, RDF::BIBO.pageEnd, record.last_page]
-    graph << [id, RDF::PRISM.startingPage, record.first_page]
-    graph << [id, RDF::PRISM.endingPage, record.last_page]
+    graph << [id, @bibo.volume, record.volume]
+    graph << [id, @prism.volume, record.volume]
+    graph << [id, @bibo.number, record.edition_number]
+    graph << [id, @prism.number, record.edition_number]
+    graph << [id, @bibo.pageStart, record.first_page]
+    graph << [id, @bibo.pageEnd, record.last_page]
+    graph << [id, @prism.startingPage, record.first_page]
+    graph << [id, @prism.endingPage, record.last_page]
     graph << [id, RDF::DC.title, record.title]
     
     # We record the type of the main object, and also note the isbn
@@ -31,16 +34,16 @@ def create_graph record
     # subject.
 
     case record.publication_type
-    when :journal then graph << [id, RDF::RDF.type, RDF::BIBO.AcademicArticle]
-    when :conference then graph << [id, RDF::RDF.type, RDF::BIBO.Article]
+    when :journal then graph << [id, RDF::RDF.type, @bibo.AcademicArticle]
+    when :conference then graph << [id, RDF::RDF.type, @bibo.Article]
     when :book then {
-        graph << [id, RDF::RDF.type, RDF::BIBO.Book]
-        graph << [id, RDF::BIBO.isbn, record.isbn]
-        graph << [id, RDF::PRISM.isbn, record.isbn]
+        graph << [id, RDF::RDF.type, @bibo.Book]
+        graph << [id, @bibo.isbn, record.isbn]
+        graph << [id, @prism.isbn, record.isbn]
       }
-    when :report then graph << [id, RDF::RDF.type, RDF::BIBO.Report]
-    when :standard then graph << [id, RDF::RDF.type, RDF::BIBO.Standard]
-    when :dissertation then graph << [id, RDF::RDF.type, RDF::BIBO.Thesis]
+    when :report then graph << [id, RDF::RDF.type, @bibo.Report]
+    when :standard then graph << [id, RDF::RDF.type, @bibo.Standard]
+    when :dissertation then graph << [id, RDF::RDF.type, @bibo.Thesis]
     when :database then graph << [id, RDF::RDF.type, RDF::OWL.Thing]
     end
 
@@ -59,16 +62,16 @@ def create_graph record
       graph << [id, RDF::DC.isPartOf, pub_id]
 
       graph << [pub_id, RDF::DC.title, record.publication_title]
-      graph << [pub_id, RDF::BIBO.issn, record.pissn]
-      graph << [pub_id, RDF::BIBO.eissn, record.eissn]
-      graph << [pub_id, RDF::PRISM.issn, record.pissn]
-      graph << [pub_id, RDF::PRISM.eIssn, record.eissn]
-      graph << [pub_id, RDF::BIBO.isbn, record.isbn]
-      graph << [pub_id, RDF::PRISM.isbn, record.isbn]
+      graph << [pub_id, @bibo.issn, record.pissn]
+      graph << [pub_id, @bibo.eissn, record.eissn]
+      graph << [pub_id, @prism.issn, record.pissn]
+      graph << [pub_id, @prism.eIssn, record.eissn]
+      graph << [pub_id, @bibo.isbn, record.isbn]
+      graph << [pub_id, @prism.isbn, record.isbn]
       
       case record.publication_type
-      when :journal then graph << [pub_id, RDF::RDF.type, RDF::BIBO.Journal]
-      when :conference then graph << [pub_id, RDF::RDF.type, RDF::BIBO.Proceedings]
+      when :journal then graph << [pub_id, RDF::RDF.type, @bibo.Journal]
+      when :conference then graph << [pub_id, RDF::RDF.type, @bibo.Proceedings]
       end
     end
 
@@ -82,6 +85,7 @@ def create_graph record
       graph << [c_id, RDF::FOAF.name, c.name]
       graph << [c_id, RDF::FOAF.givenName, c.given_name]
       graph << [c_id, RDF::FOAF.surname, c.surname]
+      graph << [c_id, RDF::RDF.type, RDF::FOAF.Person]
     end
 
   end
