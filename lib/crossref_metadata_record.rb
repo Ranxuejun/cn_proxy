@@ -140,6 +140,10 @@ class CrossrefMetadataRecord
     maybe_text '//title'
   end
 
+  def subtitle
+    maybe_text '//subtitle'
+  end
+
   def eissn
     return issn_of_type 'electronic'
   end
