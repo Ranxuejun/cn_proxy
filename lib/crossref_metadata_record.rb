@@ -222,7 +222,7 @@ class CrossrefMetadataRecord
       return issn.text if issn.attributes['media_type'] == type 
       return issn.text if issn.attributes['media_type'] == nil and type == 'print'
     }
-    return ''
+    return nil
   end
 
   def add_contributors
