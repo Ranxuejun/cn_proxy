@@ -112,7 +112,7 @@ class CrossrefMetadataRdf
         
         add_to graph, [c_id, RDF::FOAF.name, c.name]
         add_to graph, [c_id, RDF::FOAF.givenName, c.given_name]
-        add_to graph, [c_id, RDF::FOAF.surname, c.surname]
+        add_to graph, [c_id, RDF::FOAF.familyName, c.surname]
         add_to graph, [c_id, rdf.type, RDF::FOAF.Person]
       end
       
