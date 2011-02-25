@@ -236,30 +236,6 @@ class CrossrefMetadataRecord
     'contributors/' + doi + '/' + c.unique_slug
   end
 
-  def maybe_po predicate, object
-    if object and not object.empty? then
-      "#{predicate} \"#{object}\" ;"
-    else
-      ""
-    end
-  end
-
-  def maybe_po_ref predicate, object_ref
-    if object_ref and not object_ref.empty? then
-      "#{predicate} <#{object_ref}> ;"
-    else
-      ""
-    end
-  end
-
-  def maybe_subject subject, owl_thing
-    if subject and not subject.empty? then
-      "<#{subject}> a #{owl_thing} ;\n" + yield
-    else
-      ""
-    end
-  end 
-
   def maybe_tag name, content
     if content and not content.empty? then
       "<#{name}>#{content}</#{name}>"

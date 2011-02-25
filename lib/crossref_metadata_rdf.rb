@@ -32,6 +32,15 @@ class CrossrefMetadataRdf
       # describing.
       
       id = RDF::URI.new('http://dx.doi.org/' + record.doi)
+
+      # See what we can do with the publication date. If we have all the
+      # bits for a full date we'll get some typing in the output.
+
+      pub_date = record.publication_date
+      begin
+        pub_date = Date.strptime pub_date
+      rescue
+      end
       
       # We try to record as many predicates about the doi subject as we
       # can, given the unixref available.
@@ -41,7 +50,7 @@ class CrossrefMetadataRdf
       add_to graph, [id, RDF::OWL.sameAs, RDF::URI.new('doi:' + record.doi)]
       add_to graph, [id, prism.doi, record.doi]
       add_to graph, [id, bibo.doi, record.doi]
-      add_to graph, [id, RDF::DC.date, record.publication_date]
+      add_to graph, [id, RDF::DC.date, pub_date]
       add_to graph, [id, bibo.volume, record.volume]
       add_to graph, [id, prism.volume, record.volume]
       add_to graph, [id, bibo.number, record.edition_number]
@@ -52,7 +61,7 @@ class CrossrefMetadataRdf
       add_to graph, [id, prism.endingPage, record.last_page]
       add_to graph, [id, RDF::DC.title, record.title]
     
-      # We record the type of the main object, and also note the isbn
+      # We record the type of the doi subject, and also note the isbn
       # for books. For proceedings the isbn is attached to the container
       # subject.
       
