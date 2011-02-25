@@ -2,6 +2,7 @@ require 'rubygems'
 require 'rexml/document'
 include REXML
 require 'unidecode'
+require 'crossref_metadata_rdf'
 
 # Awful patch for rdf library on ruby 1.8.7 .
 class StringIO
@@ -265,6 +266,10 @@ class CrossrefMetadataRecord
     else
       ""
     end
+  end
+
+  def to_graph
+    CrossrefMetadataRdf.create_graph self
   end
 
 end

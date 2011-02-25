@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'cgi'
 require 'json'
 require 'crack'
@@ -78,25 +79,12 @@ helpers do
   end
 
   def render_rdf format, unixref
-    # Generate turtle and translate to desired format.
-    metadata = CrossrefMetadataResults.new()
-    record = REXML::Document.new(unixref)
+    metadata = CrossrefMetadataResults.new
+    record = REXML::Document.new unixref
     metadata.records << CrossrefMetadataRecord.new(record)
-    template = Tilt.new("#{Sinatra::Application.root}/views/ttl_feed.erb", :trim => '<>')
-    ttl = template.render(self, 
-      :metadata => metadata,
-      :feed_link => entire_url,
-      :uuid => UUID.new,
-      :feed_updated => Time.now.iso8601
-    )
-    puts ttl
 
     RDF::Writer.for(format).buffer do |writer|
-      RDF::Reader.for(:turtle).new(ttl) do |reader|
-        reader.each_statement do |statement|
-          writer << statement
-        end
-      end
+      writer << metadata.to_graph
     end
   end
     
