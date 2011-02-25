@@ -45,7 +45,7 @@ class CrossrefMetadataRdf
       # We try to record as many predicates about the doi subject as we
       # can, given the unixref available.
       
-      add_to graph, [id, RDF::DC.identifier, RDF::URI.new(record.doi)]
+      add_to graph, [id, RDF::DC.identifier, record.doi]
       add_to graph, [id, RDF::OWL.sameAs, RDF::URI.new('info:doi/' + record.doi)]
       add_to graph, [id, RDF::OWL.sameAs, RDF::URI.new('doi:' + record.doi)]
       add_to graph, [id, prism.doi, record.doi]
@@ -60,9 +60,7 @@ class CrossrefMetadataRdf
       add_to graph, [id, prism.startingPage, record.first_page]
       add_to graph, [id, prism.endingPage, record.last_page]
       add_to graph, [id, RDF::DC.title, record.title]
-      add_to graph, [id, prism.title, record.title]
-      add_to graph, [id, prism.subtitle, record.subtitle] # correct p?
-      add_to graph, [id, bibo.subtitle, record.subtitle] # correct p?
+      add_to graph, [id, RDF::DC.alternative, record.subtitle]
     
       # We record the type of the doi subject, and also note the isbn
       # for books. For proceedings the isbn is attached to the container
@@ -100,27 +98,30 @@ class CrossrefMetadataRdf
         pub_id = RDF::URI.new pub_id
         
         add_to graph, [pub_id, RDF::DC.title, record.publication_title]
-        add_to graph, [pub_id, prism.title, record.publication_title]
         add_to graph, [pub_id, bibo.issn, record.pissn]
         add_to graph, [pub_id, bibo.eissn, record.eissn]
         add_to graph, [pub_id, prism.issn, record.pissn]
         add_to graph, [pub_id, prism.eIssn, record.eissn]
         add_to graph, [pub_id, bibo.isbn, record.isbn]
         add_to graph, [pub_id, prism.isbn, record.isbn]
+
+        graph << [id, RDF::DC.isPartOf, pub_id]
+        graph << [pub_id, RDF::DC.hasPart, id]
         
         case record.publication_type
         when :journal
           urn = RDF::URI.new "urn:issn:#{record.preferred_issn}"
 
-          graph << [id, RDF::DC.isPartOf, pub_id]
           graph << [pub_id, rdf.type, bibo.Journal]
           graph << [pub_id, RDF::OWL.sameAs, urn]
+          graph << [pub_id, RDF::DC.identifier, record.preferred_issn]
         when :conference
           urn = RDF::URI.new "urn:isbn:#{record.isbn}"
 
           graph << [id, bibo.reproducedIn, pub_id]
           graph << [pub_id, rdf.type, bibo.Proceedings]
           graph << [pub_id, RDF::OWL.sameAs, urn]
+          graph << [pub_id, RDF::DC.identifier, record.isbn]
         end
       end
 
