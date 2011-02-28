@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_records>
+  <doi_record owner="10.1045" timestamp="2011-02-16 16:22:28">
+    <crossref>
+      <journal>
+        <journal_metadata language="en">
+          <full_title>D-Lib Magazine</full_title>
+          <abbrev_title>D-Lib Magazine</abbrev_title>
+          <issn media_type="electronic">1082-9873</issn>
+          <doi_data>
+            <doi>10.1045/dlib.magazine</doi>
+            <resource>http://www.doi.org/</resource>
+          </doi_data>
+        </journal_metadata>
+        <journal_issue>
+          <publication_date media_type="online">
+            <month>04</month>
+            <year>2005</year>
+          </publication_date>
+          <journal_volume>
+            <volume>11</volume>
+          </journal_volume>
+          <issue>04</issue>
+          <doi_data>
+            <doi>10.1045/april2005-contents</doi>
+            <resource>http://www.dlib.org/dlib/april05/04contents.html</resource>
+          </doi_data>
+        </journal_issue>
+        <journal_article publication_type="full_text">
+          <titles>
+            <title>Social Bookmarking Tools (I)</title>
+            <subtitle>A General Review</subtitle>
+          </titles>
+          <contributors>
+            <person_name sequence="first" contributor_role="author">
+              <given_name>Tony</given_name>
+              <surname>Hammond</surname>
+            </person_name>
+            <person_name sequence="additional" contributor_role="author">
+              <given_name>Tony</given_name>
+              <surname>Hammond</surname>
+            </person_name>
+            <person_name sequence="additional" contributor_role="author">
+              <given_name>Tony</given_name>
+              <surname>Hammond</surname>
+            </person_name>
+            <person_name sequence="additional" contributor_role="author">
+              <given_name>Tony</given_name>
+              <surname>Hammond</surname>
+            </person_name>
+            <person_name sequence="additional" contributor_role="author">
+              <given_name>Timo</given_name>
+              <surname>Hannay</surname>
+            </person_name>
+            <person_name sequence="additional" contributor_role="author">
+              <given_name>Ben</given_name>
+              <surname>Lund</surname>
+            </person_name>
+           <person_name sequence="additional" contributor_role="author">
+              <given_name>Ben</given_name>
+              <surname>Lund</surname>
+            </person_name>
+            <person_name sequence="additional" contributor_role="author">
+              <given_name>Joanna</given_name>
+              <surname>Scott</surname>
+            </person_name>
+          </contributors>
+          <publication_date media_type="online">
+            <month>04</month>
+            <year>2005</year>
+          </publication_date>
+          <doi_data>
+            <doi>10.1045/april2005-hammond</doi>
+            <resource>http://www.dlib.org/dlib/april05/hammond/04hammond.html</resource>
+          </doi_data>
+        </journal_article>
+      </journal>
+    </crossref>
+  </doi_record>
+</doi_records>
+

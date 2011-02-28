@@ -89,8 +89,8 @@ class CrossrefMetadataRdf
       # well as the doi/article.
 
       pub_id = case record.publication_type
-               when :journal then "http://crossref.org/serial/#{record.preferred_issn}"
-               when :conference then "http://crossref.org/book/#{record.isbn}"
+               when :journal then "http://crossref.org/serials/#{record.preferred_issn}"
+               when :conference then "http://crossref.org/books/#{record.isbn}"
                else nil
                end
       

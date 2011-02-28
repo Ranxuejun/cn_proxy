@@ -17,7 +17,7 @@ class CrossrefMetadataRecord
 
   class Contributor
 
-    attr_reader :ordinal
+    attr_writer :ordinal
 
     def initialize node
       @xml = node
@@ -60,8 +60,8 @@ class CrossrefMetadataRecord
     end
 
     def unique_slug
-      if ordinal and ordinal != 0 then
-        slug + '-' + ordinal.to_s
+      if @ordinal and @ordinal != 0 then
+        slug + '-' + @ordinal.to_s
       else
         slug
       end
@@ -231,8 +231,29 @@ class CrossrefMetadataRecord
 
   def add_contributors
     @contributors = Array.new 
+    @contributor_name_counts = Hash.new
     @record.root.elements.each("//contributors/person_name") do |contributor_node|
-      @contributors << c = Contributor.new( contributor_node )     
+      c = Contributor.new contributor_node
+
+      old_count = @contributor_name_counts[c.slug]
+
+      new_count = @contributor_name_counts[c.slug] += 1 if old_count
+      new_count = @contributor_name_counts[c.slug] = 1 if not old_count
+
+      @contributors << c
+    end
+
+    temp_counts = Hash.new
+
+    @contributors.each do |c|
+      slug = c.slug
+      if @contributor_name_counts[slug] != 1 then
+        if temp_counts[slug] then
+          c.ordinal = temp_counts[slug] = temp_counts[slug].next
+        else
+          c.ordinal = temp_counts[slug] = 1
+        end  
+      end
     end
   end
 

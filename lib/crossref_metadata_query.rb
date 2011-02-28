@@ -21,6 +21,7 @@ class CrossrefMetadataQuery
 
   def get_unixref doi, pid
     safe_doi = CGI.escape doi
+    # @unixref = File.open('test-data/article.xml', 'r').read
     @unixref = open("http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=#{pid}&format=unixref").read
     scrape_for_errors
   end
