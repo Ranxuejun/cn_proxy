@@ -13,23 +13,20 @@ class CrossrefMetadataQuery
 
   attr_reader :unixref
 
-  def initialize doi, pid
-    get_unixref doi, pid
-  end
-
-  private
-
-  def get_unixref doi, pid
+  def self.for_doi doi, pid
     safe_doi = CGI.escape doi
     # @unixref = File.open('test-data/article.xml', 'r').read
-    @unixref = open("http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=#{pid}&format=unixref").read
-    scrape_for_errors
+    unixref = open("http://www.crossref.org/openurl/?id=#{safe_doi}&noredirect=true&pid=#{pid}&format=unixref").read
+    scrape_for_errors unixref
+    unixref
   end
 
-  def scrape_for_errors 
-    case @unixref
-    when /\<journal\>/, /\<conference\>/
+  def self.scrape_for_errors unixref
+    case unixref
+    when /\<journal\>/, /\<conference\>/, /\<book\>/, /\<dissertation\>/, /\<report-paper\>/, /\<standard\>/, /\<database\>/
       return
+    when /doi_records/
+      raise CrossRefError.new("Unknown doi_record type", '400')
     when  /Unable to parse or validate the xml query/
       #raise "400 Invalid DOI"
       raise CrossRefError.new("Invalid DOI", "400")

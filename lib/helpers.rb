@@ -78,18 +78,21 @@ helpers do
     json = (Crack::XML.parse(xml)).to_json  
   end
 
-  def render_rdf format, unixref
+  def render_unixref format, unixref
     metadata = CrossrefMetadataResults.new
     record = REXML::Document.new unixref
     metadata.records << CrossrefMetadataRecord.new(record)
 
+    render_rdf format, metadata.to_graph
+  end
+
+  def render_rdf format, rdf
     RDF::Writer.for(format).buffer do |writer|
-      writer << metadata.to_graph
+      writer << rdf
     end
   end
-    
-  def render_representation query_pid
-    unixref = CrossrefMetadataQuery.new(request.env['doi'], query_pid).unixref
+
+  def render_representation unixref
     case representation
     when ".unixref"
       unixref   
@@ -98,13 +101,14 @@ helpers do
     when ".atom"
       render_feed :atom_feed, unixref
     when ".ttl"
-      render_rdf :turtle, unixref
+      render_unixref :turtle, unixref
     when ".rdf"
-      render_rdf :rdfxml, unixref
+      render_unixref :rdfxml, unixref
     when ".jsonrdf"
-      render_rdf :json, unixref
+      render_unixref :json, unixref
     when ".ntriples"
-      render_rdf :ntriples, unixref
+      render_unxiref :ntriples, unixref
     end
   end
+
 end

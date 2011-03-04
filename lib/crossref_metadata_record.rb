@@ -270,7 +270,7 @@ class CrossrefMetadataRecord
   end
 
   def to_graph
-    CrossrefMetadataRdf.create_graph self
+    CrossrefMetadataRdf.create_for_record self
   end
 
 end

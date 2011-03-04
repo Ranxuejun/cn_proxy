@@ -29,9 +29,26 @@ get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] d
   request.env['doi']
 end
 
+get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
+  rdf = CrossrefMetadataRdf.create_for_issn params[:issn]
+  case representation
+  when ".rdf"
+    render_rdf :rdfxml, rdf
+  when ".ttl"
+    render_rdf :turtle, rdf
+  when ".jsonrdf"
+    render_rdf :json, rdf
+  end
+end
+
+get '/isbn/:isbn', :provides => [:rdf, :json, :ttl, :jsonrdf] do
+end
+
+
 get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
   raise InvalidDOI unless request.env['doi']
-  render_representation options.query_pid
+  uxr = CrossrefMetadataQuery.for_doi(request.env['doi'], options.query_pid)
+  render_representation uxr
 end
 
 get '/*' do 

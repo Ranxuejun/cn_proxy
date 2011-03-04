@@ -7,6 +7,9 @@ class CrossrefMetadataRdf
   @@bibo = RDF::Vocabulary.new 'http://purl.org/ontology/bibo/'
   @@rdf = RDF::Vocabulary.new 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 
+  @@data = 'http://data.crossref.org'
+  @@periodicals = 'http://periodicals.dataincubator.org'
+
   def self.prism
     @@prism
   end
@@ -25,7 +28,49 @@ class CrossrefMetadataRdf
     end
   end
 
-  def self.create_graph record
+  def self.find_issn_graph issn
+    issn_graph = RDF::Graph.load "#{@@periodicals}/issn/#{issn}.rdf"
+
+    issn_graph.each_object do |object|
+      case object.to_s
+      when /\/journal\//
+        return RDF::Graph.load(object.to_s + '.rdf')
+      end
+    end
+  end
+
+  def self.create_for_issn issn
+    issn_graph = self.find_issn_graph issn                  
+
+    RDF::Graph.new do |graph|
+
+      id = RDF::URI.new "#{@@data}/issn/#{issn}"
+      urn_id = RDF::URI.new "urn:issn:#{issn}"
+      di_id = RDF::URI.new "#{@@periodicals}/issn/#{issn}"
+
+      queries = RDF::Query.new({
+        :issue => {
+          RDF::DC.title => :title,
+          RDF::DC.publisher => :publisher,
+          rdf.type => :type
+        }
+      })
+
+      results = queries.execute issn_graph
+                                     
+      add_to graph, [id, RDF::DC.sameAs, di_id]
+      add_to graph, [id, RDF::DC.sameAs, urn_id]
+
+      if not results.empty? then
+        add_to graph, [id, RDF::DC.title, results.first[:title].to_s]
+        add_to graph, [id, RDF::DC.publisher, results.first[:publisher].to_s]
+        add_to graph, [id, rdf.type, results.first[:type].to_s]
+      end
+
+    end
+  end
+
+  def self.create_for_record record
     RDF::Graph.new do |graph|
       
       # We start by deciding an identifier for the doi subject we are 
@@ -72,9 +117,10 @@ class CrossrefMetadataRdf
       when :conference
         graph << [id, rdf.type, bibo.Article]
       when :book
-          graph << [id, rdf.type, bibo.Book]
-          graph << [id, bibo.isbn, record.isbn]
-          graph << [id, prism.isbn, record.isbn]
+        graph << [id, rdf.type, bibo.Book]
+        graph << [id, bibo.isbn, record.isbn]
+        graph << [id, prism.isbn, record.isbn]
+        graph << [id, RDF::DC.sameAs, RDF::URI.new("urn:isbn:#{record.isbn}")]
       when :report
         graph << [id, rdf.type, bibo.Report]
       when :standard
@@ -89,8 +135,8 @@ class CrossrefMetadataRdf
       # well as the doi/article.
 
       pub_id = case record.publication_type
-               when :journal then "http://crossref.org/serials/#{record.preferred_issn}"
-               when :conference then "http://crossref.org/books/#{record.isbn}"
+               when :journal then "#{@@data}/issn/#{record.preferred_issn}"
+               when :conference then "#{@@data}/isbn/#{record.isbn}"
                else nil
                end
       

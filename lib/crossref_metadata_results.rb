@@ -16,7 +16,7 @@ class CrossrefMetadataResults
   def ninitialize dois
     @records = []
     dois.each do |doi| 
-    end   
+    end
   end
 
   def to_graph
