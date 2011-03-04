@@ -33,7 +33,7 @@ class CrossrefMetadataRdf
 
     issn_graph.each_object do |object|
       case object.to_s
-      when /\/journal\//
+      when /#{@@periodicals}\/journal\//
         return RDF::Graph.load(object.to_s + '.rdf')
       end
     end
@@ -174,7 +174,7 @@ class CrossrefMetadataRdf
       # We describe each contributor and attach them to the doi subject.
       
       record.contributors.each do |c|
-        c_id = RDF::URI.new('http://crossref.org/' + record.contributor_path(c))
+        c_id = RDF::URI.new("#{@@data}/#{record.contributor_path(c)}")
         
         graph << [id, RDF::DC.creator, c_id]
         
