@@ -221,10 +221,22 @@ class CrossrefMetadataRecord
     @publisher = REXML::Document.new(results.body)
   end
 
+  def normalise_issn issn
+    norm = issn.gsub /[^0-9]+/, ''
+    if issn =~ /x|X/ then
+      "#{norm[0..3]}-#{norm[4..-1]}X"
+    else
+      "#{norm[0..3]}-#{norm[4..-1]}"
+    end
+  end
+
   def issn_of_type type
     @record.root.each_element("//issn") { |issn|
-      return issn.text if issn.attributes['media_type'] == type 
-      return issn.text if issn.attributes['media_type'] == nil and type == 'print'
+      if issn.attributes['media_type'] == type 
+        return normalise_issn(issn.text) 
+      elsif issn.attributes['media_type'] == nil and type == 'print'
+        return normalise_issn(issn.text)
+      end
     }
     return nil
   end
