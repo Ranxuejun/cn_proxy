@@ -113,7 +113,7 @@ class CrossrefMetadataRdf
       
       case record.publication_type
       when :journal
-        graph << [id, rdf.type, bibo.AcademicArticle]
+        graph << [id, rdf.type, bibo.Article]
       when :conference
         graph << [id, rdf.type, bibo.Article]
       when :book
