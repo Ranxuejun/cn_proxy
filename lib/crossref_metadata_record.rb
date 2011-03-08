@@ -3,6 +3,7 @@ require 'rexml/document'
 include REXML
 require 'unidecode'
 require 'crossref_metadata_rdf'
+require 'zlib'
 
 # Awful patch for rdf library on ruby 1.8.7 .
 class StringIO
