@@ -91,6 +91,14 @@ helpers do
 
   def render_rdf format, rdf
     RDF::Writer.for(format).buffer do |writer|
+      writer.prefixes = {
+        :dct => RDF::DC,
+        :owl => RDF::OWL,
+        :foaf => RDF::FOAF,
+        :prism => CrossrefMetadataRdf.prism,
+        :bibo => CrossrefMetadataRdf.bibo,
+        :rdf => CrossrefMetadataRdf.rdf
+      }  
       writer << rdf
     end
   end
