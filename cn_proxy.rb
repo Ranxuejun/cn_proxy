@@ -22,7 +22,9 @@ configure do
 end
 
 before do
-  handle_dois
+  tidy_request_for_testing
+  detect_doi
+  detect_subdomain
 end
 
 get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
@@ -30,25 +32,32 @@ get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] d
 end
 
 get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
-  rdf = CrossrefMetadataRdf.create_for_issn params[:issn]
-  case representation
-  when ".rdf"
-    render_rdf :rdfxml, rdf
-  when ".ttl"
-    render_rdf :turtle, rdf
-  when ".jsonrdf"
-    render_rdf :json, rdf
+  if request.env['subdomain'] == 'id' then
+    redirect "http://data.crossref.org/#{params[:issn]}", 303
+  else
+
+    rdf = CrossrefMetadataRdf.create_for_issn params[:issn]
+    case representation
+    when ".rdf"
+      render_rdf :rdfxml, rdf
+    when ".ttl"
+      render_rdf :turtle, rdf
+    when ".jsonrdf"
+      render_rdf :json, rdf
+    end
+
   end
 end
 
-get '/isbn/:isbn', :provides => [:rdf, :json, :ttl, :jsonrdf] do
-end
-
-
 get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
   raise InvalidDOI unless request.env['doi']
-  uxr = CrossrefMetadataQuery.for_doi(request.env['doi'], options.query_pid)
-  render_representation uxr
+
+  if request.env['subdomain'] == 'id' then
+    redirect "http://data.crossref.org/#{request.env['doi']}", 303
+  else
+    uxr = CrossrefMetadataQuery.for_doi(request.env['doi'], options.query_pid)
+    render_representation uxr
+  end
 end
 
 get '/*' do 

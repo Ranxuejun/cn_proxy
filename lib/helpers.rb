@@ -28,6 +28,10 @@ helpers do
     request.env['doi'] = (is_valid_doi? doi) ? doi : nil
   end
 
+  def detect_subdomain
+    request.env['subdomain'] = request.env['SERVER_NAME'].split(/\./)[0]
+  end
+
   def strip_route doi
     doi =~ /^\/(.*?)\/10\./ # detect route 
     doi = $1 ? doi.sub(Regexp.new("^/#{$1}\/"),"") : doi.sub(Regexp.new("^/"),"") # remove route, or if their isn't a route, remove slash...
@@ -35,11 +39,6 @@ helpers do
 
   def is_valid_doi? text
     text =~ /^10\.\d{4,5}(\.[\.\w]+)*\/\S+$/ 
-  end
-
-  def handle_dois
-    tidy_request_for_testing   
-    detect_doi
   end
 
   def entire_url

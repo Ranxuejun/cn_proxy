@@ -23,8 +23,8 @@ class CrossrefMetadataRdf
     @@rdf
   end
 
-  def self.contributor_res contributor
-    "#{@@id}/contributor/#{contributor}"
+  def self.contributor_res id
+    "#{@@id}/contributor/#{id}"
   end
 
   def self.issue_res issn
@@ -33,6 +33,18 @@ class CrossrefMetadataRdf
 
   def self.book_res isbn
     "#{@@id}/isbn/#{isbn}"
+  end
+
+  def self.contributor_data id
+    "#{@@data}/contributor/#{id}"
+  end
+
+  def self.issue_data issn
+    "#{@@data}/issn/#{issn}"
+  end
+
+  def self.book_data isbn
+    "#{@@data}/isbn/#{isbn}"
   end
 
   def self.issue_urn issn
@@ -114,10 +126,13 @@ class CrossrefMetadataRdf
       
       # We try to record as many predicates about the doi subject as we
       # can, given the unixref available.
+
+      info_doi = RDF::URI.new "info:doi/#{record.doi}"
+      doi = RDF::URI.new "doi:#{record.doi}"
       
       add_to graph, [id, RDF::DC.identifier, record.doi]
-      add_to graph, [id, RDF::OWL.sameAs, RDF::URI.new('info:doi/' + record.doi)]
-      add_to graph, [id, RDF::OWL.sameAs, RDF::URI.new('doi:' + record.doi)]
+      add_to graph, [id, RDF::OWL.sameAs, info_doi]
+      add_to graph, [id, RDF::OWL.sameAs, doi]
       add_to graph, [id, prism.doi, record.doi]
       add_to graph, [id, bibo.doi, record.doi]
       add_to graph, [id, RDF::DC.date, pub_date]
@@ -145,7 +160,7 @@ class CrossrefMetadataRdf
         graph << [id, rdf.type, bibo.Book]
         graph << [id, bibo.isbn, record.isbn]
         graph << [id, prism.isbn, record.isbn]
-        graph << [id, RDF::DC.sameAs, RDF::URI.new(self.booK_urn(record.isbn))]
+        graph << [id, RDF::DC.sameAs, RDF::URI.new(self.book_urn(record.isbn))]
       when :report
         graph << [id, rdf.type, bibo.Report]
       when :standard
