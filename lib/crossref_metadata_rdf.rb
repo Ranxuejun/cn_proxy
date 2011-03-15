@@ -58,7 +58,7 @@ class CrossrefMetadataRdf
   end
 
   def self.incubator_issue_res issn
-    "#{@@periodicals}/issn/#{issn}.rdf"
+    "#{@@periodicals}/issn/#{issn}"
   end
 
   def self.add_to graph, statement
@@ -69,16 +69,17 @@ class CrossrefMetadataRdf
 
   def self.find_issn_graph issn
     begin
-      issn_graph = RDF::Graph.load self.incubator_issue_res(issn)
-    rescue
-      raise UnknownIssn
-    end
-
-    issn_graph.each_object do |object|
-      case object.to_s
-      when /#{@@periodicals}\/journal\//
-        return RDF::Graph.load(object.to_s + '.rdf')
+      issn_graph = RDF::Graph.load self.incubator_issue_res(issn) + '.rdf'
+    
+      issn_graph.each_object do |object|
+        case object.to_s
+        when /#{@@periodicals}\/journal\//
+          return RDF::Graph.load(object.to_s + '.rdf')
+        end
       end
+    rescue
+      # TODO Make this more granular.
+      raise UnknownIssn
     end
   end
 
@@ -105,8 +106,10 @@ class CrossrefMetadataRdf
       add_to graph, [id, RDF::DC.sameAs, urn_id]
 
       if not results.empty? then
+        publisher_res = RDF::URI.new results.first[:publisher].to_s
+
         add_to graph, [id, RDF::DC.title, results.first[:title].to_s]
-        add_to graph, [id, RDF::DC.publisher, results.first[:publisher].to_s]
+        add_to graph, [id, RDF::DC.publisher, publisher_res]
         add_to graph, [id, rdf.type, results.first[:type].to_s]
       end
 

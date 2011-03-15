@@ -68,5 +68,6 @@ end
 
 get '/*' do 
   raise MalformedDoi unless request.env['doi']
+  
   redirect "http://dx.doi.org/#{request.env['doi']}", 303
 end
