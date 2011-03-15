@@ -2,15 +2,43 @@
 <% ENV['thin_servers'].to_i.times do |i| %>    BalancerMember http://127.0.0.1:<%= 3000 + i %>
 <% end %></Proxy>
 
-# Virtual host configuration
+# Data information resource subdomain
 <VirtualHost *:80>
 
-  ServerName          <%= ENV['server_name'] %>
+  ServerName          <%= ENV['data_server_name'] %>
   AllowEncodedSlashes On
 
   ServerAdmin      kward@crossref.org
-  ErrorLog         /var/log/apache2/cnproxy_error_log
-  TransferLog      /var/log/apache2/cnproxy_access_log
+  ErrorLog         /var/log/apache2/cnproxy_data_error_log
+  TransferLog      /var/log/apache2/cnproxy_data_access_log
+  UseCanonicalName Off
+
+  ProxyRequests Off
+
+  <Proxy *>
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ProxyPass / balancer://cnproxy/
+  ProxyPassReverse / balancer://cnproxy/
+
+  <Location />
+    Order allow,deny
+    Allow from all
+  </Location>
+
+</VirtualHost>
+
+# Id non-information resource subdomain
+<VirtualHost *:80>
+
+  ServerName          <%= ENV['id_server_name'] %>
+  AllowEncodedSlashes On
+
+  ServerAdmin      kward@crossref.org
+  ErrorLog         /var/log/apache2/cnproxy_id_error_log
+  TransferLog      /var/log/apache2/cnproxy_id_access_log
   UseCanonicalName Off
 
   ProxyRequests Off
