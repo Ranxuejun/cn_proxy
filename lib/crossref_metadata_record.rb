@@ -270,8 +270,8 @@ class CrossrefMetadataRecord
     end
   end
 
-  def contributor_path c
-    "contributors/#{c.unique_slug}-#{Zlib.crc32(doi, 0).to_s(16)}"
+  def contributor_id c
+    "#{c.unique_slug}-#{Zlib.crc32(doi, 0).to_s(16)}"
   end
 
   def maybe_tag name, content

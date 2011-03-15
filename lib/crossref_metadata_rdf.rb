@@ -8,6 +8,7 @@ class CrossrefMetadataRdf
   @@rdf = RDF::Vocabulary.new 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 
   @@data = 'http://data.crossref.org'
+  @@id = 'http://id.crossref.org'
   @@periodicals = 'http://periodicals.dataincubator.org'
 
   def self.prism
@@ -22,6 +23,30 @@ class CrossrefMetadataRdf
     @@rdf
   end
 
+  def self.contributor_res contributor
+    "#{@@id}/contributor/#{contributor}"
+  end
+
+  def self.issue_res issn
+    "#{@@id}/issn/#{issn}"
+  end
+
+  def self.book_res isbn
+    "#{@@id}/isbn/#{isbn}"
+  end
+
+  def self.issue_urn issn
+    "urn:issn:#{issn}"
+  end
+
+  def self.book_urn isbn
+    "urn:isbn:#{isbn}"
+  end
+
+  def self.incubator_issue_res issn
+    "#{@@periodicals}/issn/#{issn}.rdf"
+  end
+
   def self.add_to graph, statement
     if statement[2] != nil then
       graph << statement
@@ -29,7 +54,7 @@ class CrossrefMetadataRdf
   end
 
   def self.find_issn_graph issn
-    issn_graph = RDF::Graph.load "#{@@periodicals}/issn/#{issn}.rdf"
+    issn_graph = RDF::Graph.load self.incubator_issue_res(issn)
 
     issn_graph.each_object do |object|
       case object.to_s
@@ -44,9 +69,9 @@ class CrossrefMetadataRdf
 
     RDF::Graph.new do |graph|
 
-      id = RDF::URI.new "#{@@data}/issn/#{issn}"
-      urn_id = RDF::URI.new "urn:issn:#{issn}"
-      di_id = RDF::URI.new "#{@@periodicals}/issn/#{issn}"
+      id = RDF::URI.new self.issue_res issn
+      urn_id = RDF::URI.new self.issue_urn issn
+      di_id = RDF::URI.new self.incubator_issue_res issn
 
       queries = RDF::Query.new({
         :issue => {
@@ -120,7 +145,7 @@ class CrossrefMetadataRdf
         graph << [id, rdf.type, bibo.Book]
         graph << [id, bibo.isbn, record.isbn]
         graph << [id, prism.isbn, record.isbn]
-        graph << [id, RDF::DC.sameAs, RDF::URI.new("urn:isbn:#{record.isbn}")]
+        graph << [id, RDF::DC.sameAs, RDF::URI.new(self.booK_urn(record.isbn))]
       when :report
         graph << [id, rdf.type, bibo.Report]
       when :standard
@@ -135,8 +160,8 @@ class CrossrefMetadataRdf
       # well as the doi/article.
 
       pub_id = case record.publication_type
-               when :journal then "#{@@data}/issn/#{record.preferred_issn}"
-               when :conference then "#{@@data}/isbn/#{record.isbn}"
+               when :journal then self.issue_res record.preferred_issn
+               when :conference then self.book_res record.isbn
                else nil
                end
       
@@ -156,13 +181,13 @@ class CrossrefMetadataRdf
         
         case record.publication_type
         when :journal
-          urn = RDF::URI.new "urn:issn:#{record.preferred_issn}"
+          urn = RDF::URI.new self.issue_urn record.preferred_issn
 
           graph << [pub_id, rdf.type, bibo.Journal]
           graph << [pub_id, RDF::OWL.sameAs, urn]
           graph << [pub_id, RDF::DC.identifier, record.preferred_issn]
         when :conference
-          urn = RDF::URI.new "urn:isbn:#{record.isbn}"
+          urn = RDF::URI.new self.book_urn record.isbn
 
           graph << [id, bibo.reproducedIn, pub_id]
           graph << [pub_id, rdf.type, bibo.Proceedings]
@@ -174,7 +199,7 @@ class CrossrefMetadataRdf
       # We describe each contributor and attach them to the doi subject.
       
       record.contributors.each do |c|
-        c_id = RDF::URI.new("#{@@data}/#{record.contributor_path(c)}")
+        c_id = RDF::URI.new self.contributor_res(record.contributor_id(c))
         
         graph << [id, RDF::DC.creator, c_id]
         
