@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'rdf'
 
+require 'errors'
+
 class CrossrefMetadataRdf
 
   @@prism = RDF::Vocabulary.new 'http://prismstandard.org/namespaces/basic/2.0/'
@@ -66,7 +68,11 @@ class CrossrefMetadataRdf
   end
 
   def self.find_issn_graph issn
-    issn_graph = RDF::Graph.load self.incubator_issue_res(issn)
+    begin
+      issn_graph = RDF::Graph.load self.incubator_issue_res(issn)
+    rescue
+      raise UnknownIssn
+    end
 
     issn_graph.each_object do |object|
       case object.to_s

@@ -32,6 +32,8 @@ get '/echo_doi/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] d
 end
 
 get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
+  raise MalformedIssn unless is_valid_issn? params[:issn]
+
   if request.env['subdomain'] == 'id' then
     redirect "http://data.crossref.org/#{params[:issn]}", 303
   else
@@ -49,8 +51,12 @@ get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
   end
 end
 
+get '/issn/:issn' do
+  raise UnknownContentType
+end
+
 get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
-  raise InvalidDOI unless request.env['doi']
+  raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then
     redirect "http://data.crossref.org/#{request.env['doi']}", 303
@@ -61,6 +67,6 @@ get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
 end
 
 get '/*' do 
-  raise InvalidDOI unless request.env['doi']
+  raise MalformedDoi unless request.env['doi']
   redirect "http://dx.doi.org/#{request.env['doi']}", 303
 end

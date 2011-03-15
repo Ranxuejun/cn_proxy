@@ -41,6 +41,10 @@ helpers do
     text =~ /^10\.\d{4,5}(\.[\.\w]+)*\/\S+$/ 
   end
 
+  def is_valid_issn? issn
+    issn =~ /^[0-9]{4}\-[0-9]+X?$/
+  end
+
   def entire_url
     base = "http://#{request.env['SERVER_NAME']}"
     port = request.env['SERVER_PORT'] == 80 ? base : base = base +  ":#{request.env['SERVER_PORT']}"
