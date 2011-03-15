@@ -31,7 +31,7 @@ task :configure do
   id_server_name = Capistrano::CLI.ui.ask("Enter vhost id server name: ")
   pid = Capistrano::CLI.ui.ask("Enter a CrossRef query pid: ")
   stream("cd #{deploy_to}/current; rake pid=#{pid} build_config ")
-  stream("cd #{deploy_to}/current; rake server_name=#{server_name} thin_servers=#{thin_servers} build_vhosts")
+  stream("cd #{deploy_to}/current; rake data_server_name=#{data_server_name} id_server_name=#{id_server_name} thin_servers=#{thin_servers} build_vhosts")
 end
 
 desc "Install vhosts"
