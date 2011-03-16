@@ -23,56 +23,52 @@ def e details
 end
 
 error MalformedIdentifier do
-  e {:status => 400}
+  e :status => 400
 end
 
 error MalformedDoi do
-  e {:status => 400, :msg => "Malformed DOI"}
+  e :status => 400, :msg => "Malformed DOI"
 end
 
 error MalformedIssn do
-  e {:status => 400, :msg => "Malformed ISSN"}
+  e :status => 400, :msg => "Malformed ISSN"
 end
 
 error MalformedIsbn do
-  e {:status => 400, :msg => "Malformed ISBN"}
+  e :status => 400, :msg => "Malformed ISBN"
 end
 
 error MalformedContributor do
-  e {:status => 400, :msg => "Malformed ID"}
+  e :status => 400, :msg => "Malformed ID"
 end
 
 error UnknownIdentifier do
-  e {:status => 404}
+  e :status => 404
 end
 
 error UnknownDoi do
-  e {:status => 404, :msg => "Unknown DOI"}
+  e :status => 404, :msg => "Unknown DOI"
 end
 
 error UnknownIssn do
-  e {:status => 404, :msg => "Unknown ISSN"}
+  e :status => 404, :msg => "Unknown ISSN"
 end
 
 error UnknownIsbn do
-  e {:status => 404, :msg => "Unknown ISBN"}
+  e :status => 404, :msg => "Unknown ISBN"
 end
 
 error UnknownContributor do
-  e {:status => 404, :msg => "Unknown ID"}
+  e :status => 404, :msg => "Unknown ID"
 end
 
 error UnknownContentType do
-  e {
-    :status => 406, 
+  e :status => 406, 
     :msg => "Can't respond with requested content type"
-  }
 end
 
 error QueryFailure do
-  e {
-    :status => 500, 
+  e :status => 500, 
     :msg => "An external query failed"
-  }
 end
 
