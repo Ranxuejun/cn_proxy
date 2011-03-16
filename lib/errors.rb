@@ -16,61 +16,63 @@ class UnknownIssn < UnknownIdentifier; end
 class UnknownIsbn < UnknownIdentifier; end
 class UnknownContributor < UnknownIdentifier; end
 
+def e details
+  status details[:status] if details.has_key? :status
+  content_type 'text/html'
+  details[:msg] if details.has_key? :msg
+end
+
 error MalformedIdentifier do
-  status 400
+  e {:status => 400}
 end
 
 error MalformedDoi do
-  status 400
-  "Malformed DOI"
+  e {:status => 400, :msg => "Malformed DOI"}
 end
 
 error MalformedIssn do
-  status 400
-  "Malformed Issn"
+  e {:status => 400, :msg => "Malformed ISSN"}
 end
 
 error MalformedIsbn do
-  status 400
-  "Malformed Isbn"
+  e {:status => 400, :msg => "Malformed ISBN"}
 end
 
 error MalformedContributor do
-  status 400
-  "Malformed contributor ID"
+  e {:status => 400, :msg => "Malformed ID"}
 end
 
 error UnknownIdentifier do
-  status 404
+  e {:status => 404}
 end
 
 error UnknownDoi do
-  status 404
-  "Unknown DOI"
+  e {:status => 404, :msg => "Unknown DOI"}
 end
 
 error UnknownIssn do
-  status 404
-  "Unknown Issn"
+  e {:status => 404, :msg => "Unknown ISSN"}
 end
 
 error UnknownIsbn do
-  status 404
-  "Unknown Isbn"
+  e {:status => 404, :msg => "Unknown ISBN"}
 end
 
 error UnknownContributor do
-  status 404
-  "Unknown contributor ID"
+  e {:status => 404, :msg => "Unknown ID"}
 end
 
 error UnknownContentType do
-  status 406
-  "Can't respond with requested content type"
+  e {
+    :status => 406, 
+    :msg => "Can't respond with requested content type"
+  }
 end
 
 error QueryFailure do
-  status 500
-  "An external query failed"
+  e {
+    :status => 500, 
+    :msg => "An external query failed"
+  }
 end
 
