@@ -70,6 +70,10 @@ end
 
 get '/*' do 
   raise MalformedDoi unless request.env['doi']
-
-  redirect "http://dx.doi.org/#{request.env['doi']}", 303
+  
+  if request.env['subdomain'] == 'id' then
+    redirect "http://dx.doi.org/#{request.env['doi']}", 303
+  else
+    raise UnknownContentType
+  end
 end
