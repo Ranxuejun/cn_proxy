@@ -51,13 +51,8 @@ class CrossrefMetadataRecord
     def slug
       decoded = Unidecoder.decode name.strip
       decrufted = decoded.gsub(/\./, ' ').gsub(/\s+/, '-').downcase
-      slug_str = ''
-      decrufted.each_byte do |c|
-        if (c >= ?a and c <= ?z) or c == ?- then
-          slug_str << c.chr
-        end
-      end
-      slug_str
+      
+      decrufted.gsub(/[^a-z-]/, '')
     end
 
     def unique_slug
