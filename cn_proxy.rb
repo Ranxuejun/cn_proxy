@@ -31,7 +31,7 @@ get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
   raise MalformedIssn unless is_valid_issn? params[:issn]
 
   if request.env['subdomain'] == 'id' then
-    redirect "http://data.crossref.org/#{params[:issn]}", 303
+    redirect "http://data.crossref.org/issn/#{params[:issn]}", 303
   else
 
     rdf = CrossrefMetadataRdf.create_for_issn params[:issn]
@@ -51,7 +51,7 @@ get '/issn/:issn' do
   raise MalformedIssn unless is_valid_issn? params[:issn]
 
   if request.env['subdomain'] == 'id' then
-    redirect "http://data.crossref.org/#{params[:issn]}", 303
+    redirect "http://data.crossref.org/issn/#{params[:issn]}", 303
   else
     raise UnknownContentType
   end
