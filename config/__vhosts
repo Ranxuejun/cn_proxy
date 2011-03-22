@@ -9,8 +9,8 @@
   TransferLog      /var/log/apache2/cnproxy_data_access_log
   UseCanonicalName Off
 
-  DocumentRoot /home/webapps/cn_proxy/current
-  <Directory /home/webapps/cn_proxy/current>
+  DocumentRoot /home/webapps/cn_proxy/current/public
+  <Directory /home/webapps/cn_proxy/current/public>
     Allow from all
     Options -MultiViews
   </Directory>
@@ -29,8 +29,8 @@
   TransferLog      /var/log/apache2/cnproxy_id_access_log
   UseCanonicalName Off
 
-  DocumentRoot /home/webapps/cn_proxy/current
-  <Directory /home/webapps/cn_proxy/current>
+  DocumentRoot /home/webapps/cn_proxy/current/public
+  <Directory /home/webapps/cn_proxy/current/public>
     Allow from all
     Options -MultiViews
   </Directory>
