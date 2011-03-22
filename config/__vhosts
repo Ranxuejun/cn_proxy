@@ -1,7 +1,3 @@
-<Proxy balancer://cnproxy>
-<% ENV['thin_servers'].to_i.times do |i| %>    BalancerMember http://127.0.0.1:<%= 3000 + i %>
-<% end %></Proxy>
-
 # Data information resource subdomain
 <VirtualHost *:80>
 
@@ -13,21 +9,13 @@
   TransferLog      /var/log/apache2/cnproxy_data_access_log
   UseCanonicalName Off
 
-  ProxyRequests Off
-
-  <Proxy *>
-    Order deny,allow
+  DocumentRoot /home/webapps/cn_proxy/current
+  <Directory /home/webapps/cn_proxy/current>
     Allow from all
-  </Proxy>
+    Options -MultiViews
+  </Directory>
 
-  ProxyPass / balancer://cnproxy/
-  ProxyPassReverse / balancer://cnproxy/
-
-  <Location />
-    Order allow,deny
-    Allow from all
-  </Location>
-
+  PassengerMinInstances 5
 </VirtualHost>
 
 # Id non-information resource subdomain
@@ -41,19 +29,14 @@
   TransferLog      /var/log/apache2/cnproxy_id_access_log
   UseCanonicalName Off
 
-  ProxyRequests Off
-
-  <Proxy *>
-    Order deny,allow
+  DocumentRoot /home/webapps/cn_proxy/current
+  <Directory /home/webapps/cn_proxy/current>
     Allow from all
-  </Proxy>
+    Options -MultiViews
+  </Directory>
 
-  ProxyPass / balancer://cnproxy/
-  ProxyPassReverse / balancer://cnproxy/
-
-  <Location />
-    Order allow,deny
-    Allow from all
-  </Location>
-
+  PassengerMinInstances 5
 </VirtualHost>
+
+PassengerPreStart http://<%= ENV['data_server_name'] %>/
+PassengerPreStart http://<%= ENV['id_server_name'] %>/

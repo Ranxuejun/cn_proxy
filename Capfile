@@ -1,7 +1,6 @@
 load 'deploy' if respond_to?(:namespace) # cap2 differentiator
 
 set :application, 'cn_proxy'
-set :thin_servers, 4 unless variables[:thin_servers]
 
 set :user, 'deploy' unless variables[:user]
 set :use_sudo, false
@@ -27,11 +26,13 @@ end
 
 desc "Create apache vhosts and application config"
 task :configure do
+  stream("cd #{deploy_to}/current/config; rm -f vhosts")
+  stream("cd #{deploy_to}/current/config; rm -f settings.yaml")
   data_server_name = Capistrano::CLI.ui.ask("Enter vhost data server name: ")
   id_server_name = Capistrano::CLI.ui.ask("Enter vhost id server name: ")
   pid = Capistrano::CLI.ui.ask("Enter a CrossRef query pid: ")
   stream("cd #{deploy_to}/current; rake pid=#{pid} build_config ")
-  stream("cd #{deploy_to}/current; rake data_server_name=#{data_server_name} id_server_name=#{id_server_name} thin_servers=#{thin_servers} build_vhosts")
+  stream("cd #{deploy_to}/current; rake data_server_name=#{data_server_name} id_server_name=#{id_server_name} build_vhosts")
 end
 
 desc "Install vhosts"
@@ -42,6 +43,11 @@ task :install do
   stream("sudo bash -c 'ln -nsf /etc/apache2/sites-available/#{application} /etc/apache2/sites-enabled/#{application}'")
 end
 
+desc "Restart apache"
+task :restart_apache do
+  set :user, 'ubuntu'
+  stream("sudo bash -c 'apache2ctl restart'")
+end
 
 namespace :deploy do
 
@@ -50,25 +56,5 @@ namespace :deploy do
   task :start do ; end
   task :stop do ; end
   task :restart do ; end
-
-end
-
-namespace :control do
-   
-  desc "Start thin servers"
-  task :start do
-    stream("cd #{deploy_to}/current; thin start -d -s#{thin_servers} -R config.ru")
-  end
-
-  desc "Stop apache and thin servers"
-  task :stop do
-    stream("cd #{deploy_to}/current; thin -s#{thin_servers} stop")
-  end
-
-  desc "Restart apache"
-  task :restart_apache do
-    set :user, 'ubuntu'
-    stream("sudo bash -c 'apache2ctl restart'")
-  end
 
 end

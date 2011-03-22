@@ -9,7 +9,7 @@ DEPLOYKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA1+ryPnD7q2FHCdb7j6hSGytLDpxnZ1jcE
 
 WEBAPPSHOME="/home/webapps"
 
-GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks thin capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog unidecode"
+GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks passenger capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog unidecode"
 
 PACKAGES="linux-headers-generic libsqlite3-dev gcc g++ build-essential zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev curl git-core apache2 apache2-dev"
 
@@ -43,6 +43,10 @@ echo "Installing gem dependencies..."
 gem update &>>$OUTFILE
 gem install --quiet --no-rdoc --no-ri $GEMS &>>$OUTFILE
 
+### Install Apache2 passenger module
+echo "Installing mod_passenger..."
+passenger-install-apache2-module
+
 ### Create a deploy user
 echo "Creating deploy user..."
 ADDUSER="adduser --gecos \"\" --disabled-password $DEPLOYUSER"
@@ -60,32 +64,11 @@ chown -R $DEPLOYUSER.$DEPLOYUSER $DEPLOYHOME/.ssh
 echo "Creating webapps dir..."
 mkdir -p $WEBAPPSHOME
 chown -R $DEPLOYUSER.$DEPLOYUSER $WEBAPPSHOME
- 
-### Setup apache mod proxy
-echo "Enabling mod proxy and proxy balancer..."
-ln -nsf /etc/apache2/mods-available/proxy.load /etc/apache2/mods-enabled/proxy.load
-ln -nsf /etc/apache2/mods-available/proxy.conf /etc/apache2/mods-enabled/proxy.conf
-ln -nsf /etc/apache2/mods-available/proxy_http.load /etc/apache2/mods-enabled/proxy_http.load
 
-ln -nsf /etc/apache2/mods-available/proxy_balancer.load /etc/apache2/mods-enabled/proxy_balancer.load
-touch /etc/apache2/mods-available/proxy_balancer.conf
-ln -nsf /etc/apache2/mods-available/proxy_balancer.conf /etc/apache2/mods-enabled/proxy_balancer.conf
-
-cat > /etc/apache2/mods-available/proxy_balancer.conf <<PBCONF
-<IfModule mod_proxy_balancer.c>
-
-# Balancer manager enables dynamic update of balancer members
-# (needs mod_status). Uncomment to enable.
-#
-<IfModule mod_status.c>
-<Location /balancer-manager>
-    SetHandler balancer-manager
-    Order deny,allow
-    Deny from all
-    Allow from 127.0.0.1 ::1
-    Satisfy all
-</Location>
-</IfModule>
-
-</IfModule>
-PBCONF
+### Enable mod_passenger
+echo "Enabling mod_passenger... (don't do this manually!)"
+cat >> /etc/apache2/apache2.conf <<CONF
+LoadModule passenger_module /usr/local/ruby/lib/ruby/gems/1.9.1/gems/passenger-3.0.5/ext/apache2/mod_passenger.so
+PassengerRoot /usr/local/ruby/lib/ruby/gems/1.9.1/gems/passenger-3.0.5
+PassengerRuby /usr/local/ruby/bin/ruby
+CONF
