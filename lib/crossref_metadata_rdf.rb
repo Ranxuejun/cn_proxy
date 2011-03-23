@@ -155,6 +155,7 @@ class CrossrefMetadataRdf
       add_to graph, [id, prism.endingPage, record.last_page]
       add_to graph, [id, RDF::DC.title, record.title]
       add_to graph, [id, RDF::DC.alternative, record.subtitle]
+      add_to graph, [id, RDF::DC.publisher, record.publisher_name]
     
       # We record the type of the doi subject, and also note the isbn
       # for books. For proceedings the isbn is attached to the container
