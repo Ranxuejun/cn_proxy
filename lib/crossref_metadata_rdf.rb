@@ -189,9 +189,6 @@ class CrossrefMetadataRdf
                when :conference then self.book_res record.isbn
                else nil
                end
-
-      urn_id = RDF::URI.new self.issue_urn record.preferred_issn
-      di_id = RDF::URI.new self.incubator_issue_res record.preferred_issn
       
       if pub_id then
         pub_id = RDF::URI.new pub_id
@@ -206,8 +203,6 @@ class CrossrefMetadataRdf
 
         graph << [id, RDF::DC.isPartOf, pub_id]
         graph << [pub_id, RDF::DC.hasPart, id]
-        graph << [pub_id, RDF::DC.sameAs, di_id]
-        graph << [pub_id, RDF::DC.sameAs, urn_id]
         
         case record.publication_type
         when :journal
