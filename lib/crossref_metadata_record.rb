@@ -3,7 +3,7 @@ require 'rexml/document'
 include REXML
 require 'unidecode'
 require 'crossref_metadata_rdf'
-require 'zlib'
+require 'digest/md5'
 
 # Awful patch for rdf library on ruby 1.8.7 .
 class StringIO
@@ -266,7 +266,7 @@ class CrossrefMetadataRecord
   end
 
   def contributor_id c
-    "#{c.unique_slug}-#{Zlib.crc32(doi, 0).to_s(16)}"
+    "#{c.unique_slug}-#{Digest::MD5.hexdigest(doi).slice(16, 16).to_i(16).to_s(36)}"
   end
 
   def maybe_tag name, content
