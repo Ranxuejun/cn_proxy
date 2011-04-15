@@ -71,8 +71,8 @@ class CrossrefMetadataRecord
     return :dissertation if @record.find_first("//dissertation")
     return :conference if @record.find_first("//conference")
     return :report if @record.find_first("//report-paper")
-    return :standard if @record.find_first("//standard"]
-    return :database if @record.find_first("//database"]
+    return :standard if @record.find_first("//standard")
+    return :database if @record.find_first("//database")
     return :unknown
   end
 
@@ -108,7 +108,7 @@ class CrossrefMetadataRecord
   end
 
   def maybe_text path
-    element = @record.first_first(path)
+    element = @record.find_first(path)
     element.content if element
   end
 
