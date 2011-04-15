@@ -1,4 +1,4 @@
-require 'libxml'
+require 'nokogiri'
 require 'unidecode'
 require 'crossref_metadata_rdf'
 require 'digest/md5'
@@ -17,26 +17,26 @@ class CrossrefMetadataRecord
     end
 
     def sequence
-      return @xml.property('sequence') if @xml.property('sequence')
+      return @xml['sequence'] if @xml['sequence']
     end
 
     def contributor_role
-      return @xml.property('contributor_role') if @xml.property('contributor_role')
+      return @xml['contributor_role'] if @xml['contributor_role']
     end
 
     def surname
-      return @xml.find_first("surname").content if @xml.find_first("surname")
+      return @xml.at_xpath("//surname").text if @xml.at_xpath("//surname")
     end
 
     def given_name
-      return @xml.find_first("given_name").content if @xml.find_first("given_name")
+      return @xml.at_xpath("//given_name").text if @xml.at_xpath("//given_name")
     end
 
     def name
-      if @xml.find_first('given_name') then
-        @xml.find_first('given_name').content + ' ' + @xml.find_first('surname').content
+      if @xml.at_xpath('//given_name') then
+        @xml.at_xpath('//given_name').text + ' ' + @xml.at_xpath('//surname').text
       else
-        @xml.find_first('surname').content
+        @xml.at_xpath('//surname').text
       end
     end
 
@@ -57,22 +57,22 @@ class CrossrefMetadataRecord
   end
 
   def initialize record
-    @record=record  
+    @record=record.root  
     add_contributors
   end
 
   def owner_prefix
-    return @record.find_first("//doi_record").property('owner')
+    return @record.at_xpath("//doi_record")['owner']
   end
 
   def publication_type
-    return :journal if @record.find_first("//journal")
-    return :book if @record.find_first("//book")
-    return :dissertation if @record.find_first("//dissertation")
-    return :conference if @record.find_first("//conference")
-    return :report if @record.find_first("//report-paper")
-    return :standard if @record.find_first("//standard")
-    return :database if @record.find_first("//database")
+    return :journal if @record.at_xpath("//journal")
+    return :book if @record.at_xpath("//book")
+    return :dissertation if @record.at_xpath("//dissertation")
+    return :conference if @record.at_xpath("//conference")
+    return :report if @record.at_xpath("//report-paper")
+    return :standard if @record.at_xpath("//standard")
+    return :database if @record.at_xpath("//database")
     return :unknown
   end
 
@@ -108,12 +108,12 @@ class CrossrefMetadataRecord
   end
 
   def maybe_text path
-    element = @record.find_first(path)
-    element.content if element
+    element = @record.at_xpath(path)
+    element.text if element
   end
 
   def doi
-    return @record.find('//doi').last.content
+    return @record.xpath('//doi').last.text
   end
 
   def publication_title
@@ -166,15 +166,15 @@ class CrossrefMetadataRecord
   end
 
   def publication_year
-    return  @record.find_first("//publication_date/year").content.to_i if @record.find_first("//publication_date/year")
+    return  @record.at_xpath("//publication_date/year").text.to_i if @record.at_xpath("//publication_date/year")
   end
 
   def publication_month
-    return  @record.find_first("//publication_date/month").content.to_i if  @record.find_first("//publication_date/month")
+    return  @record.at_xpath("//publication_date/month").text.to_i if  @record.at_xpath("//publication_date/month")
   end
 
   def publication_day
-    return  @record.find_first("//publication_date/day").content.to_i if @record.find_first("//publication_date/day")
+    return  @record.at_xpath("//publication_date/day").text.to_i if @record.at_xpath("//publication_date/day")
   end
 
   def publication_date
@@ -183,18 +183,18 @@ class CrossrefMetadataRecord
 
   # Unused in templates
   def url
-    return @record.find_first("//resource").content if @format == :unixref
+    return @record.at_xpath("//resource").text if @format == :unixref
   end
 
   def publisher_name
     lookup_publisher unless @publisher
-    return @publisher.find_first("//publisher_name").content
+    return @publisher.at_xpath("//publisher_name").text
   end
 
   # Unused in templates
   def publisher_location
     lookup_publisher unless @publisher
-    return @publisher.find_first("//publisher_location").content.gsub(/\n/,"")
+    return @publisher.at_xpath("//publisher_location").text.gsub(/\n/,"")
   end
 
   def lookup_publisher
@@ -207,10 +207,7 @@ class CrossrefMetadataRecord
       begin
         results = http.get "/getPrefixPublisher/?prefix=#{prefix}"
         raise QueryFailure unless results.code == "200"
-
-        xp = XML::Parser.new
-        xp.string = results.body
-        @publisher = xp.parse
+        @publisher = Nokogiri::XML results.body
       rescue TimeoutError => e
         raise QueryTimeout
       end
@@ -227,11 +224,11 @@ class CrossrefMetadataRecord
   end
 
   def issn_of_type type
-    @record.find('//issn').each { |issn|
-      if issn.property('media_type') == type 
-        return normalise_issn(issn.content) 
-      elsif issn.property('media_type') == nil and type == 'print'
-        return normalise_issn(issn.content)
+    @record.xpath('//issn').each { |issn|
+      if issn['media_type'] == type 
+        return normalise_issn(issn.text) 
+      elsif issn['media_type'] == nil and type == 'print'
+        return normalise_issn(issn.text)
       end
     }
     return nil
@@ -240,7 +237,7 @@ class CrossrefMetadataRecord
   def add_contributors
     @contributors = Array.new 
     @contributor_name_counts = Hash.new
-    @record.find("//contributors/person_name").each do |contributor_node|
+    @record.xpath("//contributors/person_name").each do |contributor_node|
       c = Contributor.new contributor_node
 
       old_count = @contributor_name_counts[c.slug]
@@ -278,11 +275,7 @@ class CrossrefMetadataRecord
   end
 
   def to_graph
-    begin
-      CrossrefMetadataRdf.create_for_record self
-    rescue
-      CrossrefMetadataRdf.create_for_record self
-    end
+    CrossrefMetadataRdf.create_for_record self
   end
 
 end

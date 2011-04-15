@@ -9,7 +9,7 @@ DEPLOYKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA1+ryPnD7q2FHCdb7j6hSGytLDpxnZ1jcE
 
 WEBAPPSHOME="/home/webapps"
 
-GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks passenger capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog unidecode libxml-ruby"
+GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks passenger capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog unidecode nokogiri"
 
 PACKAGES="linux-headers-generic libsqlite3-dev gcc g++ build-essential zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev curl git-core apache2 apache2-dev"
 
@@ -68,7 +68,7 @@ chown -R $DEPLOYUSER.$DEPLOYUSER $WEBAPPSHOME
 ### Enable mod_passenger
 echo "Enabling mod_passenger... (don't do this manually!)"
 cat >> /etc/apache2/apache2.conf <<CONF
-LoadModule passenger_module /usr/local/ruby/lib/ruby/gems/1.9.1/gems/passenger-3.0.5/ext/apache2/mod_passenger.so
-PassengerRoot /usr/local/ruby/lib/ruby/gems/1.9.1/gems/passenger-3.0.5
+LoadModule passenger_module /usr/local/ruby/lib/ruby/gems/1.9.1/gems/passenger-3.0.7/ext/apache2/mod_passenger.so
+PassengerRoot /usr/local/ruby/lib/ruby/gems/1.9.1/gems/passenger-3.0.7
 PassengerRuby /usr/local/ruby/bin/ruby
 CONF

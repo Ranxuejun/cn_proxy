@@ -2,7 +2,7 @@ require 'cgi'
 require 'json'
 require 'crack'
 require 'tilt'
-require 'libxml'
+require 'nokogiri'
 require 'rdf/raptor'
 require 'rdf/json'
 require 'rdf/ntriples'
@@ -58,11 +58,7 @@ helpers do
   def render_feed feed_template, unixref
     # Fake several results. Will need to support this for eventual search results.
     metadata = CrossrefMetadataResults.new()
-
-    xp = XML::Parser.new
-    xp.string = unixref
-    record = xp.parse
-
+    record = Nokogiri::XML unixref
     metadata.records << CrossrefMetadataRecord.new(record) 
     uuid = UUID.new
     erb feed_template, :locals => { 
@@ -76,11 +72,7 @@ helpers do
   def render_json unixref
     # Bascially translate the ATOM XML into JSON using Tilt to bind redenering to variable.
     metadata = CrossrefMetadataResults.new()
-
-    xp = XML::Parser.new
-    xp.string = unixref
-    record = xp.parse
-
+    record = Nokogiri::XML unixref
     metadata.records << CrossrefMetadataRecord.new(record) 
     uuid = UUID.new
     template = Tilt.new("#{Sinatra::Application.root}/views/atom_feed.erb", :trim => '<>')
@@ -90,11 +82,7 @@ helpers do
 
   def render_unixref format, unixref
     metadata = CrossrefMetadataResults.new
-
-    xp = XML::Parser.new
-    xp.string = unixref
-    record = xp.parse
-
+    record = Nokogiri::XML unixref
     metadata.records << CrossrefMetadataRecord.new(record)
 
     render_rdf format, metadata.to_graph
