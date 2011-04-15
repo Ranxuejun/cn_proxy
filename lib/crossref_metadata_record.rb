@@ -288,7 +288,11 @@ class CrossrefMetadataRecord
   end
 
   def to_graph
-    CrossrefMetadataRdf.create_for_record self
+    begin
+      CrossrefMetadataRdf.create_for_record self
+    rescue
+      CrossrefMetadataRdf.create_for_record self
+    end
   end
 
 end

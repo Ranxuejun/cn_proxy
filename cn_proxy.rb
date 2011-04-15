@@ -3,6 +3,7 @@ require 'sinatra'
 require 'json'
 require 'uuid'
 require 'time'
+require 'json'
 
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__),'lib')
 require 'helpers'
@@ -25,6 +26,10 @@ before do
   tidy_request_for_testing
   detect_doi
   detect_subdomain
+end
+
+get '/heartbeat' do
+  {:pid => Process.pid}.to_json
 end
 
 get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
