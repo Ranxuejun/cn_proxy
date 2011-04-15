@@ -5,6 +5,7 @@ class UnknownIdentifier < StandardError; end
 class UnknownContentType < StandardError; end
 
 class QueryFailure < StandardError; end
+class QueryTimeout < StandardError; end
 
 class MalformedDoi < MalformedIdentifier; end
 class MalformedIssn < MalformedIdentifier; end
@@ -68,7 +69,12 @@ error UnknownContentType do
 end
 
 error QueryFailure do
-  e :status => 500, 
-    :msg => "An external query failed"
+  e :status => 502, 
+    :msg => "Upstream server returned an invalid response"
+end
+
+error QueryTimeout do
+  e :status => 504,
+    :msg => "Upstream server did not respond with a timely response"
 end
 

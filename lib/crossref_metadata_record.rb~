@@ -4,7 +4,6 @@ include REXML
 require 'unidecode'
 require 'crossref_metadata_rdf'
 require 'digest/md5'
-require 'net/http'
 
 # Awful patch for rdf library on ruby 1.8.7 .
 class StringIO
@@ -211,20 +210,11 @@ class CrossrefMetadataRecord
   end
 
   def lookup_publisher
+    require 'net/http'
     prefix = owner_prefix
-
-    Net::HTTP.start 'www.crossref.org' do |http|
-      http.open_timeout = 30
-      http.read_timeout = 30
-
-      begin
-        results = http.get "/getPrefixPublisher/?prefix=#{prefix}"
-        raise QueryFailure unless results.code == "200"
-        @publisher = REXML::Document.new(results.body)
-      rescue TimeoutError => e
-        raise QueryTimeout
-      end
-    end
+    results = Net::HTTP.get_response('www.crossref.org', "/getPrefixPublisher/?prefix=#{prefix}")
+    raise CrossRefError, "Could not lookup publisher information: #{results.code}" unless results.code == "200"
+    @publisher = REXML::Document.new(results.body)
   end
 
   def normalise_issn issn
@@ -276,7 +266,7 @@ class CrossrefMetadataRecord
   end
 
   def contributor_id c
-    "#{c.unique_slug}-#{Digest::MD5.hexdigest(doi).slice(16, 16).to_i(16).to_s(36)}"
+    "#{c.unique_slug}-#{Digest::MD5.digest(doi).to_i().to_s(36)}"
   end
 
   def maybe_tag name, content
