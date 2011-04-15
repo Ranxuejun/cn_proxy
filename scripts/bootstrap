@@ -9,7 +9,7 @@ DEPLOYKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA1+ryPnD7q2FHCdb7j6hSGytLDpxnZ1jcE
 
 WEBAPPSHOME="/home/webapps"
 
-GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks passenger capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog unidecode"
+GEMS="tilt rack sinatra rspec rspec-core rspec-expectations rspec-mocks passenger capistrano crack json rdf rdf-raptor rdf-json rdf-n3 uuid fog unidecode libxml-ruby"
 
 PACKAGES="linux-headers-generic libsqlite3-dev gcc g++ build-essential zlib1g-dev libssl-dev libreadline5-dev build-essential libraptor1 libraptor-dev raptor-utils libxslt-dev libxml2-dev curl git-core apache2 apache2-dev"
 

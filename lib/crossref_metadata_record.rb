@@ -1,6 +1,4 @@
-require 'rubygems'
-require 'rexml/document'
-include REXML
+require 'libxml'
 require 'unidecode'
 require 'crossref_metadata_rdf'
 require 'digest/md5'
@@ -19,26 +17,26 @@ class CrossrefMetadataRecord
     end
 
     def sequence
-      return @xml.attributes['sequence'] if @xml.attributes['sequence']
+      return @xml.property('sequence') if @xml.property('sequence')
     end
 
     def contributor_role
-      return @xml.attributes['contributor_role'] if @xml.attributes['contributor_role']
+      return @xml.property('contributor_role') if @xml.property('contributor_role')
     end
 
     def surname
-      return @xml.elements["surname"].text if @xml.elements["surname"]
+      return @xml.find_first("surname").content if @xml.find_first("surname")
     end
 
     def given_name
-      return @xml.elements["given_name"].text if @xml.elements["given_name"]
+      return @xml.find_first("given_name").content if @xml.find_first("given_name")
     end
 
     def name
-      if @xml.elements['given_name'] then
-        @xml.elements['given_name'].text + ' ' + @xml.elements['surname'].text
+      if @xml.find_first('given_name') then
+        @xml.find_first('given_name').content + ' ' + @xml.find_first('surname').content
       else
-        @xml.elements['surname'].text
+        @xml.find_first('surname').content
       end
     end
 
@@ -64,17 +62,17 @@ class CrossrefMetadataRecord
   end
 
   def owner_prefix
-    return @record.root.elements["//doi_record"].attributes['owner']
+    return @record.find_first("//doi_record").property('owner')
   end
 
   def publication_type
-    return :journal if @record.root.elements["//journal"]
-    return :book if @record.root.elements["//book"]
-    return :dissertation if @record.root.elements["//dissertation"]
-    return :conference if @record.root.elements["//conference"]
-    return :report if @record.root.elements["//report-paper"]
-    return :standard if @record.root.elements["//standard"]
-    return :database if @record.root.elements["//database"]
+    return :journal if @record.find_first("//journal")
+    return :book if @record.find_first("//book")
+    return :dissertation if @record.find_first("//dissertation")
+    return :conference if @record.find_first("//conference")
+    return :report if @record.find_first("//report-paper")
+    return :standard if @record.find_first("//standard"]
+    return :database if @record.find_first("//database"]
     return :unknown
   end
 
@@ -110,16 +108,12 @@ class CrossrefMetadataRecord
   end
 
   def maybe_text path
-    element = @record.root.elements[path]
-    element.text if element
+    element = @record.first_first(path)
+    element.content if element
   end
 
   def doi
-    last_doi = nil
-    @record.root.elements.each("//doi") do |doi|
-      last_doi = doi
-    end
-    return last_doi.text
+    return @record.find('//doi').last.content
   end
 
   def publication_title
@@ -172,15 +166,15 @@ class CrossrefMetadataRecord
   end
 
   def publication_year
-    return  @record.root.elements["//publication_date/year"].text.to_i if @record.root.elements["//publication_date/year"]
+    return  @record.find_first("//publication_date/year").content.to_i if @record.find_first("//publication_date/year")
   end
 
   def publication_month
-    return  @record.root.elements["//publication_date/month"].text.to_i if  @record.root.elements["//publication_date/month"]
+    return  @record.find_first("//publication_date/month").content.to_i if  @record.find_first("//publication_date/month")
   end
 
   def publication_day
-    return  @record.root.elements["//publication_date/day"].text.to_i if @record.root.elements["//publication_date/day"]
+    return  @record.find_first("//publication_date/day").content.to_i if @record.find_first("//publication_date/day")
   end
 
   def publication_date
@@ -189,18 +183,18 @@ class CrossrefMetadataRecord
 
   # Unused in templates
   def url
-    return @record.root.elements["//resource"].text if @format == :unixref
+    return @record.find_first("//resource").content if @format == :unixref
   end
 
   def publisher_name
     lookup_publisher unless @publisher
-    return @publisher.root.elements["//publisher_name"].text
+    return @publisher.find_first("//publisher_name").content
   end
 
   # Unused in templates
   def publisher_location
     lookup_publisher unless @publisher
-    return @publisher.root.elements["//publisher_location"].text.gsub(/\n/,"")
+    return @publisher.find_first("//publisher_location").content.gsub(/\n/,"")
   end
 
   def lookup_publisher
@@ -213,7 +207,10 @@ class CrossrefMetadataRecord
       begin
         results = http.get "/getPrefixPublisher/?prefix=#{prefix}"
         raise QueryFailure unless results.code == "200"
-        @publisher = REXML::Document.new(results.body)
+
+        xp = XML::Parser.new
+        xp.string = results.body
+        @publisher = xp.parse
       rescue TimeoutError => e
         raise QueryTimeout
       end
@@ -230,11 +227,11 @@ class CrossrefMetadataRecord
   end
 
   def issn_of_type type
-    @record.root.each_element("//issn") { |issn|
-      if issn.attributes['media_type'] == type 
-        return normalise_issn(issn.text) 
-      elsif issn.attributes['media_type'] == nil and type == 'print'
-        return normalise_issn(issn.text)
+    @record.find('//issn').each { |issn|
+      if issn.property('media_type') == type 
+        return normalise_issn(issn.content) 
+      elsif issn.property('media_type') == nil and type == 'print'
+        return normalise_issn(issn.content)
       end
     }
     return nil
@@ -243,7 +240,7 @@ class CrossrefMetadataRecord
   def add_contributors
     @contributors = Array.new 
     @contributor_name_counts = Hash.new
-    @record.root.elements.each("//contributors/person_name") do |contributor_node|
+    @record.find("//contributors/person_name").each do |contributor_node|
       c = Contributor.new contributor_node
 
       old_count = @contributor_name_counts[c.slug]
