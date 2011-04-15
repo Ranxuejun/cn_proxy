@@ -29,7 +29,7 @@ before do
 end
 
 get '/heartbeat' do
-  {:pid => Process.pid}.to_json
+  {:pid => Process.pid, :status => "OK"}.to_json
 end
 
 get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
