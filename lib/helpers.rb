@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'cgi'
 require 'json'
 require 'crack'
@@ -53,7 +52,7 @@ helpers do
   end
 
   def representation
-    Rack::Mime::MIME_TYPES.index(request.env['HTTP_ACCEPT'])
+    Rack::Mime::MIME_TYPES.key(request.env['HTTP_ACCEPT'])
   end 
 
   def render_feed feed_template, unixref
