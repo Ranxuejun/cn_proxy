@@ -184,8 +184,10 @@ class CrossrefMetadataRdf
       # With conference proceedings and journals, we need to describe them as
       # well as the doi/article.
 
+      preferred_issn = record.preferred_issn
+
       pub_id = case record.publication_type
-               when :journal then self.issue_res record.preferred_issn
+               when :journal then self.issue_res preferred_issn
                when :conference then self.book_res record.isbn
                else nil
                end
@@ -206,11 +208,11 @@ class CrossrefMetadataRdf
         
         case record.publication_type
         when :journal
-          urn = RDF::URI.new self.issue_urn record.preferred_issn
+          urn = RDF::URI.new self.issue_urn preferred_issn
 
           graph << [pub_id, rdf.type, bibo.Journal]
           graph << [pub_id, RDF::OWL.sameAs, urn]
-          graph << [pub_id, RDF::DC.identifier, record.preferred_issn]
+          graph << [pub_id, RDF::DC.identifier, preferred_issn]
         when :conference
           urn = RDF::URI.new self.book_urn record.isbn
 
