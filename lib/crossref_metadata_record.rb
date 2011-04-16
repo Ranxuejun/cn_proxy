@@ -25,18 +25,18 @@ class CrossrefMetadataRecord
     end
 
     def surname
-      return @xml.at_xpath("//surname").text if @xml.at_xpath("//surname")
+      return @xml.at_xpath("surname").text if @xml.at_xpath("surname")
     end
 
     def given_name
-      return @xml.at_xpath("//given_name").text if @xml.at_xpath("//given_name")
+      return @xml.at_xpath("given_name").text if @xml.at_xpath("given_name")
     end
 
     def name
-      if @xml.at_xpath('//given_name') then
-        @xml.at_xpath('//given_name').text + ' ' + @xml.at_xpath('//surname').text
+      if @xml.at_xpath('given_name') then
+        @xml.at_xpath('given_name').text + ' ' + @xml.at_xpath('surname').text
       else
-        @xml.at_xpath('//surname').text
+        @xml.at_xpath('surname').text
       end
     end
 
@@ -237,7 +237,7 @@ class CrossrefMetadataRecord
   def add_contributors
     @contributors = Array.new 
     @contributor_name_counts = Hash.new
-    @record.xpath("//contributors//person_name").each do |contributor_node|
+    @record.xpath("//contributors/person_name").each do |contributor_node|
       c = Contributor.new contributor_node
 
       old_count = @contributor_name_counts[c.slug]
