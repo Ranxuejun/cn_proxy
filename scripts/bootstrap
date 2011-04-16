@@ -45,7 +45,7 @@ gem install --quiet --no-rdoc --no-ri $GEMS &>>$OUTFILE
 
 ### Install Apache2 passenger module
 echo "Installing mod_passenger..."
-passenger-install-apache2-module
+passenger-install-apache2-module --auto
 
 ### Create a deploy user
 echo "Creating deploy user..."

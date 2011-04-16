@@ -237,7 +237,7 @@ class CrossrefMetadataRecord
   def add_contributors
     @contributors = Array.new 
     @contributor_name_counts = Hash.new
-    @record.xpath("//contributors/person_name").each do |contributor_node|
+    @record.xpath("//contributors//person_name").each do |contributor_node|
       c = Contributor.new contributor_node
 
       old_count = @contributor_name_counts[c.slug]
