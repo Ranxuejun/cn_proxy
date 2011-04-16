@@ -5,7 +5,7 @@ require 'errors'
 
 class CrossrefMetadataRdf
 
-  @@prism = RDF::Vocabulary.new 'http://prismstandard.org/namespaces/basic/2.0/'
+  @@prism = RDF::Vocabulary.new 'http://prismstandard.org/namespaces/basic/2.1/'
   @@bibo = RDF::Vocabulary.new 'http://purl.org/ontology/bibo/'
   @@rdf = RDF::Vocabulary.new 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 
