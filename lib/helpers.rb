@@ -1,3 +1,5 @@
+ENV['RDF_RAPTOR_ENGINE'] = 'cli'
+
 require 'cgi'
 require 'json'
 require 'crack'
