@@ -29,7 +29,7 @@ class CrossrefMetadataQuery
 
   def self.scrape_for_errors unixref
     case unixref
-    when /\<journal\>/, /\<conference\>/, /\<book\>/, /\<dissertation\>/, /\<report-paper\>/, /\<standard\>/, /\<database\>/
+    when /\<journal/, /\<conference/, /\<book/, /\<dissertation/, /\<report-paper/, /\<standard/, /\<database/
       return
     when /doi_records/
       raise UnknownDoi
