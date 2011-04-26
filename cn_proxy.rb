@@ -28,6 +28,10 @@ before do
   detect_subdomain
 end
 
+after do
+  response.headers['Vary'] = 'Accept' if response.status == 200
+end
+
 get '/heartbeat' do
   {:pid => Process.pid, :status => "OK"}.to_json
 end
