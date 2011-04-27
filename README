@@ -58,3 +58,11 @@ All deployed? Check it's running with:
 
 $ curl -i some_domain/heartbeat
 
+Where is the deploy key?
+================================================================
+
+A public deploy key is installed on the target deployment machine
+by the bootstrap script. Ask Karl or Geoff for a copy of its
+private part, or change the public deploy key in the scripts/bootstrap 
+file.
+
