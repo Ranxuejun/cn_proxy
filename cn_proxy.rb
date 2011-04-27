@@ -69,7 +69,7 @@ get '/issn/:issn' do
   end
 end
 
-get '/*', :provides => [:rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
+get '/*', :provides => [:javascript, :rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then
