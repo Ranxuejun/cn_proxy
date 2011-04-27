@@ -5,17 +5,17 @@ Server Preparation?
 
 Installation for an Ubuntu machine:
 
-1. Install capistrano on your local developmeny machine
+1. Install capistrano on your local development machine
 
 $ gem install capistrano
 
 2. Bootstrap a deployment machine with packages and gems
 
-$ cap boostramp -S domain=some_domain
+$ cap bootstrap -S domain=some_domain
 
-some_domain must be accessible via SSH and a user with
-sudo permissions. I usually set up my ~/.ssh/config file
-with a Host section for some_domain:
+some_domain must be accessible via SSH and a user with sudo 
+permissions. I usually set up my ~/.ssh/config file with a Host 
+section for some_domain:
 
 Host some_domain
 HostName a_very_long_and_ugly_ec2_external_dns_ip_thingy.com
