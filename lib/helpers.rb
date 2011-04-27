@@ -79,7 +79,7 @@ helpers do
     uuid = UUID.new
     template = Tilt.new("#{Sinatra::Application.root}/views/atom_feed.erb", :trim => '<>')
     xml = template.render( self, :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 )
-    json = (Crack::XML.parse(xml)).to_json  
+    json = (Crack::XML.parse(xml)).to_json
   end
 
   def render_unixref format, unixref
@@ -120,6 +120,8 @@ helpers do
       render_unixref :json, unixref
     when ".ntriples"
       render_unxiref :ntriples, unixref
+    when ".javascript"
+      "metadata_callback(#{render_unixref :json, unixref});"
     end
   end
 

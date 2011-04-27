@@ -16,6 +16,7 @@ mime_type :rdf, "application/rdf+xml"
 mime_type :unixref, "application/unixref+xml"
 mime_type :ttl, "text/turtle"
 mime_type :jsonrdf, "application/rdf+json"
+mime_type :javascript, "text/javascript"
 
 configure do
   set :query_pid, YAML.load_file("#{Dir.pwd}/config/settings.yaml")['query_pid']
@@ -36,7 +37,7 @@ get '/heartbeat' do
   {:pid => Process.pid, :status => "OK"}.to_json
 end
 
-get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
+get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do
   raise MalformedIssn unless is_valid_issn? params[:issn]
 
   if request.env['subdomain'] == 'id' then
@@ -51,6 +52,8 @@ get '/issn/:issn', :provides => [:rdf, :ttl, :jsonrdf] do
       render_rdf :turtle, rdf
     when ".jsonrdf"
       render_rdf :json, rdf
+    when ".javascript"
+      "metadata_callback(#{render_rdf :json, rdf});"
     end
 
   end
