@@ -53,7 +53,7 @@ get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do
     when ".jsonrdf"
       render_rdf :json, rdf
     when ".javascript"
-      "metadata_callback(#{render_rdf :json, rdf});"
+      "metadata_callback(#{render_rdf(:json, rdf).strip});"
     end
 
   end

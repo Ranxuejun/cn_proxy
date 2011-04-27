@@ -121,7 +121,7 @@ helpers do
     when ".ntriples"
       render_unxiref :ntriples, unixref
     when ".javascript"
-      "metadata_callback(#{render_unixref :json, unixref});"
+      "metadata_callback(#{render_unixref(:json, unixref).strip});"
     end
   end
 

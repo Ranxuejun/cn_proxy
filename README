@@ -1,1 +1,60 @@
 Content negotiation proxy for CrossRef OpenURL API
+
+Server Preparation?
+===============================================================
+
+Installation for an Ubuntu machine:
+
+1. Install capistrano on your local developmeny machine
+
+$ gem install capistrano
+
+2. Bootstrap a deployment machine with packages and gems
+
+$ cap boostramp -S domain=some_domain
+
+some_domain must be accessible via SSH and a user with
+sudo permissions. I usually set up my ~/.ssh/config file
+with a Host section for some_domain:
+
+Host some_domain
+HostName a_very_long_and_ugly_ec2_external_dns_ip_thingy.com
+User ubuntu
+IdentityFile ~/.ssh/karls-amazon-id
+
+Host some_domain_deploy
+HostName a_very_long_and_ugly_ec2_external_dns_ip_thingy.com
+User deploy
+IdentityFile ~/.ssh/crossref-deploy-id
+
+3. Set up the deployment directory structure
+
+$ cap deploy:setup -S domain=some_domain_deploy
+
+Notice that we're running this command with some_domain_deploy,
+so it runs via the 'deploy' user.
+
+4. Install the vhosts configuration for cn_proxy
+
+$ cap install -S domain=some_domain
+
+Redeployment?
+================================================================
+
+Now we're ready to deploy for the first time, or redeploy.
+This requires three commands:
+
+$ cap deploy -S domain=some_domain_deploy
+$ cap configure -S domain=some_domain_deploy
+$ cap restart_apache -S domain=some_domain
+
+The second will ask for some input - configuration details such
+as service host name and CrossRef query key.
+
+Is it working?
+================================================================
+
+All deployed? Check it's running with:
+
+$ curl -i some_domain/heartbeat
+
