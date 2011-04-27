@@ -34,10 +34,6 @@ $ cap deploy:setup -S domain=some_domain_deploy
 Notice that we're running this command with some_domain_deploy,
 so it runs via the 'deploy' user.
 
-4. Install the vhosts configuration for cn_proxy
-
-$ cap install -S domain=some_domain
-
 Redeployment?
 ================================================================
 
@@ -46,6 +42,7 @@ This requires three commands:
 
 $ cap deploy -S domain=some_domain_deploy
 $ cap configure -S domain=some_domain_deploy
+$ cap install -S domain=some_domain
 $ cap restart_apache -S domain=some_domain
 
 The second will ask for some input - configuration details such
