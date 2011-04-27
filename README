@@ -66,3 +66,13 @@ by the bootstrap script. Ask Karl or Geoff for a copy of its
 private part, or change the public deploy key in the scripts/bootstrap 
 file.
 
+When making requests to the cn_proxy, I get "can't modify frozen
+object" errors.
+================================================================
+
+cn_proxy uses an RDF library that, at time of writing, is incompatible
+with addressable 2.2.5, one of its dependencies. Downgrade addressable 
+on the deployment machine:
+
+$ sudo gem install addressable -v 2.2.4
+$ sudo gem uninstall addressable -v 2.2.5
