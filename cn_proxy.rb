@@ -89,3 +89,4 @@ get '/*' do
     raise UnknownContentType
   end
 end
+

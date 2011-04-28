@@ -53,9 +53,31 @@ helpers do
     url = request.env['QUERY_STRING']  ? "#{port}?#{request.env['QUERY_STRING']}" : port 
   end
 
+  def parse_accept_header(header)
+    content_types = header.to_s.split(',').map do |content_type_and_weight|
+      content_type_and_weight.strip!
+      case content_type_and_weight
+      when /^([^;]+);\s*q=(\d+\.\d+)$/
+        [[1.0, $2.to_f].min, $1, content_type_and_weight]
+      when /(\S+)/
+          [1.0, $1, content_type_and_weight]
+      else nil
+      end
+    end
+
+    if content_types.nil? then
+      [[1.0, '*/*', '*/*']]
+    else
+      content_types.compact!
+      content_types = content_types.sort_by { |elem| [elem[0], elem[2].size] }
+    end
+
+    content_types.reverse.map { |elem| elem[1] }
+  end
+
   def representation
-    Rack::Mime::MIME_TYPES.key(request.env['HTTP_ACCEPT'])
-  end 
+    parse_accept_header(request.env['HTTP_ACCEPT'])[0]
+  end
 
   def render_feed feed_template, unixref
     # Fake several results. Will need to support this for eventual search results.
