@@ -76,7 +76,7 @@ helpers do
   end
 
   def representation
-    parse_accept_header(request.env['HTTP_ACCEPT'])[0]
+    Rack::Mime::MIME_TYPES.key(parse_accept_header(request.env['HTTP_ACCEPT'])[0])
   end
 
   def render_feed feed_template, unixref
