@@ -69,7 +69,7 @@ helpers do
       [[1.0, '*/*', '*/*']]
     else
       content_types.compact!
-      content_types = content_types.sort_by { |elem| [elem[0], elem[2].size] }
+      content_types = content_types.reverse.sort_by { |elem| elem[0] }
     end
 
     content_types.reverse.map { |elem| elem[1] }
