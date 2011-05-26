@@ -11,7 +11,7 @@ $ gem install capistrano
 
 2. Bootstrap a deployment machine with packages and gems
 
-$ cap bootstrap -S domain=some_domain
+$ cap bootstrap -S domain=some_domain distro=ubuntu user=ubuntu
 
 some_domain must be accessible via SSH and a user with sudo 
 permissions. I usually set up my ~/.ssh/config file with a Host 
@@ -26,6 +26,12 @@ Host some_domain_deploy
 HostName a_very_long_and_ugly_ec2_external_dns_ip_thingy.com
 User deploy
 IdentityFile ~/.ssh/crossref-deploy-id
+
+distro should be one of ubuntu or centos (currently), and it
+defaults to ubuntu. user should be the name of a user on the
+target machine that has sudo permissions. By default this is
+'ubuntu' since EC2 Ubuntu instances set this user up as one
+with sudo perms.
 
 3. Set up the deployment directory structure
 
