@@ -102,8 +102,8 @@ class CrossrefMetadataRdf
 
       results = queries.execute issn_graph
                                      
-      add_to graph, [id, RDF::DC.sameAs, di_id]
-      add_to graph, [id, RDF::DC.sameAs, urn_id]
+      add_to graph, [id, RDF::OWL.sameAs, di_id]
+      add_to graph, [id, RDF::OWL.sameAs, urn_id]
 
       if not results.empty? then
         publisher_res = RDF::URI.new results.first[:publisher].to_s
@@ -170,7 +170,7 @@ class CrossrefMetadataRdf
         graph << [id, rdf.type, bibo.Book]
         graph << [id, bibo.isbn, record.isbn]
         graph << [id, prism.isbn, record.isbn]
-        graph << [id, RDF::DC.sameAs, RDF::URI.new(self.book_urn(record.isbn))]
+        graph << [id, RDF::OWL.sameAs, RDF::URI.new(self.book_urn(record.isbn))]
       when :report
         graph << [id, rdf.type, bibo.Report]
       when :standard
