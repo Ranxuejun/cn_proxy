@@ -39,7 +39,7 @@ helpers do
   end
 
   def is_valid_doi? text
-    text =~ /^10\.\d{4,5}(\.[\.\w]+)*\/\S+$/ 
+    text =~ /^10\.\d{4,5}(\.[\.\w]+)*\/\S+$/
   end
 
   def is_valid_issn? issn
@@ -66,7 +66,7 @@ helpers do
     end
 
     if content_types.nil? then
-      [[1.0, '*/*', '*/*']]
+      content_types = [[1.0, '*/*', '*/*']]
     else
       content_types.compact!
       content_types = content_types.reverse.sort_by { |elem| elem[0] }

@@ -187,14 +187,22 @@ class CrossrefMetadataRecord
   end
 
   def publisher_name
-    lookup_publisher unless @publisher
-    return @publisher.at_xpath("//publisher_name").text
+    if owner_prefix.nil?
+      nil
+    else
+      lookup_publisher unless @publisher
+      @publisher.at_xpath("//publisher_name").text
+    end
   end
 
   # Unused in templates
   def publisher_location
-    lookup_publisher unless @publisher
-    return @publisher.at_xpath("//publisher_location").text.gsub(/\n/,"")
+    if owner_prefix.nil?
+      nil
+    else
+      lookup_publisher unless @publisher
+      @publisher.at_xpath("//publisher_location").text.gsub(/\n/,"")
+    end
   end
 
   def lookup_publisher
@@ -206,7 +214,7 @@ class CrossrefMetadataRecord
 
       begin
         results = http.get "/getPrefixPublisher/?prefix=#{prefix}"
-        raise QueryFailure unless results.code == "200"
+        raise QueryFailure unless results.code == 200
         @publisher = Nokogiri::XML results.body
       rescue TimeoutError => e
         raise QueryTimeout
