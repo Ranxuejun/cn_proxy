@@ -34,13 +34,13 @@ class CrossrefLatestCache
       uri = URI::HTTP.build uri_details
       new_token = nil
 
-      Net::HTTP.start uri.host do |http|
+      Net::HTTP.start uri.host, :read_timeout => 600, :open_timeout => 600 do |http|
         response = http.get uri.request_uri
 
         if response.code.to_i == 200
           doc = Nokogiri::XML::Document.parse response.body
           @records = @records + parse_records(doc)
-          puts "#{Time.now}: Record count #{@records.count}"
+          puts "#{Time.now}: Candidate record count #{@records.count}"
           new_token = parse_resumption_token doc
         end
       end
@@ -56,16 +56,23 @@ class CrossrefLatestCache
         month = metadata.at_xpath(".//cr:month", ns)
         day = metadata.at_xpath(".//cr:day", ns)
 
-        if !(year.nil? || month.nil? || day.nil?)
-          {
-            :doi => metadata.at_xpath(".//cr:doi", ns).text.sub("info:doi/", ""),
-            :year => year.text,
-            :month => month.text,
-            :day => day.text
-          }
-        else
-          nil
+        record = nil
+
+        begin
+          if !(year.nil? || month.nil? || day.nil?)
+            date = Date.civil year.text.to_i, month.text.to_i, day.text.to_i
+            if date >= @cut_off_date
+              record = {
+                :doi => metadata.at_xpath(".//cr:doi", ns).text.sub("info:doi/", ""),
+                :date => date
+              }
+            end
+          end
+        rescue StandardError => e
+          puts "Exception for a record: #{e}"
         end
+
+        record
       end
 
       records.compact
@@ -83,12 +90,9 @@ class CrossrefLatestCache
     def as_rdf
       RDF::Graph.new do |graph|
         @records.each do |record|
-          date = Date.civil(record[:year], record[:month], record[:day])
-          if date >= @cut_off_date
-            uri = RDF::URI.new("http:dx.doi.org/" + record[:doi])
-            graph << [uri, RDF::DC.identifier, record[:doi]]
-            graph << [uri, RDF::DC.date, date]
-          end
+          uri = RDF::URI.new("http:dx.doi.org/" + record[:doi])
+          graph << [uri, RDF::DC.identifier, record[:doi]]
+          graph << [uri, RDF::DC.date, record[:date]]
         end
       end
     end
