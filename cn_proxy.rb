@@ -11,6 +11,7 @@ require 'errors'
 require 'crossref_metadata_query'
 require 'crossref_metadata_results'
 require 'crossref_metadata_record'
+require 'crossref_latest'
 
 mime_type :rdf, "application/rdf+xml"
 mime_type :unixref, "application/unixref+xml"
@@ -35,6 +36,12 @@ end
 
 get '/heartbeat' do
   {:pid => Process.pid, :status => "OK"}.to_json
+end
+
+get "/new" do
+  content = CrossrefLatestCache.new.get_new representation
+  raise UnknownContentType if content.nil?
+  content
 end
 
 get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do

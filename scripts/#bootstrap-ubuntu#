@@ -18,7 +18,7 @@ OUTFILE="/home/ubuntu/bootstrap.log"
 echo "Bootstrapping... see $OUTFILE for output."
 touch $OUTFILE
 
-### Install package deps
+### Install package depsg
 echo "Installing package dependencies..."
 aptitude update -q &>>$OUTFILE
 aptitude upgrade -y -q &>>$OUTFILE 
