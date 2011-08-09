@@ -2,15 +2,16 @@ require "oai"
 require "rdf/raptor"
 require "rdf/json"
 require "nokogiri"
-require "uri/http"
+require "uri"
 require "net/http"
 require "memcache"
+require "date"
 
 class CrossrefLatestCache
 
   class Collector
     def initialize
-      @cut_off_date = Date.today - 7
+      @cut_off_date = Date.today - 2
       @records = []
 
       resumption_token = append_records nil
@@ -22,10 +23,14 @@ class CrossrefLatestCache
 
     def append_records resumption_token
       puts "#{Time.now}: Collecting more records"
+
+      query = "verb=ListRecords&metadataPrefix=cr_unixml"
+      query += "&from=#{@cut_off_date.strftime('%Y-%m-%d')}"
+      query += "&until=#{(@cut_off_date + 1).strftime('%Y-%m-%d')}"
+      unless resumption_token.nil?
+        query += "&resumptionToken=" + resumption_token
+      end
       
-      date_str = @cut_off_date.strftime("%Y-%m-%d")
-      query = "verb=ListRecords&metadataPrefix=cr_unixml&from=#{date_str}"
-      query += "&resumptionToken=" + resumption_token unless resumption_token.nil?
       uri_details = {
         :host => "oai.crossref.org",
         :path => "/OAIHandler",
@@ -61,7 +66,7 @@ class CrossrefLatestCache
         begin
           if !(year.nil? || month.nil? || day.nil?)
             date = Date.civil year.text.to_i, month.text.to_i, day.text.to_i
-            if date >= @cut_off_date
+            if date >= @cut_off_date && date <= (@cut_off_date + 1)
               record = {
                 :doi => metadata.at_xpath(".//cr:doi", ns).text.sub("info:doi/", ""),
                 :date => date
@@ -109,12 +114,18 @@ class CrossrefLatestCache
       content = RDF::Writer.for(format).buffer do |writer|
         writer << rdf
       end
-      @cache.set suffix, content
+      # TODO Filter releases and changes.
+      @cache.set "releases_" + suffix, content
+      @cache.set "changes_" + suffix, content
     end
   end
 
-  def get_new suffix
-    @cache.get suffix
+  def get_releases suffix
+    @cache.get "releases_" + suffix
+  end
+
+  def get_changes suffix
+    @cache.get "changes_" + suffix
   end
 
 end

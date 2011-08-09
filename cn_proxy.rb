@@ -38,10 +38,48 @@ get '/heartbeat' do
   {:pid => Process.pid, :status => "OK"}.to_json
 end
 
-get "/new" do
-  content = CrossrefLatestCache.new.get_new representation
-  raise UnknownContentType if content.nil?
-  content
+def serve_release_list date
+  if date <= Date.today - 7
+    status 401
+    "Too far in the past."
+  else
+    cache = CrossrefLatestCache.new
+    cache.get_releases date
+  end
+end
+
+def serve_change_list
+  if date <= Date.today - 7
+    status 401
+    "Too far in the past."
+  else
+    cache = CrossrefLatestCache.new
+    cache.get_changes date
+  end
+end
+
+get "/releaselists/yesterday" do
+  serve_release_lists Date.today - 1
+end
+
+get "/releaselists/1-day-ago" do
+  serve_release_lists Date.today - 1
+end
+
+get "/releaselists/:days-days-ago" do
+  serve_release_lists Date.today - params[:days].to_i
+end
+
+get "/changelists/yesterday" do
+  serve_change_lists Date.today - 1
+end
+
+get "/changelists/1-day-ago" do
+  serve_change_lists Date.today - 1
+end
+
+get "/changelists/:days-days-ago" do
+  serve_change_lists Date.today - params[:days].to_i
 end
 
 get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do

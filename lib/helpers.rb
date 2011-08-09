@@ -8,6 +8,7 @@ require 'nokogiri'
 require 'rdf/raptor'
 require 'rdf/json'
 require 'rdf/ntriples'
+require 'date'
 
 helpers do
 
@@ -145,6 +146,12 @@ helpers do
     when ".javascript"
       "metadata_callback(#{render_unixref(:json, unixref).strip});"
     end
+  end
+
+  def render_recent date, representation
+    content = CrossrefLatestCache.new.get_new(date, representation)
+    raise UnknownContentType if content.nil?
+    content
   end
 
 end
