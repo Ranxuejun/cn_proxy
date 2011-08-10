@@ -38,48 +38,48 @@ get '/heartbeat' do
   {:pid => Process.pid, :status => "OK"}.to_json
 end
 
-def serve_release_list date
+def serve_published_list date
   if date <= Date.today - 7
-    status 401
+    status 400
     "Too far in the past."
   else
-    cache = CrossrefLatestCache.new
-    cache.get_releases date
+    cache = Latest::DailyListCache.new
+    cache.get_published representation, date
   end
 end
 
-def serve_change_list
+def serve_filed_list date
   if date <= Date.today - 7
-    status 401
+    status 400
     "Too far in the past."
   else
-    cache = CrossrefLatestCache.new
-    cache.get_changes date
+    cache = Latest::DailyListCache.new
+    cache.get_filed representation, date
   end
 end
 
-get "/releaselists/yesterday" do
-  serve_release_lists Date.today - 1
+get "/publishedlists/yesterday" do
+  serve_published_list Date.today - 1
 end
 
-get "/releaselists/1-day-ago" do
-  serve_release_lists Date.today - 1
+get "/publishedlists/1-day-ago" do
+  serve_published_list Date.today - 1
 end
 
-get "/releaselists/:days-days-ago" do
-  serve_release_lists Date.today - params[:days].to_i
+get "/publishedlists/:days-days-ago" do
+  serve_published_list Date.today - params[:days].to_i
 end
 
-get "/changelists/yesterday" do
-  serve_change_lists Date.today - 1
+get "/filedlists/yesterday" do
+  serve_filed_list Date.today - 1
 end
 
-get "/changelists/1-day-ago" do
-  serve_change_lists Date.today - 1
+get "/filedlists/1-day-ago" do
+  serve_filed_list Date.today - 1
 end
 
-get "/changelists/:days-days-ago" do
-  serve_change_lists Date.today - params[:days].to_i
+get "/filedlists/:days-days-ago" do
+  serve_filed_list Date.today - params[:days].to_i
 end
 
 get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do
