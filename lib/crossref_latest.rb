@@ -8,12 +8,23 @@ require "memcache"
 require "date"
 require "mongo"
 
+module Latest
+
+  def self.bootstrap today
+    collector = Collector.new({:query_from => today << 6})
+    collector.collect
+  end
+
+end
+
 class Latest::Storage
+  
   def self.collection
-    @conn ||= Mongo::Connection.new "192.168.1.150"
+    @conn ||= Mongo::Connection.new "localhost"
     @db ||= @conn.db "cnproxy"
     @db.collection "dois"
   end
+  
 end
 
 class Latest::Collector
@@ -30,7 +41,7 @@ class Latest::Collector
     resumption_token = collect_records nil
 
     while not resumption_token.nil?
-      resumption_token = append_records resumption_token
+      resumption_token = collect_records resumption_token
     end
   end
   
@@ -58,10 +69,10 @@ class Latest::Collector
         doc = Nokogiri::XML::Document.parse response.body
 
         records = parse_records doc
-        puts "#{Time.now}: Found #{@records.count} records with full pub date"
+        puts "#{Time.now}: Found #{records.count} records"
 
-        records.each do
-          coll = Storage.collection
+        records.each do |record|
+          coll = Latest::Storage.collection
           existing = coll.find_one({"doi" => record[:doi]})
           if existing.nil?
             coll.insert record
@@ -78,25 +89,34 @@ class Latest::Collector
   end
   
   def parse_records doc
-    ns = {"cr" => "http://www.crossref.org/xschema/1.0"}
-
-    records = doc.xpath("//record").map do |metadata|
-      year = metadata.at_xpath(".//cr:year", ns)
-      month = metadata.at_xpath(".//cr:month", ns)
-      day = metadata.at_xpath(".//cr:day", ns)
-
+    ns = {
+      "cr" => "http://www.crossref.org/xschema/1.0",
+      "oai" => "http://www.openarchives.org/OAI/2.0/"
+    }
+    
+    records = doc.xpath("//oai:record", ns).map do |metadata|
       record = nil
-
+      
       begin
+        year = metadata.at_xpath(".//cr:year", ns)
+        month = metadata.at_xpath(".//cr:month", ns)
+        day = metadata.at_xpath(".//cr:day", ns)
+        file_date = Date.parse metadata.at_xpath(".//oai:datestamp", ns).text
+        doi = metadata.at_xpath(".//cr:doi", ns).text.sub("info:doi/", "")
+
+        record = {
+          :doi => doi,
+          :file_date => file_date.to_time
+        }
+
         if !(year.nil? || month.nil? || day.nil?)
           pub_date = Date.civil year.text.to_i, month.text.to_i, day.text.to_i
-          file_date = Date.parse metadata.at_xpath(".//datestamp").text
-          record = {
-            :doi => metadata.at_xpath(".//cr:doi", ns).text.sub("info:doi/", ""),
-            :pub_date => pub_date,
-            :file_date => file_date
-          }
+          record[:pub_date] = pub_date.to_time
         end
+
+        record[:pub_year] = year.text.to_i unless year.nil?
+        record[:pub_month] = month.text.to_i unless month.nil?
+        record[:pub_day] = day.text.to_i unless day.nil?
       rescue StandardError => e
         puts "Exception for a record: #{e}"
       end
@@ -121,15 +141,19 @@ end
 class Latest::DailyLists
 
   def initialize for_date
-    @published = Storage.collection.find({:pub_date => for_date})
-    @filed = Storage.collection.find({:file_date => for_date})
+    @published = Storage.collection.find({:pub_date => for_date.to_time})
+    @filed = Storage.collection.find({:file_date => for_date.to_time})
   end
 
   def to_rdf records
     RDF::Graph.new do |graph|
       records.each do |record|
         doi = RDF::URI.new("http://dx.doi.org/" + record[:doi])
-        graph << [doi, RDF::DC.date, record[:pub_date]]
+        if record[:pub_date]
+          graph << [doi, RDF::DC.date, record[:pub_date]]
+        else
+          graph << [doi, RDF::DC.date, record[:pub_year]]
+        end
       end
     end
   end
@@ -182,15 +206,6 @@ class Latest::DailyListCache
 
   def get_filed suffix, date
     @cache.get "#{date}_filed_#{suffix}"
-  end
-
-end
-
-module Latest
-
-  def self.bootstrap today
-    collector = Collector.new({:query_from => today - 6.months})
-    collector.collect
   end
 
 end
