@@ -5,13 +5,12 @@ require 'uuid'
 require 'time'
 require 'json'
 
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__),'lib')
-require 'helpers'
-require 'errors'
-require 'crossref_metadata_query'
-require 'crossref_metadata_results'
-require 'crossref_metadata_record'
-require 'crossref_latest'
+require_relative 'lib/helpers'
+require_relative 'lib/errors'
+require_relative 'lib/crossref_metadata_query'
+require_relative 'lib/crossref_metadata_results'
+require_relative 'lib/crossref_metadata_record'
+require_relative 'lib/crossref_latest'
 
 mime_type :rdf, "application/rdf+xml"
 mime_type :unixref, "application/unixref+xml"
@@ -134,4 +133,3 @@ get '/*' do
     raise UnknownContentType
   end
 end
-

@@ -11,8 +11,21 @@ require "mongo"
 module Latest
 
   def self.bootstrap today
-    collector = Collector.new({:query_from => today << 6})
-    collector.collect
+    from_date = today << 6
+    from_date.upto(today - 2) do |date|
+      puts "#{Time.now}: Collecting for #{date} to #{date + 2}"
+      complete = false
+      while not complete
+        begin
+          collector = Collector.new({:query_from => date, :query_until => date + 2})
+          collector.collect
+          complete = true
+        rescue StandardError => e
+          puts "#{Time.now}: Failure: #{e}. Repeating."
+        end
+      end
+      puts "#{Time.now}: Finished for #{date} to #{date + 2}"
+    end
   end
 
 end
@@ -31,7 +44,8 @@ class Latest::Collector
   
   def initialize options={}
     defaults = {
-      :query_from => Date.today - 2
+      :query_from => Date.today - 2,
+      :query_until => Date.today
     }
     
     @date_options = defaults.merge options
@@ -47,9 +61,12 @@ class Latest::Collector
   
   def collect_records resumption_token
     puts "#{Time.now}: Collecting more records"
+
+    from_str = @date_options[:query_from].strftime('%Y-%m-%d')
+    until_str = @date_options[:query_until].strftime('%Y-%m-%d')
     
     query = "verb=ListRecords&metadataPrefix=cr_unixml"
-    query += "&from=#{@date_options[:query_from].strftime('%Y-%m-%d')}"
+    query += "&from=#{from_str}&until=#{until_str}"
     unless resumption_token.nil?
       query += "&resumptionToken=" + resumption_token
     end
