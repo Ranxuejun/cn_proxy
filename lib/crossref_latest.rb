@@ -146,7 +146,8 @@ class Latest::Collector
 
   def parse_resumption_token doc
     token_element = doc.at_xpath("//xmlns:resumptionToken")
-    if token_element.nil?
+    if token_element.nil? || token_element.text.strip.empty?
+      # Empty resumption token element indicates no token
       nil
     else
       token_element.text
