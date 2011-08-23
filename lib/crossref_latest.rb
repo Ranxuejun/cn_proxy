@@ -10,9 +10,10 @@ require "mongo"
 
 module Latest
 
-  def self.bootstrap today
-    from_date = today << 6
-    from_date.upto(today - 2) do |date|
+  def self.bootstrap today, options={}
+    options = {:from => (today << 6)}.merge options
+   
+    options[:from].upto(today - 2) do |date|
       puts "#{Time.now}: Collecting for #{date} to #{date + 2}"
       complete = false
       while not complete
@@ -78,6 +79,8 @@ class Latest::Collector
     }
     uri = URI::HTTP.build uri_details
     new_token = nil
+
+    puts "#{Time.now}: #{uri}"
 
     Net::HTTP.start uri.host, :read_timeout => 600, :open_timeout => 600 do |http|
       response = http.get uri.request_uri
