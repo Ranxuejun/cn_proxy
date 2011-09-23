@@ -2,8 +2,7 @@ require 'open-uri'
 require 'cgi'
 require 'net/http'
 
-$LOAD_PATH.unshift File.join(File.dirname(__FILE__),'lib')
-require 'errors'
+require_relative 'errors'
 
 class CrossrefMetadataQuery
 
@@ -25,6 +24,19 @@ class CrossrefMetadataQuery
         raise QueryTimeout
       end
     end
+  end
+
+  def self.test pid
+    code = 0
+    Net::HTTP.start "www.crossref.org" do |http|
+      begin
+        r = http.get "/openurl/?id=#{CGI.escape "10.1093/jaarel/lfq090"}&noredirect=true&pid=#{pid}&format=unixref"
+        code = r.code.to_i
+      rescue TimeoutError => e
+        code = -1
+      end
+    end
+    code
   end
 
   def self.scrape_for_errors unixref

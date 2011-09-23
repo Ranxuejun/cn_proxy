@@ -34,7 +34,24 @@ after do
 end
 
 get '/heartbeat' do
-  {:pid => Process.pid, :status => "OK"}.to_json
+  response = {:pid => Process.pid}
+  
+  begin
+    test_result_code = CrossrefMetadataQuery.test options.query_pid
+
+    if test_result_code == 200
+      response[:status] = "OK"
+    else
+      response[:status] = "Error"
+      response[:message] = "OpenURL query failure"
+      response[:code] = test_result_code
+    end
+  rescue StandardError => e
+    response[:status] = "Error"
+    response[:message] = e
+  end
+
+  response.to_json
 end
 
 def serve_published_list date

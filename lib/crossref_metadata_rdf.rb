@@ -1,7 +1,6 @@
-require 'rubygems'
 require 'rdf'
 
-require 'errors'
+require_relative 'errors'
 
 class CrossrefMetadataRdf
 

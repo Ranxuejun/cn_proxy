@@ -1,8 +1,9 @@
 require 'nokogiri'
 require 'unidecode'
-require 'crossref_metadata_rdf'
 require 'digest/md5'
 require 'net/http'
+
+require_relative 'crossref_metadata_rdf'
 
 class CrossrefMetadataRecord
 
