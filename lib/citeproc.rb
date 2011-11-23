@@ -17,10 +17,9 @@ class CiteProc
 
   def author
     @record.contributors.map do |contributor|
-      {
-        :given => contributor.given_name,
-        :family => contributor.surname
-      }
+      c = {:family => contributor.surname}
+      c[:given] = contributor.given_name if contributor.given_name
+      c
     end
   end
 
