@@ -10,6 +10,8 @@ require 'rdf/json'
 require 'rdf/ntriples'
 require 'date'
 
+require_relative "citeproc"
+
 helpers do
 
   def dlog message
@@ -127,6 +129,12 @@ helpers do
     end
   end
 
+  def render_citeproc unixref
+    xml = Nokogiri::XML unixref
+    record = CrossrefMetadataRecord.new xml
+    CiteProc.new(record).as_json
+  end
+
   def render_representation unixref
     case representation
     when ".unixref"
@@ -145,6 +153,8 @@ helpers do
       render_unxiref :ntriples, unixref
     when ".javascript"
       "metadata_callback(#{render_unixref(:json, unixref).strip});"
+    when ".citeproc"
+      render_citeproc unixref
     end
   end
 

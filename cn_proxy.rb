@@ -17,6 +17,7 @@ mime_type :unixref, "application/unixref+xml"
 mime_type :ttl, "text/turtle"
 mime_type :jsonrdf, "application/rdf+json"
 mime_type :javascript, "text/javascript"
+mime_type :citeproc, "application/citeproc+json"
 
 configure do
   set :query_pid, YAML.load_file("#{Dir.pwd}/config/settings.yaml")['query_pid']
@@ -130,7 +131,8 @@ get '/issn/:issn' do
   end
 end
 
-get '/*', :provides => [:javascript, :rdf, :json, :atom, :unixref, :ttl, :jsonrdf] do
+get '/*', :provides => [:html, :javascript, :rdf, :json,
+                        :atom, :unixref, :ttl, :jsonrdf, :citeproc] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then
