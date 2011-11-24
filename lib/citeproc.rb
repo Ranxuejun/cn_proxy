@@ -1,6 +1,6 @@
 require "json"
 require "execjs"
-require "cgi"
+require "uri"
 
 class CiteProc
 
@@ -112,7 +112,9 @@ class CiteProc
      JS
     
     cxt = ExecJS.compile(source)
-    CGI.unescape(cxt.eval("result"))
+
+    unescaped = URI.unescape(cxt.eval("result"))
+    unescaped.gsub(/%u(\d\d\d\d)/) {|m| [$1].pack("H*").unpack("n*").pack("U*")}
   end
      
 end
