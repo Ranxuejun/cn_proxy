@@ -18,10 +18,36 @@ mime_type :ttl, "text/turtle"
 mime_type :jsonrdf, "application/rdf+json"
 mime_type :javascript, "text/javascript"
 mime_type :citeproc, "application/citeproc+json"
+mime_type :bibo, "text/bibliography"
 
 configure do
+  def build_named_file_list glob
+    files = Dir.glob(glob).map do |f|
+      File.join(File.expand_path(File.dirname(__FILE__)), f)
+    end
+    names = {}
+    files.each do |f|
+      name = yield f
+      names[name] = f
+    end
+    names
+  end
+
+  locales = build_named_file_list "locales/*" do |f|
+    File.basename(f, ".xml").gsub(/^locales-/, "")
+  end
+
+  styles = build_named_file_list "styles/*" do |f|
+    File.basename(f, ".csl")
+  end
+  
   set :query_pid, YAML.load_file("#{Dir.pwd}/config/settings.yaml")['query_pid']
   set :show_exceptions, false
+  set :locales, locales
+  set :styles, styles
+
+  set :citeprocjs, File.join(File.expand_path(File.dirname(__FILE__)), "citeproc.js")
+  set :xmle4xjs, File.join(File.expand_path(File.dirname(__FILE__)), "xmle4x.js")
 end
 
 before do
@@ -132,7 +158,7 @@ get '/issn/:issn' do
 end
 
 get '/*', :provides => [:html, :javascript, :rdf, :json,
-                        :atom, :unixref, :ttl, :jsonrdf, :citeproc] do
+                        :atom, :unixref, :ttl, :jsonrdf, :citeproc, :bibo] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then

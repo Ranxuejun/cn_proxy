@@ -56,30 +56,37 @@ helpers do
     url = request.env['QUERY_STRING']  ? "#{port}?#{request.env['QUERY_STRING']}" : port 
   end
 
-  def parse_accept_header(header)
-    content_types = header.to_s.split(',').map do |content_type_and_weight|
-      content_type_and_weight.strip!
-      case content_type_and_weight
-      when /^([^;]+);\s*q=(\d+\.\d+)$/
-        [[1.0, $2.to_f].min, $1, content_type_and_weight]
-      when /(\S+)/
-          [1.0, $1, content_type_and_weight]
-      else nil
+  def accept_parameters
+    request.env["HTTP_ACCEPT"].split(",").map do |ct|
+      params = {}
+      parts = ct.split(";")
+      parts.drop(1).each do |kv|
+        kv_parts = kv.split("=").map {|i| i.strip}
+        params[kv_parts[0]] = kv_parts[1]
       end
+      
+      {
+        :type => parts[0].strip,
+        :params => params
+      }
     end
-
-    if content_types.nil? then
-      content_types = [[1.0, '*/*', '*/*']]
-    else
-      content_types.compact!
-      content_types = content_types.reverse.sort_by { |elem| elem[0] }
-    end
-
-    content_types.reverse.map { |elem| elem[1] }
   end
 
   def representation
-    Rack::Mime::MIME_TYPES.key(parse_accept_header(request.env['HTTP_ACCEPT'])[0])
+    accepts = accept_parameters
+    rep = accepts.first
+    q_level = rep[:params]["q"] || 0
+    q_level = q_level.to_f
+
+    accepts.each do |accept|
+      if accept[:params]["q"] && accept[:params]["q"].to_f > q_level
+        rep = accept
+        q_level = accept[:params]["q"].to_f
+      end
+    end
+
+    puts Rack::Mime::MIME_TYPES.key(rep[:type])
+    Rack::Mime::MIME_TYPES.key(rep[:type])
   end
 
   def render_feed feed_template, unixref
@@ -132,7 +139,20 @@ helpers do
   def render_citeproc unixref
     xml = Nokogiri::XML unixref
     record = CrossrefMetadataRecord.new xml
-    CiteProc.new(record).as_json
+    CiteProc.new(record, settings).as_json
+  end
+
+  def render_bib_style unixref
+    xml = Nokogiri::XML unixref
+    record = CrossrefMetadataRecord.new xml
+    params = accept_parameters
+    
+    if params[0][:params]["style"]
+      style = params[0][:params]["style"]
+      CiteProc.new(record, settings).as_style style
+    else
+      CiteProc.new(record, settings).as_style
+    end
   end
 
   def render_representation unixref
@@ -155,6 +175,8 @@ helpers do
       "metadata_callback(#{render_unixref(:json, unixref).strip});"
     when ".citeproc"
       render_citeproc unixref
+    when ".bibo"
+      render_bib_style unixref
     end
   end
 

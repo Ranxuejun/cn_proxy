@@ -1,9 +1,17 @@
 require "json"
+require "execjs"
+require "cgi"
 
 class CiteProc
 
-  def initialize record
+  @@styles = {}
+  @@locales = {}
+
+  def initialize record, settings
     @record = record
+    @settings = settings
+
+    ExecJS.runtime = ExecJS::Runtimes::SpiderMonkey
   end
 
   def issued
@@ -34,6 +42,10 @@ class CiteProc
   end
 
   def as_json
+    as_data.to_json
+  end
+
+  def as_data
     data = {
       :volume => @record.volume,
       :issue => @record.issue,
@@ -65,7 +77,42 @@ class CiteProc
       end
     end
 
-    data.to_json
+    data
+  end
+
+  def load_locale locale
+    # TODO check for unknown locale / style
+    @@locales[locale] ||= File.open(@settings.locales[locale], "r").read
+  end
+
+  def load_style style
+    @@styles[style] ||= File.open(@settings.styles[style], "r").read
+  end
+
+  def as_style style="apa", locale="en-US"
+    style_data = load_style style
+    locale_data = load_locale locale
+    bib_data = as_data
+    bib_data["id"] = "1"
+
+    source = open(@settings.xmle4xjs).read + "\n" + open(@settings.citeprocjs).read
+     source += "\n" + <<-JS
+     var style = #{style_data.to_json};
+     var locale = #{locale_data.to_json};
+     var item = #{bib_data.to_json};
+     var sys = {};
+     sys.retrieveItem = function(id) { return item };
+     sys.retrieveLocale = function(id) { return locale };
+     var cluster = {"citationItems": [ {id: "1"} ], "properties": {"noteIndex": 1}};
+     var citeProc = new CSL.Engine(sys, style);
+     citeProc.appendCitationCluster(cluster);
+     citeProc.setOutputFormat("text");
+     var result = citeProc.makeBibliography()["1"][0];
+     result = escape(result);
+     JS
+    
+    cxt = ExecJS.compile(source)
+    CGI.unescape(cxt.eval("result"))
   end
      
 end
