@@ -89,11 +89,13 @@ class CiteProc
     @@styles[style] ||= File.open(@settings.styles[style], "r").read
   end
 
-  def as_style style="apa", locale="en-US"
-    style_data = load_style style
-    locale_data = load_locale locale
+  def as_style opts={}
+    options = {:style => "apa", :locale => "en-US", :id => "1"}.merge(opts)
+
+    style_data = load_style options[:style]
+    locale_data = load_locale options[:locale]
     bib_data = as_data
-    bib_data["id"] = "1"
+    bib_data["id"] = options[:id]
 
     source = open(@settings.xmle4xjs).read + "\n" + open(@settings.citeprocjs).read
      source += "\n" + <<-JS
@@ -103,11 +105,11 @@ class CiteProc
      var sys = {};
      sys.retrieveItem = function(id) { return item };
      sys.retrieveLocale = function(id) { return locale };
-     var cluster = {"citationItems": [ {id: "1"} ], "properties": {"noteIndex": 1}};
+     var cluster = {"citationItems": [ {id: "#{options[:id]}"} ], "properties": {"noteIndex": 1}};
      var citeProc = new CSL.Engine(sys, style);
      citeProc.appendCitationCluster(cluster);
      citeProc.setOutputFormat("text");
-     var result = citeProc.makeBibliography()["1"][0];
+     var result = citeProc.makeBibliography()["#{options[:id]}"][0];
      result = escape(result);
      JS
     

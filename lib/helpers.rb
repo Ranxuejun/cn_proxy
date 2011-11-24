@@ -85,7 +85,6 @@ helpers do
       end
     end
 
-    puts Rack::Mime::MIME_TYPES.key(rep[:type])
     Rack::Mime::MIME_TYPES.key(rep[:type])
   end
 
@@ -145,14 +144,14 @@ helpers do
   def render_bib_style unixref
     xml = Nokogiri::XML unixref
     record = CrossrefMetadataRecord.new xml
-    params = accept_parameters
-    
-    if params[0][:params]["style"]
-      style = params[0][:params]["style"]
-      CiteProc.new(record, settings).as_style style
-    else
-      CiteProc.new(record, settings).as_style
-    end
+    params = accept_parameters[0][:params]
+
+    opts = {}
+    opts[:style] = params["style"] if params["style"]
+    opts[:locale] = params["locale"] if params["locale"]
+    opts[:id] = params["id"] if params["id"]
+
+    CiteProc.new(record, settings).as_style(opts)
   end
 
   def render_representation unixref
