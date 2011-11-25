@@ -90,6 +90,7 @@ class CiteProc
         @@locales[locale] = Nokogiri::XML.parse(file)
       end
     end
+    @@locales[locale]
   end
 
   def load_style style
@@ -99,6 +100,7 @@ class CiteProc
         @@styles[style] = Nokogiri::XML.parse(file)
       end
     end
+    @@styles[style]
   end
 
   def as_style opts={}
