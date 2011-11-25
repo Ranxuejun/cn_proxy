@@ -95,7 +95,7 @@ class CiteProc
   def as_style opts={}
     options = {
       :format => "text",
-      :style => "apa",
+      :style => "bibtex",
       :locale => "en-US"
     }.merge(opts)
 
