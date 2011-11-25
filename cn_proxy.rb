@@ -60,6 +60,14 @@ after do
   response.headers['Vary'] = 'Accept' if response.status == 200
 end
 
+get "/styles" do
+  settings.styles.keys.to_json
+end
+
+get "/locales" do
+  settings.locales.keys.to_json
+end
+
 get '/heartbeat' do
   response = {:pid => Process.pid}
   
