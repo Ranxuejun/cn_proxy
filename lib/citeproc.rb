@@ -51,6 +51,7 @@ class CiteProc
     data = {
       :volume => @record.volume,
       :issue => @record.issue,
+      :number => @record.edition_number,
       :DOI => @record.doi,
       :ISBN => @record.isbn,
       :title => @record.title,
@@ -58,8 +59,7 @@ class CiteProc
       :publisher => @record.publisher_name,
       :issued => issued,
       :author => author,
-      :page => page,
-      :issn => @record.preferred_issn
+      :page => page
     }
 
     data[:type] = case @record.publication_type
@@ -117,7 +117,11 @@ class CiteProc
       var citeProc = new CSL.Engine(sys, style);
       citeProc.updateItems(["item"]);
       citeProc.setOutputFormat("#{options[:format]}");
-      var result = citeProc.makeBibliography()[1][0];
+      var bib = citeProc.makeBibliography();
+      var result = "Not enough metadata to construct bibliographic item.";
+      if (bib[0]["bibliography_errors"].length == 0) {
+        result = bib[1][0];
+      }
       result = escape(result);
     JS
 
