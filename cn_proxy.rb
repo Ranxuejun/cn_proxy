@@ -61,10 +61,12 @@ after do
 end
 
 get "/styles" do
+  content_type "application/json"
   settings.styles.keys.to_json
 end
 
 get "/locales" do
+  content_type "application/json"
   settings.locales.keys.to_json
 end
 
