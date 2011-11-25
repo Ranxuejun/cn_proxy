@@ -1,6 +1,7 @@
 require "json"
 require "execjs"
 require "uri"
+require "nokogiri"
 
 require_relative "errors"
 
@@ -84,12 +85,20 @@ class CiteProc
 
   def load_locale locale
     raise UnknownLocale.new if @settings.locales[locale].nil?
-    @@locales[locale] ||= File.open(@settings.locales[locale], "r").read
+    if @@locales[locale].nil?
+      File.open(@settings.locales[locale], "r") do |file|
+        @@locales[locale] = Nokogiri::XML.parse(file)
+      end
+    end
   end
 
   def load_style style
     raise UnknownStyle.new if @settings.styles[style].nil?
-    @@styles[style] ||= File.open(@settings.styles[style], "r").read
+    if @@styles[style].nil?
+      File.open(@settings.styles[style], "r") do |file|
+        @@styles[style] = Nokogiri::XML.parse(file)
+      end
+    end
   end
 
   def as_style opts={}
