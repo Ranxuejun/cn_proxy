@@ -150,6 +150,7 @@ helpers do
     opts[:style] = params["style"] if params["style"]
     opts[:locale] = params["locale"] if params["locale"]
     opts[:id] = params["id"] if params["id"]
+    opts[:format] = params["format"] if params["format"]
 
     CiteProc.new(record, settings).as_style(opts)
   end

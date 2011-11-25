@@ -17,6 +17,10 @@ class UnknownIssn < UnknownIdentifier; end
 class UnknownIsbn < UnknownIdentifier; end
 class UnknownContributor < UnknownIdentifier; end
 
+class UnknownStyle < UnknownContentType; end
+class UnknownLocale < UnknownContentType; end
+class UnknownFormat < UnknownContentType; end
+
 def e details
   status details[:status] if details.has_key? :status
   content_type 'text/html'
@@ -66,6 +70,21 @@ end
 error UnknownContentType do
   e :status => 406, 
     :msg => "Can't respond with requested content type"
+end
+
+error UnknownStyle do
+  e :status => 406,
+    :msg => "Unknown style. Please see https://github.com/citation-style-language/styles for a list of styles."
+end
+
+error UnknownFormat do
+  e :status => 406,
+    :msg => "Unknown format. Must be one of rtf, html or text."
+end
+
+error UnknownLocale do
+  e :status => 406,
+    :msg => "Unknown locale. Please see https://github.com/citation-style-language/locales for a list of locales."
 end
 
 error QueryFailure do

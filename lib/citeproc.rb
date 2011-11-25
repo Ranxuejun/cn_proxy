@@ -2,6 +2,8 @@ require "json"
 require "execjs"
 require "uri"
 
+require_relative "errors"
+
 class CiteProc
 
   @@styles = {}
@@ -81,38 +83,44 @@ class CiteProc
   end
 
   def load_locale locale
-    # TODO check for unknown locale / style
+    raise UnknownLocale.new if @settings.locales[locale].nil?
     @@locales[locale] ||= File.open(@settings.locales[locale], "r").read
   end
 
   def load_style style
+    raise UnknownStyle.new if @settings.styles[style].nil?
     @@styles[style] ||= File.open(@settings.styles[style], "r").read
   end
 
   def as_style opts={}
-    options = {:style => "apa", :locale => "en-US", :id => "1"}.merge(opts)
+    options = {
+      :format => "text",
+      :style => "apa",
+      :locale => "en-US"
+    }.merge(opts)
+
+    raise UnknownFormat unless ["text", "rtf", "html"].include?(options[:format])
 
     style_data = load_style options[:style]
     locale_data = load_locale options[:locale]
     bib_data = as_data
-    bib_data["id"] = options[:id]
+    bib_data["id"] = "item"
 
     source = open(@settings.xmle4xjs).read + "\n" + open(@settings.citeprocjs).read
-     source += "\n" + <<-JS
-     var style = #{style_data.to_json};
-     var locale = #{locale_data.to_json};
-     var item = #{bib_data.to_json};
-     var sys = {};
-     sys.retrieveItem = function(id) { return item };
-     sys.retrieveLocale = function(id) { return locale };
-     var cluster = {"citationItems": [ {id: "#{options[:id]}"} ], "properties": {"noteIndex": 1}};
-     var citeProc = new CSL.Engine(sys, style);
-     citeProc.appendCitationCluster(cluster);
-     citeProc.setOutputFormat("text");
-     var result = citeProc.makeBibliography()["#{options[:id]}"][0];
-     result = escape(result);
-     JS
-    
+    source += "\n" + <<-JS
+      var style = #{style_data.to_json};
+      var locale = #{locale_data.to_json};
+      var item = #{bib_data.to_json};
+      var sys = {};
+      sys.retrieveItem = function(id) { return item };
+      sys.retrieveLocale = function(id) { return locale };
+      var citeProc = new CSL.Engine(sys, style);
+      citeProc.updateItems(["item"]);
+      citeProc.setOutputFormat("#{options[:format]}");
+      var result = citeProc.makeBibliography()[1][0];
+      result = escape(result);
+    JS
+
     cxt = ExecJS.compile(source)
 
     unescaped = URI.unescape(cxt.eval("result"))
