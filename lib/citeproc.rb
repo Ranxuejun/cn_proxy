@@ -139,7 +139,7 @@ class CiteProc
       file.unlink
     end
     
-    result.strip
+    result.strip.gsub("\u0019", "'").gsub("\u0013", "-")
   end
      
 end
