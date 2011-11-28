@@ -14,7 +14,7 @@ class ExecJS::ExternalRuntime::Context
       first = parts[0]
       rest = parts.drop(1).join(",")
 
-      value = rest.gsub(/^"/, "").gsub(/"]/, "").gsub("\\u000a", "")
+      value = rest.gsub(/^"/, "").gsub(/"\]/, "").gsub("\\u000a", "")
       status = first.gsub(/^\["/, "").gsub(/"$/, "")
     end
 
