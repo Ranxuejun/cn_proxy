@@ -5,6 +5,29 @@ require "nokogiri"
 
 require_relative "errors"
 
+class ExecJS::ExternalRuntime::Context
+  def extract_result(output)
+    status = nil
+    value = nil
+    if not output.empty?
+      parts = output.split(",")
+      first = parts[0]
+      rest = parts.drop(1).join(",")
+
+      value = rest.gsub(/^"/, "").gsub(/"]/, "").gsub("\\u000a", "")
+      status = first.gsub(/^\["/, "").gsub(/"$/, "")
+    end
+
+    if status == "ok"
+      value
+    elsif value =~ /SyntaxError:/
+      raise RuntimeError, value
+    else
+      raise ProgramError, value
+    end
+  end
+end
+
 class CiteProc
 
   @@styles = {}
@@ -133,13 +156,11 @@ class CiteProc
       if (bib[0]["bibliography_errors"].length == 0) {
         result = bib[1][0];
       }
-      result = escape(result);
     JS
 
     cxt = ExecJS.compile(source)
 
-    unescaped = URI.unescape(cxt.eval("result"))
-    unescaped.gsub(/%u(\d\d\d\d)/) {|m| [$1].pack("H*").unpack("n*").pack("U*")}
+    cxt.eval("result")
   end
      
 end
