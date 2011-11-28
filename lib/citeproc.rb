@@ -1,32 +1,8 @@
 require "json"
-require "execjs"
 require "uri"
 require "nokogiri"
 
 require_relative "errors"
-
-class ExecJS::ExternalRuntime::Context
-  def extract_result(output)
-    status = nil
-    value = nil
-    if not output.empty?
-      parts = output.split(",")
-      first = parts[0]
-      rest = parts.drop(1).join(",")
-
-      value = rest.gsub(/^"/, "").gsub(/"\]/, "").gsub("\\u000a", "")
-      status = first.gsub(/^\["/, "").gsub(/"$/, "")
-    end
-
-    if status == "ok"
-      value
-    elsif value =~ /SyntaxError:/
-      raise RuntimeError, value
-    else
-      raise ProgramError, value
-    end
-  end
-end
 
 class CiteProc
 
@@ -36,8 +12,6 @@ class CiteProc
   def initialize record, settings
     @record = record
     @settings = settings
-
-    ExecJS.runtime = ExecJS::Runtimes::SpiderMonkey
   end
 
   def issued
@@ -156,11 +130,21 @@ class CiteProc
       if (bib[0]["bibliography_errors"].length == 0) {
         result = bib[1][0];
       }
+      print(result);
     JS
 
-    cxt = ExecJS.compile(source)
+    result = ""
+    
+    Tempfile.open("js") do |file|
+      file.write source
+      file.close
+      IO.popen("js -f #{file.path}") do |p|
+        result = p.read
+      end
+      file.unlink
+    end
 
-    cxt.eval("result")
+    result.strip
   end
      
 end
