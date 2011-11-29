@@ -22,12 +22,20 @@ class CiteProc
     {:"date-parts" => [date_parts]}
   end
 
-  def author
-    @record.contributors.map do |contributor|
+  def contributor role
+    @record.contributors.reject {|c| c.contributor_role != role }.map do |contributor|
       c = {:family => contributor.surname}
       c[:given] = contributor.given_name if contributor.given_name
       c
     end
+  end
+
+  def author
+    contributor "author"
+  end
+
+  def editor
+    contributor "editor"
   end
 
   def page
@@ -50,12 +58,14 @@ class CiteProc
       :issue => @record.issue,
       :number => @record.edition_number,
       :DOI => @record.doi,
+      :URL => "http://dx.doi.org/" + @record.doi,
       :ISBN => @record.isbn,
       :title => @record.title,
       :"container-title" => @record.publication_title,
       :publisher => @record.publisher_name,
       :issued => issued,
       :author => author,
+      :editor => editor,
       :page => page
     }
 
