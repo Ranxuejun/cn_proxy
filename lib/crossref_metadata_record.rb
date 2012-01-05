@@ -44,8 +44,8 @@ class CrossrefMetadataRecord
     def slug
       decoded = Unidecoder.decode name.strip
       decrufted = decoded.gsub(/\./, ' ').gsub(/\s+/, '-').downcase
-      
-      decrufted.gsub(/[^a-z-]/, '')
+      normalised = decrufted.gsub(/[^a-z-]/, '')
+      normalised.gsub(/\-+/, "-").gsub(/\-+\Z/, "").gsub(/\A-+/, "")
     end
 
     def unique_slug
