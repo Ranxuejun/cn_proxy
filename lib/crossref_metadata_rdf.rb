@@ -167,9 +167,11 @@ class CrossrefMetadataRdf
         graph << [id, rdf.type, bibo.Article]
       when :book
         graph << [id, rdf.type, bibo.Book]
-        graph << [id, bibo.isbn, record.isbn]
-        graph << [id, prism.isbn, record.isbn]
-        graph << [id, RDF::OWL.sameAs, RDF::URI.new(self.book_urn(record.isbn))]
+        if record.isbn
+          graph << [id, RDF::OWL.sameAs, RDF::URI.new(self.book_urn(record.isbn))]
+        end
+        add_to graph, [id, bibo.isbn, record.isbn]
+        add_to graph, [id, prism.isbn, record.isbn]
       when :report
         graph << [id, rdf.type, bibo.Report]
       when :standard
