@@ -32,7 +32,7 @@ configure do
     end
     names
   end
-
+  
   locales = build_named_file_list "locales/*" do |f|
     File.basename(f, ".xml").gsub(/^locales-/, "")
   end
@@ -58,6 +58,7 @@ end
 
 after do
   response.headers['Vary'] = 'Accept' if response.status == 200
+  response.headers["Access-Control-Allow-Origin"] = "*"
 end
 
 get "/styles" do
