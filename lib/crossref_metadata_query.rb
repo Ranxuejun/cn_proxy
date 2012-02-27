@@ -10,6 +10,7 @@ class CrossrefMetadataQuery
 
   def self.for_doi doi, pid
     safe_doi = CGI.escape doi
+    puts safe_doi
     Net::HTTP.start "www.crossref.org" do |http|
       http.open_timeout = 30
       http.read_timeout = 30
@@ -41,7 +42,7 @@ class CrossrefMetadataQuery
 
   def self.scrape_for_errors unixref
     case unixref
-    when /\<journal/, /\<conference/, /\<book/, /\<dissertation/, /\<report-paper/, /\<standard/, /\<database/
+    when /\<journal/, /\<conference/, /\<book/, /\<dissertation/, /\<report-paper/, /\<standard/, /\<database/, /\<sa_component/
       return
     when /doi_records/
       raise UnknownDoi
