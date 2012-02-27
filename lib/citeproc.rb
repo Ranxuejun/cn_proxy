@@ -76,7 +76,7 @@ class CiteProc
                   when :dissertation then "thesis"
                   when :book then "book"
                   else
-                    "article"
+                    "misc"
                   end
     
     data.each_pair do |k,v|

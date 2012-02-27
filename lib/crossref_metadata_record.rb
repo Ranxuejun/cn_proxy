@@ -74,6 +74,7 @@ class CrossrefMetadataRecord
     return :report if @record.at_xpath("//report-paper")
     return :standard if @record.at_xpath("//standard")
     return :database if @record.at_xpath("//database")
+    return :component if @record.at_xpath("//sa_component")
     return :unknown
   end
 
