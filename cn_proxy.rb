@@ -48,6 +48,10 @@ configure do
 
   set :citeprocjs, File.join(File.expand_path(File.dirname(__FILE__)), "citeproc.js")
   set :xmle4xjs, File.join(File.expand_path(File.dirname(__FILE__)), "xmle4x.js")
+
+  set :content_types, [".unixref", ".json", ".ttl", ".rdf", 
+                       ".jsonrdf", ".ntriples", ".javascript", 
+                       ".citeproc", ".bibo"]
 end
 
 before do

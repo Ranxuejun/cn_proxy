@@ -73,19 +73,33 @@ helpers do
   end
 
   def representation
-    accepts = accept_parameters
-    rep = accepts.first
-    q_level = rep[:params]["q"] || 0
-    q_level = q_level.to_f
-
-    accepts.each do |accept|
-      if accept[:params]["q"] && accept[:params]["q"].to_f > q_level
-        rep = accept
-        q_level = accept[:params]["q"].to_f
+    accepts = accept_parameters.reject { |a| !a[:params].key?("q") }.sort_by do |a| 
+      begin
+        -a[:params]["q"].to_f
+      rescue Exception => e
+        0
       end
     end
 
-    Rack::Mime::MIME_TYPES.key(rep[:type])
+    accepts = accepts + accept_parameters.reject { |a| a[:params].key?("q") }
+    accepts = accepts.reverse
+
+    rep = nil
+    while !Rack::Mime::MIME_TYPES.has_value?(rep) && !accepts.empty?
+      rep = accepts.pop[:type]
+    end
+
+    suffix = nil
+    if rep.nil?
+      raise UnknownContentType
+    else
+      suffix = Rack::Mime::MIME_TYPES.key rep
+      if !options.content_types.member?(suffix)
+        raise UnknownContentType
+      end
+    end
+
+    suffix
   end
 
   def render_feed feed_template, unixref
@@ -187,3 +201,5 @@ helpers do
   end
 
 end
+
+ 
