@@ -84,20 +84,16 @@ helpers do
     accepts = accepts + accept_parameters.reject { |a| a[:params].key?("q") }
     accepts = accepts.reverse
 
-    rep = nil
-    while !Rack::Mime::MIME_TYPES.has_value?(rep) && !accepts.empty?
-      rep = accepts.pop[:type]
-    end
-
     suffix = nil
-    if rep.nil?
-      raise UnknownContentType
-    else
+    while suffix.nil? && !accepts.empty?
+      rep = accepts.pop[:type]
       suffix = Rack::Mime::MIME_TYPES.key rep
       if !options.content_types.member?(suffix)
-        raise UnknownContentType
+        suffix = nil
       end
     end
+
+    raise UnknownContentType if suffix.nil?
 
     suffix
   end
