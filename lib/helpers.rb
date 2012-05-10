@@ -11,6 +11,7 @@ require 'rdf/ntriples'
 require 'date'
 
 require_relative "citeproc"
+require_relative "crossref_metadata_ris"
 
 helpers do
 
@@ -165,8 +166,16 @@ helpers do
     CiteProc.new(record, settings).as_style(opts)
   end
 
+  def render_ris unixref
+    xml = Nokogiri::XML unixref
+    record = CrossrefMetadataRecord.new xml
+    CrossrefMetadataRis.from_record record
+  end
+
   def render_representation unixref
     case representation
+    when ".x_ris"
+      render_ris unixref
     when ".unixref", ".vnd_unixref"
       unixref
     when ".json"

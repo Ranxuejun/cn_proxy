@@ -69,7 +69,7 @@ class CrossrefMetadataRdf
   def self.find_issn_graph issn
     begin
       issn_graph = RDF::Graph.load self.incubator_issue_res(issn) + '.rdf'
-    
+
       issn_graph.each_object do |object|
         case object.to_s
         when /#{@@periodicals}\/journal\//
@@ -83,7 +83,7 @@ class CrossrefMetadataRdf
   end
 
   def self.create_for_issn issn
-    issn_graph = self.find_issn_graph issn                  
+    issn_graph = self.find_issn_graph issn
 
     RDF::Graph.new do |graph|
 
@@ -100,7 +100,7 @@ class CrossrefMetadataRdf
       })
 
       results = queries.execute issn_graph
-                                     
+
       add_to graph, [id, RDF::OWL.sameAs, di_id]
       add_to graph, [id, RDF::OWL.sameAs, urn_id]
 
@@ -117,10 +117,10 @@ class CrossrefMetadataRdf
 
   def self.create_for_record record
     RDF::Graph.new do |graph|
-      
-      # We start by deciding an identifier for the doi subject we are 
+
+      # We start by deciding an identifier for the doi subject we are
       # describing.
-      
+
       id = RDF::URI.new('http://dx.doi.org/' + record.doi)
 
       # See what we can do with the publication date. If we have all the
@@ -131,13 +131,13 @@ class CrossrefMetadataRdf
         pub_date = Date.strptime pub_date
       rescue
       end
-      
+
       # We try to record as many predicates about the doi subject as we
       # can, given the unixref available.
 
       info_doi = RDF::URI.new "info:doi/#{record.doi}"
       doi = RDF::URI.new "doi:#{record.doi}"
-      
+
       add_to graph, [id, RDF::DC.identifier, record.doi]
       add_to graph, [id, RDF::OWL.sameAs, info_doi]
       add_to graph, [id, RDF::OWL.sameAs, doi]
@@ -155,11 +155,11 @@ class CrossrefMetadataRdf
       add_to graph, [id, RDF::DC.title, record.title]
       add_to graph, [id, RDF::DC.alternative, record.subtitle]
       add_to graph, [id, RDF::DC.publisher, record.publisher_name]
-    
+
       # We record the type of the doi subject, and also note the isbn
       # for books. For proceedings the isbn is attached to the container
       # subject.
-      
+
       case record.publication_type
       when :journal
         graph << [id, rdf.type, bibo.Article]
@@ -181,7 +181,7 @@ class CrossrefMetadataRdf
       when :database
         graph << [id, rdf.type, RDF::OWL.Thing]
       end
-      
+
       # With conference proceedings and journals, we need to describe them as
       # well as the doi/article.
 
@@ -192,10 +192,10 @@ class CrossrefMetadataRdf
                when :conference then self.book_res record.isbn
                else nil
                end
-      
+
       if pub_id then
         pub_id = RDF::URI.new pub_id
-        
+
         add_to graph, [pub_id, RDF::DC.title, record.publication_title]
         add_to graph, [pub_id, bibo.issn, record.pissn]
         add_to graph, [pub_id, bibo.eissn, record.eissn]
@@ -206,7 +206,7 @@ class CrossrefMetadataRdf
 
         graph << [id, RDF::DC.isPartOf, pub_id]
         graph << [pub_id, RDF::DC.hasPart, id]
-        
+
         case record.publication_type
         when :journal
           urn = RDF::URI.new self.issue_urn preferred_issn
@@ -225,18 +225,18 @@ class CrossrefMetadataRdf
       end
 
       # We describe each contributor and attach them to the doi subject.
-      
+
       record.contributors.each do |c|
         c_id = RDF::URI.new self.contributor_res(record.contributor_id(c))
-        
+
         graph << [id, RDF::DC.creator, c_id]
-        
+
         add_to graph, [c_id, RDF::FOAF.name, c.name]
         add_to graph, [c_id, RDF::FOAF.givenName, c.given_name]
         add_to graph, [c_id, RDF::FOAF.familyName, c.surname]
         add_to graph, [c_id, rdf.type, RDF::FOAF.Person]
       end
-      
+
     end
   end
   

@@ -21,10 +21,10 @@ mime_type :jsonrdf, "application/rdf+json"
 mime_type :javascript, "text/javascript"
 mime_type :vnd_citeproc, "application/vnd.citationstyles.csl+json"
 mime_type :x_bibo, "text/x-bibliography"
+mime_type :x_ris, "application/x-research-info-systems"
 
 # Not implemented
 mime_type :x_bibtex, "application/x-bibtex"
-mime_type :x_ris, "application/x-research-info-systems"
 
 # Deprecated types
 mime_type :bibo, "text/bibliography"
@@ -63,7 +63,7 @@ configure do
   set :content_types, [".unixref", ".json", ".ttl", ".rdf",
                        ".jsonrdf", ".ntriples", ".javascript",
                        ".citeproc", ".bibo", ".vnd_citeproc",
-                       ".vnd_unixref", ".x_bibo"]
+                       ".vnd_unixref", ".x_bibo", ".x_ris"]
 end
 
 before do
@@ -89,7 +89,7 @@ end
 
 get '/heartbeat' do
   response = {:pid => Process.pid}
-  
+
   begin
     test_result_code = CrossrefMetadataQuery.test options.query_pid
 
@@ -185,7 +185,8 @@ get '/issn/:issn' do
 end
 
 get '/*', :provides => [:html, :javascript, :rdf, :json, :atom, :unixref, :ttl,
-                        :jsonrdf, :citeproc, :bibo, :x_bibo, :vnd_unixref, :vnd_citeproc] do
+                        :jsonrdf, :citeproc, :bibo, :x_bibo, :vnd_unixref, :vnd_citeproc,
+                        :x_ris] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then
