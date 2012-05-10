@@ -22,8 +22,6 @@ mime_type :javascript, "text/javascript"
 mime_type :vnd_citeproc, "application/vnd.citationstyles.csl+json"
 mime_type :x_bibo, "text/x-bibliography"
 mime_type :x_ris, "application/x-research-info-systems"
-
-# Not implemented
 mime_type :x_bibtex, "application/x-bibtex"
 
 # Deprecated types
@@ -63,7 +61,8 @@ configure do
   set :content_types, [".unixref", ".json", ".ttl", ".rdf",
                        ".jsonrdf", ".ntriples", ".javascript",
                        ".citeproc", ".bibo", ".vnd_citeproc",
-                       ".vnd_unixref", ".x_bibo", ".x_ris"]
+                       ".vnd_unixref", ".x_bibo", ".x_ris",
+                       ".x_bibtex"]
 end
 
 before do
@@ -186,7 +185,7 @@ end
 
 get '/*', :provides => [:html, :javascript, :rdf, :json, :atom, :unixref, :ttl,
                         :jsonrdf, :citeproc, :bibo, :x_bibo, :vnd_unixref, :vnd_citeproc,
-                        :x_ris] do
+                        :x_ris, :x_bibtex] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then

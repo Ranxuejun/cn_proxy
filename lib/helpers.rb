@@ -172,8 +172,16 @@ helpers do
     CrossrefMetadataRis.from_record record
   end
 
+  def render_bibtex unixref
+    xml = Nokogiri::XML unixref
+    record = CrossrefMetadataRecord.new xml
+    CiteProc.new(record, settings).as_style({:style => "bibtex"})
+  end
+
   def render_representation unixref
     case representation
+    when ".x_bibtex"
+      render_bibtex unixref
     when ".x_ris"
       render_ris unixref
     when ".unixref", ".vnd_unixref"
