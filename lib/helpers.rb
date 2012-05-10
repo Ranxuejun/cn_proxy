@@ -20,13 +20,13 @@ helpers do
 
   # TODO keep checking to see if I can avoid this hack
   # Spec doesn't seem to set REQUEST_URI for requests, so, in order to enable testing,
-  # I need to repopulate it with a likely looking URL. 
-  def tidy_request_for_testing 
+  # I need to repopulate it with a likely looking URL.
+  def tidy_request_for_testing
     request.env['REQUEST_URI'] = request.env['PATH_INFO']
   end
 
-  def detect_doi 
-    doi = request.env['REQUEST_URI'] 
+  def detect_doi
+    doi = request.env['REQUEST_URI']
     doi = strip_route doi
     doi = CGI.unescape(doi)
     request.env['doi'] = (is_valid_doi? doi) ? doi : nil
@@ -37,7 +37,7 @@ helpers do
   end
 
   def strip_route doi
-    doi =~ /^\/(.*?)\/10\./ # detect route 
+    doi =~ /^\/(.*?)\/10\./ # detect route
     doi = $1 ? doi.sub(Regexp.new("^/#{$1}\/"),"") : doi.sub(Regexp.new("^/"),"") # remove route, or if their isn't a route, remove slash...
   end
 
@@ -53,7 +53,7 @@ helpers do
     base = "http://#{request.env['SERVER_NAME']}"
     port = request.env['SERVER_PORT'] == 80 ? base : base = base +  ":#{request.env['SERVER_PORT']}"
     port = request.env['REQUEST_PATH'] ? port + request.env['REQUEST_PATH'] : port
-    url = request.env['QUERY_STRING']  ? "#{port}?#{request.env['QUERY_STRING']}" : port 
+    url = request.env['QUERY_STRING']  ? "#{port}?#{request.env['QUERY_STRING']}" : port
   end
 
   def accept_parameters
@@ -64,7 +64,7 @@ helpers do
         kv_parts = kv.split("=").map {|i| i.strip}
         params[kv_parts[0]] = kv_parts[1]
       end
-      
+
       {
         :type => parts[0].strip,
         :params => params
@@ -73,7 +73,7 @@ helpers do
   end
 
   def representation
-    accepts = accept_parameters.reject { |a| !a[:params].key?("q") }.sort_by do |a| 
+    accepts = accept_parameters.reject { |a| !a[:params].key?("q") }.sort_by do |a|
       begin
         -a[:params]["q"].to_f
       rescue Exception => e
@@ -102,21 +102,21 @@ helpers do
     # Fake several results. Will need to support this for eventual search results.
     metadata = CrossrefMetadataResults.new()
     record = Nokogiri::XML unixref
-    metadata.records << CrossrefMetadataRecord.new(record) 
+    metadata.records << CrossrefMetadataRecord.new(record)
     uuid = UUID.new
-    erb feed_template, :locals => { 
-      :metadata => metadata, 
-      :feed_link => entire_url, 
-      :uuid => uuid, 
-      :feed_updated => Time.now.iso8601 
-    }  
+    erb feed_template, :locals => {
+      :metadata => metadata,
+      :feed_link => entire_url,
+      :uuid => uuid,
+      :feed_updated => Time.now.iso8601
+    }
   end
 
   def render_json unixref
     # Bascially translate the ATOM XML into JSON using Tilt to bind redenering to variable.
     metadata = CrossrefMetadataResults.new()
     record = Nokogiri::XML unixref
-    metadata.records << CrossrefMetadataRecord.new(record) 
+    metadata.records << CrossrefMetadataRecord.new(record)
     uuid = UUID.new
     template = Tilt.new("#{Sinatra::Application.root}/views/atom_feed.erb", :trim => '<>')
     xml = template.render( self, :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 )
@@ -140,7 +140,7 @@ helpers do
         :prism => CrossrefMetadataRdf.prism,
         :bibo => CrossrefMetadataRdf.bibo,
         :rdf => CrossrefMetadataRdf.rdf
-      }  
+      }
       writer << rdf
     end
   end
@@ -167,8 +167,8 @@ helpers do
 
   def render_representation unixref
     case representation
-    when ".unixref"
-      unixref   
+    when ".unixref", ".vnd_unixref"
+      unixref
     when ".json"
       render_json unixref
     when ".atom"
@@ -183,9 +183,9 @@ helpers do
       render_unxiref :ntriples, unixref
     when ".javascript"
       "metadata_callback(#{render_unixref(:json, unixref).strip});"
-    when ".citeproc"
+    when ".citeproc", ".vnd_citeproc"
       render_citeproc unixref
-    when ".bibo"
+    when ".bibo", ".x_bibo"
       render_bib_style unixref
     end
   end
@@ -198,4 +198,3 @@ helpers do
 
 end
 
- 

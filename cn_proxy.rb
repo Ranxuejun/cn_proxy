@@ -12,13 +12,24 @@ require_relative 'lib/crossref_metadata_results'
 require_relative 'lib/crossref_metadata_record'
 require_relative 'lib/crossref_latest'
 
+
+
 mime_type :rdf, "application/rdf+xml"
-mime_type :unixref, "application/unixref+xml"
+mime_type :vnd_unixref, "application/vnd.crossref.unixref+xml"
 mime_type :ttl, "text/turtle"
 mime_type :jsonrdf, "application/rdf+json"
 mime_type :javascript, "text/javascript"
-mime_type :citeproc, "application/citeproc+json"
+mime_type :vnd_citeproc, "application/vnd.citationstyles.csl+json"
+mime_type :x_bibo, "text/x-bibliography"
+
+# Not implemented
+mime_type :x_bibtex, "application/x-bibtex"
+mime_type :x_ris, "application/x-research-info-systems"
+
+# Deprecated types
 mime_type :bibo, "text/bibliography"
+mime_type :citeproc, "application/citeproc+json"
+mime_type :unixref, "application/unixref+xml"
 
 configure do
   def build_named_file_list glob
@@ -32,7 +43,7 @@ configure do
     end
     names
   end
-  
+
   locales = build_named_file_list "locales/*" do |f|
     File.basename(f, ".xml").gsub(/^locales-/, "")
   end
@@ -40,7 +51,7 @@ configure do
   styles = build_named_file_list "styles/*" do |f|
     File.basename(f, ".csl")
   end
-  
+
   set :query_pid, YAML.load_file("#{Dir.pwd}/config/settings.yaml")['query_pid']
   set :show_exceptions, false
   set :locales, locales
@@ -49,9 +60,10 @@ configure do
   set :citeprocjs, File.join(File.expand_path(File.dirname(__FILE__)), "citeproc.js")
   set :xmle4xjs, File.join(File.expand_path(File.dirname(__FILE__)), "xmle4x.js")
 
-  set :content_types, [".unixref", ".json", ".ttl", ".rdf", 
-                       ".jsonrdf", ".ntriples", ".javascript", 
-                       ".citeproc", ".bibo"]
+  set :content_types, [".unixref", ".json", ".ttl", ".rdf",
+                       ".jsonrdf", ".ntriples", ".javascript",
+                       ".citeproc", ".bibo", ".vnd_citeproc",
+                       ".vnd_unixref", ".x_bibo"]
 end
 
 before do
@@ -172,8 +184,8 @@ get '/issn/:issn' do
   end
 end
 
-get '/*', :provides => [:html, :javascript, :rdf, :json,
-                        :atom, :unixref, :ttl, :jsonrdf, :citeproc, :bibo] do
+get '/*', :provides => [:html, :javascript, :rdf, :json, :atom, :unixref, :ttl,
+                        :jsonrdf, :citeproc, :bibo, :x_bibo, :vnd_unixref, :vnd_citeproc] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then
@@ -184,9 +196,9 @@ get '/*', :provides => [:html, :javascript, :rdf, :json,
   end
 end
 
-get '/*' do 
+get '/*' do
   raise MalformedDoi unless request.env['doi']
-  
+
   if request.env['subdomain'] == 'id' then
     redirect "http://dx.doi.org/#{request.env['doi']}", 303
   else
