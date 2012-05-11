@@ -62,7 +62,7 @@ configure do
                        ".jsonrdf", ".ntriples", ".javascript",
                        ".citeproc", ".bibo", ".vnd_citeproc",
                        ".vnd_unixref", ".x_bibo", ".x_ris",
-                       ".x_bibtex"]
+                       ".x_bibtex", ".html"]
 end
 
 before do
@@ -74,6 +74,10 @@ end
 after do
   response.headers['Vary'] = 'Accept' if response.status == 200
   response.headers["Access-Control-Allow-Origin"] = "*"
+end
+
+get "/" do
+  haml :index
 end
 
 get "/styles" do

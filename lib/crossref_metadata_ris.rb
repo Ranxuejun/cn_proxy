@@ -14,6 +14,7 @@ class CrossrefMetadataRis
     add_to pairs, "PB", record.publisher_name
     add_to pairs, "DO", record.doi
     add_to pairs, "PY", record.publication_year
+    add_to pairs, "UR", "http://dx.doi.org/#{record.doi}"
 
     pairs.map { |k, v| "#{k}  - #{v}" }.join("\r\n") + "\r\nER  - \r\n"
   end
