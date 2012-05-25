@@ -62,7 +62,7 @@ configure do
                        ".jsonrdf", ".ntriples", ".javascript",
                        ".citeproc", ".bibo", ".vnd_citeproc",
                        ".vnd_unixref", ".x_bibo", ".x_ris",
-                       ".x_bibtex", ".html"]
+                       ".x_bibtex", ".html", ".atom"]
 end
 
 before do
