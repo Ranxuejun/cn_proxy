@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'nokogiri'
 require 'unidecode'
 require 'digest/md5'
@@ -288,6 +289,27 @@ class CrossrefMetadataRecord
     else
       ""
     end
+  end
+
+  def full_text_resource
+    resource_url = nil
+
+    @record.xpath("//resource").each do |resource_node|
+      parent = resource_node.parent
+      parent_name = parent.name
+
+      case parent_name
+      when 'item'
+        # potentially a crawler full-text url
+        if parent.attributes.has_key?('crawler')
+          resource_url = resource_node.text
+        end
+      when 'doi_data'
+        # standard resolution url, ignore
+      end
+    end
+
+    resource_url
   end
 
   def to_graph

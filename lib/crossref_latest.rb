@@ -12,7 +12,7 @@ module Latest
 
   def self.bootstrap today, options={}
     options = {:from => (today << 6)}.merge options
-   
+
     options[:from].upto(today - 2) do |date|
       puts "#{Time.now}: Collecting for #{date} to #{date + 2}"
       complete = false
@@ -32,23 +32,23 @@ module Latest
 end
 
 class Latest::Storage
-  
+
   def self.collection
     @conn ||= Mongo::Connection.new "localhost"
     @db ||= @conn.db "cnproxy"
     @db.collection "dois"
   end
-  
+
 end
 
 class Latest::Collector
-  
+
   def initialize options={}
     defaults = {
       :query_from => Date.today - 2,
       :query_until => Date.today
     }
-    
+
     @date_options = defaults.merge options
   end
 
@@ -59,19 +59,19 @@ class Latest::Collector
       resumption_token = collect_records resumption_token
     end
   end
-  
+
   def collect_records resumption_token
     puts "#{Time.now}: Collecting more records"
 
     from_str = @date_options[:query_from].strftime('%Y-%m-%d')
     until_str = @date_options[:query_until].strftime('%Y-%m-%d')
-    
+
     query = "verb=ListRecords&metadataPrefix=cr_unixml"
     query += "&from=#{from_str}&until=#{until_str}"
     unless resumption_token.nil?
       query += "&resumptionToken=" + resumption_token
     end
-    
+
     uri_details = {
       :host => "oai.crossref.org",
       :path => "/OAIHandler",
@@ -100,23 +100,23 @@ class Latest::Collector
             coll.update({"doi" => record[:doi]}, record)
           end
         end
-        
+
         new_token = parse_resumption_token doc
       end
     end
-    
+
     new_token
   end
-  
+
   def parse_records doc
     ns = {
       "cr" => "http://www.crossref.org/xschema/1.0",
       "oai" => "http://www.openarchives.org/OAI/2.0/"
     }
-    
+
     records = doc.xpath("//oai:record", ns).map do |metadata|
       record = nil
-      
+
       begin
         year = metadata.at_xpath(".//cr:year", ns)
         month = metadata.at_xpath(".//cr:month", ns)
@@ -186,7 +186,7 @@ class Latest::DailyLists
   def to_pub_rdf
     to_rdf @published
   end
-  
+
 end
 
 class Latest::DailyListCache

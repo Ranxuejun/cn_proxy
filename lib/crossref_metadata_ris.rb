@@ -29,9 +29,10 @@ class CrossrefMetadataRis
     case record.publication_type
     when :journal
       add_to pairs, "TY", "JOUR"
-      add_to pairs, "JO", record.publication_title
+      add_to pairs, "T2", record.publication_title
     when :conference
       add_to pairs, "TY", "CONF"
+      add_to pairs, "T2", record.publication_title
     when :book
       add_to pairs, "TY", "BOOK"
     when :report
@@ -47,7 +48,7 @@ class CrossrefMetadataRis
 
   def self.add_authors_to pairs, record
     record.contributors.each do |c|
-      add_to pairs, "AU", c.name
+      add_to pairs, "AU", "#{c.surname}, #{c.given_name}"
     end
   end
 

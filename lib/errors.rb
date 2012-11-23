@@ -68,7 +68,7 @@ error UnknownContributor do
 end
 
 error UnknownContentType do
-  e :status => 406, 
+  e :status => 406,
     :msg => "Can't respond with requested content type"
 end
 

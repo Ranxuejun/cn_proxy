@@ -178,6 +178,20 @@ helpers do
     CiteProc.new(record, settings).as_style({:style => "bibtex"})
   end
 
+  def as_crawled_redirect unixref
+    xml = Nokogiri::XML unixref
+    record = CrossrefMetadataRecord.new xml
+
+    full_text_resource = record.full_text_resource
+
+    if full_text_resource.nil?
+      status 406
+      "No item URL for this DOI."
+    else
+      redirect full_text_resource, 303
+    end
+  end
+
   def render_representation unixref
     case representation
     when ".x_bibtex"
@@ -204,6 +218,8 @@ helpers do
       render_citeproc unixref
     when ".bibo", ".x_bibo"
       render_bib_style unixref
+    when ".item"
+      as_crawled_redirect unixref
     end
   end
 
