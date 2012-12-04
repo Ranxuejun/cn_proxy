@@ -156,6 +156,9 @@ class CrossrefMetadataRdf
       add_to graph, [id, RDF::DC.alternative, record.subtitle]
       add_to graph, [id, RDF::DC.publisher, record.publisher_name]
 
+      ft_link = record.full_text_resource
+      add_to graph, [id, RDF::RDFS.value, RDF::URI.new(fl_link)] unless ft_link.nil?
+
       # We record the type of the doi subject, and also note the isbn
       # for books. For proceedings the isbn is attached to the container
       # subject.
