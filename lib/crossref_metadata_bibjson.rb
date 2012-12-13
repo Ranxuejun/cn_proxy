@@ -8,7 +8,7 @@ class CrossrefMetadataBibJson
       :author => record.contributors.map { |c| {:name => c.name } },
       :year => record.publication_year,
       :month => record.publication_month,
-      :citation => record.citations,
+      :citation => citation_data(record),
       :link => {:url => "http://dx.doi.org/#{record.doi}"},
       :identifier => [{
           :type => :doi,
@@ -27,7 +27,7 @@ class CrossrefMetadataBibJson
     case record.publication_type
     when :journal
       data[:type] = :article
-      data[:journal] = journal_data(data, record)
+      data[:journal] = journal_data(record)
     when :conference
       data[:type] = :inproceedings
     when :book
@@ -43,7 +43,19 @@ class CrossrefMetadataBibJson
     JSON.pretty_generate data
   end
 
-  def self.journal_data data, record
+  def self.citation_data record
+    record.citations.map do |citation|
+      doi = citation[:doi]
+      citation.delete(:doi)
+      if doi 
+        citation.merge({:identifier => {:type => :doi, :id => doi}})
+      else
+        citation
+      end
+    end
+  end
+
+  def self.journal_data record
     issns = [
       {
         :id => record.preferred_issn,
