@@ -150,7 +150,7 @@ class CrossrefMetadataRdf
       add_to graph, [id, prism.number, record.edition_number]
       add_to graph, [id, bibo.pageStart, record.first_page]
       add_to graph, [id, bibo.pageEnd, record.last_page]
-      add_to graph, [id, prism.startingPage, record.first_page]
+      add_to graph, [id, prism.startingPage, record.firstX_page]
       add_to graph, [id, prism.endingPage, record.last_page]
       add_to graph, [id, RDF::DC.title, record.title]
       add_to graph, [id, RDF::DC.alternative, record.subtitle]

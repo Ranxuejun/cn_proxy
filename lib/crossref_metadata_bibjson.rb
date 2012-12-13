@@ -11,15 +11,18 @@ class CrossrefMetadataBibJson
       :url => "http://dx.doi.org/#{record.doi}",
       :identifier => [{
           :type => :doi,
-          :id => record.doi,
-          :url => "http://dx.doi.org/#{record.doi}"
+          :id => record.doi
         }]
     }
+
+    data[:year] = record.publication_year.to_s if record.publication_year
+    data[:month] = record.publication_month.to_s if record.publication_month
+    data[:day] = record.publication_day.to_s if record.publication_day
 
     case record.publication_type
     when :journal
       data[:type] = :article
-      add_journal data, record
+      data[:journal] = journal_data(data, record)
     when :conference
       data[:type] = :inproceedings
     when :book
@@ -30,24 +33,24 @@ class CrossrefMetadataBibJson
     when :database
     end
 
-    data.reject! { |k, v| v.nil? || v.empty? }
+    data.reject! { |k, v| v.nil? || ((v.class == Hash || v.class == Array) && v.empty?) }
 
-    data.to_json
+    JSON.pretty_generate data
   end
 
-  def self.add_journal data, record
+  def self.journal_data data, record
     issns = [
       {
         :id => record.preferred_issn,
         :type => :issn
       },
       {
-        :id => record.p_issn,
-        :type => :print_issn
+        :id => record.pissn,
+        :type => :pissn
       },
       {
-        :id => record.e_issn,
-        :type => :electronic_issn
+        :id => record.eissn,
+        :type => :eissn
       }
     ]
 
@@ -65,7 +68,7 @@ class CrossrefMetadataBibJson
       :pages => pages
     }
 
-    journal.reject! { |k, v| v.nil? || v.empty? }
+    journal.reject! { |k, v| v.nil? || ((v.class == Hash || v.class == Array) && v.empty?) }
 
     journal
   end

@@ -1,5 +1,6 @@
 require "json"
 require "uri"
+require "execjs"
 
 require_relative "errors"
 
@@ -119,36 +120,20 @@ class CiteProc
     bib_data = as_data
     bib_data["id"] = "item"
 
-    source = open(@settings.xmle4xjs).read + "\n" + open(@settings.citeprocjs).read
-    source += "\n" + <<-JS
-      var style = #{style_data.to_json};
-      var locale = #{locale_data.to_json};
-      var item = #{bib_data.to_json};
-      var sys = {};
-      sys.retrieveItem = function(id) { return item };
-      sys.retrieveLocale = function(id) { return locale };
-      var citeProc = new CSL.Engine(sys, style);
-      citeProc.updateItems(["item"]);
-      citeProc.setOutputFormat("#{options[:format]}");
-      var bib = citeProc.makeBibliography();
-      var result = "Not enough metadata to construct bibliographic item.";
-      if (bib[0]["bibliography_errors"].length == 0) {
-        result = bib[1][0];
-      }
-      print(result);
-    JS
+    source = []
+    source << open(@settings.xmldomjs).read
+    source << open(@settings.citeprocjs).read
+    source << open(@settings.bibliojs).read
+    source = source.join("\n")
 
-    result = ""
-    
-    Tempfile.open("js") do |file|
-      file.write source
-      file.close
-      IO.popen("js -f #{file.path}") do |p|
-        result = p.read
-      end
-      file.unlink
-    end
-    
+    context = ExecJS.compile(source)
+
+    result = context.call("formatCitation", 
+                          style_data.to_json, 
+                          locale_data.to_json, 
+                          bib_data.to_json, 
+                          options[:format])
+
     result.strip.gsub("\u0019", "'").gsub("\u0013", "-")
   end
      

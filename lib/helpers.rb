@@ -12,6 +12,7 @@ require 'date'
 
 require_relative "citeproc"
 require_relative "crossref_metadata_ris"
+require_relative "crossref_metadata_bibjson"
 
 helpers do
 
@@ -166,6 +167,12 @@ helpers do
     CiteProc.new(record, settings).as_style(opts)
   end
 
+  def render_bibjson unixref
+    xml = Nokogiri::XML unixref
+    record = CrossrefMetadataRecord.new xml
+    CrossrefMetadataBibJson.from_record record
+  end
+
   def render_ris unixref
     xml = Nokogiri::XML unixref
     record = CrossrefMetadataRecord.new xml
@@ -220,6 +227,8 @@ helpers do
       render_bib_style unixref
     when ".item"
       as_crawled_redirect unixref
+    when ".bibjson"
+      render_bibjson unixref
     end
   end
 

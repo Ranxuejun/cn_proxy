@@ -30,7 +30,7 @@ wget -q ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
 
 echo "Compiling and installing ruby..."
 tar zxvf ruby-1.9.2-p180.tar.gz &>>$OUTFILE
-cd ruby-1.9.2-p180/
+cd ruby-1.9.2-p180/ 
 ./configure --prefix=/usr/local/ruby &>>$OUTFILE
 make &>>$OUTFILE
 make install &>>$OUTFILE

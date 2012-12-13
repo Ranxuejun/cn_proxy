@@ -22,6 +22,7 @@ mime_type :x_bibo, "text/x-bibliography"
 mime_type :x_ris, "application/x-research-info-systems"
 mime_type :x_bibtex, "application/x-bibtex"
 mime_type :item, "application/vnd.crossref.item"
+mime_type :bibjson, "application/bibjson+json"
 
 # Deprecated types
 mime_type :bibo, "text/bibliography"
@@ -54,18 +55,21 @@ configure do
   set :locales, locales
   set :styles, styles
 
-  set :citeprocjs, File.join(File.expand_path(File.dirname(__FILE__)), "citeproc.js")
+  set :citeprocjs, File.join(File.expand_path(File.dirname(__FILE__)), "citeproc.gjs")
   set :xmle4xjs, File.join(File.expand_path(File.dirname(__FILE__)), "xmle4x.js")
+  set :xmldomjs, File.join(File.expand_path(File.dirname(__FILE__)), "xmldom.js")
+  set :bibliojs, File.join(File.expand_path(File.dirname(__FILE__)), "biblio.js")
 
   set :content_types, [".unixref", ".json", ".ttl", ".rdf",
                        ".jsonrdf", ".ntriples", ".javascript",
                        ".citeproc", ".bibo", ".vnd_citeproc",
                        ".vnd_unixref", ".x_bibo", ".x_ris",
-                       ".x_bibtex", ".html", ".atom", ".item"]
+                       ".x_bibtex", ".html", ".atom", ".item",
+                       ".bibjson"]
 end
 
 before do
-  tidy_request_for_testing
+  tidy_request_for_testing 
   detect_doi
   detect_subdomain
 end
@@ -188,7 +192,7 @@ end
 
 get '/*', :provides => [:html, :javascript, :rdf, :json, :atom, :unixref, :ttl,
                         :jsonrdf, :citeproc, :bibo, :x_bibo, :vnd_unixref, :vnd_citeproc,
-                        :x_ris, :x_bibtex, :item] do
+                        :x_ris, :x_bibtex, :item, :bibjson] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then
