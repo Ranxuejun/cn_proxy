@@ -312,6 +312,18 @@ class CrossrefMetadataRecord
     resource_url
   end
 
+  def citations
+    @citations ||= @record.xpath("//citation_list/citation").map do |citation_node|
+      citation_info = {}
+      citation_node.children.each do |info|
+        name = info.name
+        name = 'year' if name == 'cYear'
+        citation_info[name.to_sym] = info.text unless name == 'text'
+      end
+      citation_info
+    end
+  end
+
   def to_graph
     CrossrefMetadataRdf.create_for_record self
   end

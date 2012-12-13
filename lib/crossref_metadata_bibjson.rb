@@ -8,7 +8,8 @@ class CrossrefMetadataBibJson
       :author => record.contributors.map { |c| {:name => c.name } },
       :year => record.publication_year,
       :month => record.publication_month,
-      :url => "http://dx.doi.org/#{record.doi}",
+      :citation => record.citations,
+      :link => {:url => "http://dx.doi.org/#{record.doi}"},
       :identifier => [{
           :type => :doi,
           :id => record.doi
@@ -18,6 +19,10 @@ class CrossrefMetadataBibJson
     data[:year] = record.publication_year.to_s if record.publication_year
     data[:month] = record.publication_month.to_s if record.publication_month
     data[:day] = record.publication_day.to_s if record.publication_day
+
+    if record.full_text_resource
+      data[:fulltext] = {:url => record.full_text_resource}
+    end
 
     case record.publication_type
     when :journal
