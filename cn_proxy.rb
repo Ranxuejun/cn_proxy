@@ -42,11 +42,11 @@ configure do
     names
   end
 
-  locales = build_named_file_list "locales/*" do |f|
+  locales = build_named_file_list "locales/*.xml" do |f|
     File.basename(f, ".xml").gsub(/^locales-/, "")
   end
 
-  styles = build_named_file_list "styles/*" do |f|
+  styles = build_named_file_list "styles/*.csl" do |f|
     File.basename(f, ".csl")
   end
 

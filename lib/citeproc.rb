@@ -1,10 +1,10 @@
 require "json"
 require "uri"
-require "execjs"
+require 'citeproc'
 
 require_relative "errors"
 
-class CiteProc
+class CiteProcHelper
 
   @@styles = {}
   @@locales = {}
@@ -59,7 +59,6 @@ class CiteProc
       :issue => @record.issue,
       :number => @record.edition_number,
       :DOI => @record.doi,
-      :URL => "http://dx.doi.org/" + @record.doi,
       :ISBN => @record.isbn,
       :title => @record.title,
       :"container-title" => @record.publication_title,
@@ -108,33 +107,27 @@ class CiteProc
 
   def as_style opts={}
     options = {
-      :format => "text",
+      :format => "default", # text
       :style => "bibtex",
       :locale => "en-US"
     }.merge(opts)
 
-    raise UnknownFormat unless ["text", "rtf", "html"].include?(options[:format])
+    raise UnknownFormat unless ["default", "text", "rtf", "html"].include?(options[:format])
 
     style_data = load_style options[:style]
     locale_data = load_locale options[:locale]
     bib_data = as_data
-    bib_data["id"] = "item"
+    bib_data["id"] = 'item'
 
-    source = []
-    source << open(@settings.xmldomjs).read
-    source << open(@settings.citeprocjs).read
-    source << open(@settings.bibliojs).read
-    source = source.join("\n")
+    ref = CiteProc.process(bib_data,
+                           :style => CSL::Style.new(style_data), 
+                           :locale => CSL::Locale.new(locale_data),
+                           :format => options[:format])
 
-    context = ExecJS.compile(source)
+    puts ref
 
-    result = context.call("formatCitation", 
-                          style_data.to_json, 
-                          locale_data.to_json, 
-                          bib_data.to_json, 
-                          options[:format])
-
-    result.strip.gsub("\u0019", "'").gsub("\u0013", "-")
+    ref.to_s
   end
      
 end
+

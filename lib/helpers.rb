@@ -150,7 +150,7 @@ helpers do
   def render_citeproc unixref
     xml = Nokogiri::XML unixref
     record = CrossrefMetadataRecord.new xml
-    CiteProc.new(record, settings).as_json
+    CiteProcHelper.new(record, settings).as_json
   end
 
   def render_bib_style unixref
@@ -164,7 +164,7 @@ helpers do
     opts[:id] = params["id"] if params["id"]
     opts[:format] = params["format"] if params["format"]
 
-    CiteProc.new(record, settings).as_style(opts)
+    CiteProcHelper.new(record, settings).as_style(opts)
   end
 
   def render_bibjson unixref
