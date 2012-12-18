@@ -113,7 +113,7 @@ class CrossrefMetadataRecord
   def maybe_text paths
     if paths.is_a?(Array)
       texts = paths.map do |path| 
-        element = @record.at_path(path)
+        element = @record.at_xpath(path)
         element.text if element
       end
 
