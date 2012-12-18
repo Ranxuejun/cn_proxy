@@ -10,6 +10,7 @@ class CrossrefMetadataBibJson
       :month => record.publication_month,
       :citation => citation_data(record),
       :link => {:url => "http://dx.doi.org/#{record.doi}"},
+      :item_number => record.publisher_item_numbers,
       :identifier => [{
           :type => :doi,
           :id => record.doi
@@ -20,8 +21,12 @@ class CrossrefMetadataBibJson
     data[:month] = record.publication_month.to_s if record.publication_month
     data[:day] = record.publication_day.to_s if record.publication_day
 
+    record.publisher_identifiers.each do |id|
+      data[:identifier] << id
+    end
+
     if record.full_text_resource
-      data[:fulltext] = {:url => record.full_text_resource}
+      data[:full_text] = {:url => record.full_text_resource}
     end
 
     case record.publication_type
@@ -82,7 +87,9 @@ class CrossrefMetadataBibJson
       :identifier => issns,
       :volume => record.volume,
       :issue => record.issue,
-      :pages => pages
+      :pages => pages,
+      :first_page => record.first_page,
+      :last_page => record.last_page
     }
 
     journal.reject! { |k, v| v.nil? || ((v.class == Hash || v.class == Array) && v.empty?) }

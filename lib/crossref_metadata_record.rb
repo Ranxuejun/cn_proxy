@@ -110,13 +110,22 @@ class CrossrefMetadataRecord
     end
   end
 
-  def maybe_text path
-    element = @record.at_xpath(path)
-    element.text if element
+  def maybe_text paths
+    if paths.is_a?(Array)
+      texts = paths.map do |path| 
+        element = @record.at_path(path)
+        element.text if element
+      end
+
+      texts.compact.first
+    else
+      element = @record.at_xpath(paths)
+      element.text if element
+    end
   end
 
   def doi
-    return @record.xpath('//doi').last.text
+    return @record.xpath('//doi_data/doi').last.text
   end
 
   def publication_title
@@ -124,7 +133,7 @@ class CrossrefMetadataRecord
   end
 
   def title
-    maybe_text '//title'
+    maybe_text '//titles/title'
   end
 
   def subtitle
@@ -144,28 +153,35 @@ class CrossrefMetadataRecord
   end
 
   def isbn
-    maybe_text '//isbn'
+    maybe_text ['//book_metadata/isbn', 
+                '//dissertation/isbn', 
+                '//proceedings_metadata/isbn', 
+                '//report-paper_metadata/isbn', 
+                '//series_metadata/isbn', 
+                '//standard_metadata/isbn']
   end
 
   def volume
-    maybe_text '//volume'
+    maybe_text '//journal_volume/volume'
   end
 
   # Unused in templates
   def issue
-    maybe_text '//issue'
+    maybe_text '//journal_issue/issue'
   end
 
   def edition_number
-    maybe_text '//edition_number'
+    maybe_text ['//book_metadata/edition_number', 
+                '//report-paper_metadata/edition_number', 
+                '//standard_metadata/edition_number']
   end
 
   def first_page
-    maybe_text '//first_page'
+    maybe_text '//pages/first_page'
   end
 
   def last_page
-    maybe_text '//last_page'
+    maybe_text '//pages/last_page'
   end
 
   def publication_year
@@ -182,6 +198,18 @@ class CrossrefMetadataRecord
 
   def publication_date
     return (publication_day and publication_month) ? "#{publication_year}-#{publication_month}-#{publication_day}" : "#{publication_year}"
+  end
+
+  def publisher_identifiers
+    @record.xpath('//publisher_item/identifier').map do |identifier|
+      {:type => identifier[:id_type], :id => identifier.text}
+    end
+  end
+
+  def publisher_item_numbers
+    @record.xpath('//publisher_item/item_number').map do |item_number|
+      item_number.text
+    end
   end
 
   # Unused in templates
@@ -241,7 +269,7 @@ class CrossrefMetadataRecord
   end
 
   def issn_of_type type
-    @record.xpath('//issn').each { |issn|
+    @record.xpath('//journal_metadata/issn').each { |issn|
       if issn['media_type'] == type 
         return normalise_issn(issn.text) 
       elsif issn['media_type'] == nil and type == 'print'

@@ -35,10 +35,6 @@ class CiteProcHelper
     contributor "author"
   end
 
-  def editor
-    contributor "editor"
-  end
-
   def page
     if @record.first_page && @record.last_page
       @record.first_page + "-" + @record.last_page
