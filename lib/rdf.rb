@@ -2,7 +2,7 @@ require 'rdf'
 
 require_relative 'errors'
 
-class CrossrefMetadataRdf
+class Rdf
 
   @@prism = RDF::Vocabulary.new 'http://prismstandard.org/namespaces/basic/2.1/'
   @@bibo = RDF::Vocabulary.new 'http://purl.org/ontology/bibo/'

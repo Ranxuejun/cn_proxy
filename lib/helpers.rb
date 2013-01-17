@@ -10,9 +10,10 @@ require 'rdf/json'
 require 'rdf/ntriples'
 require 'date'
 
-require_relative "citeproc"
-require_relative "crossref_metadata_ris"
-require_relative "crossref_metadata_bibjson"
+require_relative 'citeproc'
+require_relative 'ris'
+require_relative 'bibjson'
+require_relative 'results'
 
 helpers do
 
@@ -102,7 +103,7 @@ helpers do
 
   def render_feed feed_template, unixref
     # Fake several results. Will need to support this for eventual search results.
-    metadata = CrossrefMetadataResults.new()
+    metadata = Results.new
     record = Nokogiri::XML unixref
     metadata.records << CrossrefMetadataRecord.new(record)
     uuid = UUID.new
@@ -116,9 +117,9 @@ helpers do
 
   def render_json unixref
     # Bascially translate the ATOM XML into JSON using Tilt to bind redenering to variable.
-    metadata = CrossrefMetadataResults.new()
+    metadata = Results.new()
     record = Nokogiri::XML unixref
-    metadata.records << CrossrefMetadataRecord.new(record)
+    metadata.records << Record.new(record)
     uuid = UUID.new
     template = Tilt.new("#{Sinatra::Application.root}/views/atom_feed.erb", :trim => '<>')
     xml = template.render( self, :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 )
@@ -126,9 +127,9 @@ helpers do
   end
 
   def render_unixref format, unixref
-    metadata = CrossrefMetadataResults.new
+    metadata = Results.new
     record = Nokogiri::XML unixref
-    metadata.records << CrossrefMetadataRecord.new(record)
+    metadata.records << Record.new(record)
 
     render_rdf format, metadata.to_graph
   end
@@ -139,9 +140,9 @@ helpers do
         :dct => RDF::DC,
         :owl => RDF::OWL,
         :foaf => RDF::FOAF,
-        :prism => CrossrefMetadataRdf.prism,
-        :bibo => CrossrefMetadataRdf.bibo,
-        :rdf => CrossrefMetadataRdf.rdf
+        :prism => Rdf.prism,
+        :bibo => Rdf.bibo,
+        :rdf => Rdf.rdf
       }
       writer << rdf
     end
@@ -149,13 +150,13 @@ helpers do
 
   def render_citeproc unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = Record.new xml
     CiteProcHelper.new(record, settings).as_json
   end
 
   def render_bib_style unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = Record.new xml
     params = accept_parameters[0][:params]
 
     opts = {}
@@ -169,25 +170,25 @@ helpers do
 
   def render_bibjson unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
-    CrossrefMetadataBibJson.from_record record
+    record = Record.new xml
+    BibJson.from_record record
   end
 
   def render_ris unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
-    CrossrefMetadataRis.from_record record
+    record = Record.new xml
+    Ris.from_record record
   end
 
   def render_bibtex unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = Record.new xml
     CiteProc.new(record, settings).as_style({:style => "bibtex"})
   end
 
   def as_crawled_redirect unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = Record.new xml
 
     full_text_resource = record.full_text_resource
 
@@ -230,12 +231,6 @@ helpers do
     when ".bibjson"
       render_bibjson unixref
     end
-  end
-
-  def render_recent date, representation
-    content = CrossrefLatestCache.new.get_new(date, representation)
-    raise UnknownContentType if content.nil?
-    content
   end
 
 end

@@ -4,7 +4,7 @@ require 'net/http'
 
 require_relative 'errors'
 
-class CrossrefMetadataQuery
+class Query
 
   attr_reader :unixref
 

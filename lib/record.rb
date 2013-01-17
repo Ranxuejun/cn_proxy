@@ -6,7 +6,7 @@ require 'net/http'
 
 require_relative 'crossref_metadata_rdf'
 
-class CrossrefMetadataRecord
+class Record
 
   attr_reader :contributors
 

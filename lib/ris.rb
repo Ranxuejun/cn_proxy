@@ -1,4 +1,4 @@
-class CrossrefMetadataRis
+class Ris
 
   def self.from_record record
     pairs = []

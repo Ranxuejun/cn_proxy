@@ -7,10 +7,8 @@ require 'json'
 
 require_relative 'lib/helpers'
 require_relative 'lib/errors'
-require_relative 'lib/crossref_metadata_query'
-require_relative 'lib/crossref_metadata_results'
-require_relative 'lib/crossref_metadata_record'
-require_relative 'lib/crossref_latest'
+require_relative 'lib/query'
+require_relative 'lib/record'
 
 mime_type :rdf, "application/rdf+xml"
 mime_type :vnd_unixref, "application/vnd.crossref.unixref+xml"
@@ -97,7 +95,7 @@ get '/heartbeat' do
   response = {:pid => Process.pid}
 
   begin
-    test_result_code = CrossrefMetadataQuery.test options.query_pid
+    test_result_code = Query.test options.query_pid
 
     if test_result_code == 200
       response[:status] = "OK"
@@ -121,7 +119,7 @@ get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do
     redirect "http://data.crossref.org/issn/#{params[:issn]}", 303
   else
 
-    rdf = CrossrefMetadataRdf.create_for_issn params[:issn]
+    rdf = Rdf.create_for_issn params[:issn]
     case representation
     when ".rdf"
       render_rdf :rdfxml, rdf
@@ -154,7 +152,7 @@ get '/*', :provides => [:html, :javascript, :rdf, :json, :atom, :unixref, :ttl,
   if request.env['subdomain'] == 'id' then
     redirect "http://data.crossref.org/#{request.env['doi']}", 303
   else
-    uxr = CrossrefMetadataQuery.for_doi(request.env['doi'], options.query_pid)
+    uxr = Query.for_doi(request.env['doi'], options.query_pid)
     render_representation uxr
   end
 end

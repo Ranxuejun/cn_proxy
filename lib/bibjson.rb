@@ -1,6 +1,6 @@
 require 'json'
 
-class CrossrefMetadataBibJson
+class BibJson
 
   def self.from_record record
     data = {
