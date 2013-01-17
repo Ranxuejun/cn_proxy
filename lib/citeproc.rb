@@ -55,6 +55,7 @@ class CiteProcHelper
       :issue => @record.issue,
       :number => @record.edition_number,
       :DOI => @record.doi,
+      :URL => "http://dx.doi.org/" + @record.doi,
       :ISBN => @record.isbn,
       :title => @record.title,
       :"container-title" => @record.publication_title,
