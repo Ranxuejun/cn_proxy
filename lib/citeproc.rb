@@ -23,18 +23,6 @@ class CiteProcHelper
     {:"date-parts" => [date_parts]}
   end
 
-  def contributor role
-    @record.contributors.reject {|c| c.contributor_role != role }.map do |contributor|
-      c = {:family => contributor.surname}
-      c[:given] = contributor.given_name if contributor.given_name
-      c
-    end
-  end
-
-  def author
-    contributor "author"
-  end
-
   def page
     if @record.first_page && @record.last_page
       @record.first_page + "-" + @record.last_page
@@ -61,8 +49,8 @@ class CiteProcHelper
       :"container-title" => @record.publication_title,
       :publisher => @record.publisher_name,
       :issued => issued,
-      :author => author,
-      :editor => editor,
+      :author => @record.authors.map {|c| c.name},
+      :editor => @record.editors.map {|c| c.name},
       :page => page
     }
 
@@ -75,7 +63,7 @@ class CiteProcHelper
                   else
                     "misc"
                   end
-    
+
     data.each_pair do |k,v|
       if v.nil?
         # Remove items that aren't present in the CrossRef record.
@@ -117,7 +105,7 @@ class CiteProcHelper
     bib_data["id"] = 'item'
 
     ref = CiteProc.process(bib_data,
-                           :style => CSL::Style.new(style_data), 
+                           :style => CSL::Style.new(style_data),
                            :locale => CSL::Locale.new(locale_data),
                            :format => options[:format])
 
@@ -125,6 +113,6 @@ class CiteProcHelper
 
     ref.to_s
   end
-     
+
 end
 

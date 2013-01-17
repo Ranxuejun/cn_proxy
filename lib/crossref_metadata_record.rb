@@ -59,7 +59,7 @@ class CrossrefMetadataRecord
   end
 
   def initialize record
-    @record=record.root  
+    @record=record.root
     add_contributors
   end
 
@@ -350,6 +350,18 @@ class CrossrefMetadataRecord
       end
       citation_info
     end
+  end
+
+  def contributors_with_role role
+    contributors.reject {|c| c.contributor_role != role }
+  end
+
+  def authors
+    contributors_with_role('author')
+  end
+
+  def editors
+    contributors_with_role('editor')
   end
 
   def to_graph

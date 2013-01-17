@@ -69,7 +69,7 @@ configure do
 end
 
 before do
-  tidy_request_for_testing 
+  tidy_request_for_testing
   detect_doi
   detect_subdomain
 end
@@ -112,50 +112,6 @@ get '/heartbeat' do
   end
 
   response.to_json
-end
-
-def serve_published_list date
-  if date <= Date.today - 7
-    status 400
-    "Too far in the past."
-  else
-    cache = Latest::DailyListCache.new
-    cache.get_published representation, date
-  end
-end
-
-def serve_filed_list date
-  if date <= Date.today - 7
-    status 400
-    "Too far in the past."
-  else
-    cache = Latest::DailyListCache.new
-    cache.get_filed representation, date
-  end
-end
-
-get "/publishedlists/yesterday" do
-  serve_published_list Date.today - 1
-end
-
-get "/publishedlists/1-day-ago" do
-  serve_published_list Date.today - 1
-end
-
-get "/publishedlists/:days-days-ago" do
-  serve_published_list Date.today - params[:days].to_i
-end
-
-get "/filedlists/yesterday" do
-  serve_filed_list Date.today - 1
-end
-
-get "/filedlists/1-day-ago" do
-  serve_filed_list Date.today - 1
-end
-
-get "/filedlists/:days-days-ago" do
-  serve_filed_list Date.today - params[:days].to_i
 end
 
 get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do

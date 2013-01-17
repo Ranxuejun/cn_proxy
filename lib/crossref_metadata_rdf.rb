@@ -229,7 +229,7 @@ class CrossrefMetadataRdf
 
       # We describe each contributor and attach them to the doi subject.
 
-      record.contributors.each do |c|
+      record.authors.each do |c|
         c_id = RDF::URI.new self.contributor_res(record.contributor_id(c))
 
         graph << [id, RDF::DC.creator, c_id]
@@ -242,5 +242,5 @@ class CrossrefMetadataRdf
 
     end
   end
-  
+
 end
