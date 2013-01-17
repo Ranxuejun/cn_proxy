@@ -53,7 +53,7 @@ configure do
   set :locales, locales
   set :styles, styles
 
-  set :citeprocjs, File.join(File.expand_path(File.dirname(__FILE__)), "citeproc.gjs")
+  set :citeprocjs, File.join(File.expand_path(File.dirname(__FILE__)), "citeproc.js")
   set :xmle4xjs, File.join(File.expand_path(File.dirname(__FILE__)), "xmle4x.js")
   set :xmldomjs, File.join(File.expand_path(File.dirname(__FILE__)), "xmldom.js")
   set :bibliojs, File.join(File.expand_path(File.dirname(__FILE__)), "biblio.js")

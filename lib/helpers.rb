@@ -183,7 +183,7 @@ helpers do
   def render_bibtex unixref
     xml = Nokogiri::XML unixref
     record = Record.new xml
-    CiteProc.new(record, settings).as_style({:style => "bibtex"})
+    CiteProcHelper.new(record, settings).as_style({:style => "bibtex"})
   end
 
   def as_crawled_redirect unixref

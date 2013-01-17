@@ -4,7 +4,7 @@ require 'unidecode'
 require 'digest/md5'
 require 'net/http'
 
-require_relative 'crossref_metadata_rdf'
+require_relative 'rdf'
 
 class Record
 
@@ -252,7 +252,7 @@ class Record
         else
           raise QueryFailure
         end
-        
+
       rescue TimeoutError => e
         raise QueryTimeout
       end
@@ -270,8 +270,8 @@ class Record
 
   def issn_of_type type
     @record.xpath('//journal_metadata/issn').each { |issn|
-      if issn['media_type'] == type 
-        return normalise_issn(issn.text) 
+      if issn['media_type'] == type
+        return normalise_issn(issn.text)
       elsif issn['media_type'] == nil and type == 'print'
         return normalise_issn(issn.text)
       end
@@ -280,7 +280,7 @@ class Record
   end
 
   def add_contributors
-    @contributors = Array.new 
+    @contributors = Array.new
     @contributor_name_counts = Hash.new
     @record.xpath("//contributors/person_name").each do |contributor_node|
       c = Contributor.new contributor_node
@@ -302,7 +302,7 @@ class Record
           c.ordinal = temp_counts[slug] = temp_counts[slug].next
         else
           c.ordinal = temp_counts[slug] = 1
-        end  
+        end
       end
     end
   end
@@ -365,7 +365,7 @@ class Record
   end
 
   def to_graph
-    CrossrefMetadataRdf.create_for_record self
+    Rdf.create_for_record self
   end
 
 end
