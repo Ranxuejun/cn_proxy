@@ -1,3 +1,4 @@
+# -*- coding: undecided -*-
 require "json"
 require "uri"
 require 'citeproc'
@@ -144,7 +145,22 @@ class CiteProcHelper
       file.unlink
     end
 
-    result.strip
+    if options[:style] == 'bibtex'
+      fix_bibtex_key(result.strip)
+    else
+      result.strip
+    end
+  end
+
+  # CSL can make a mess of bibtex keys, leaving spaces in the key if an author's
+  # surname has spaces, thus creating invalid bibtex.
+  # We also shorten very long bibtex keys, which CSL sometimes creates.
+  def fix_bibtex_key bibtex
+    key = bibtex.match(/\A@\w*{([^,]+),/)[1]
+    key = key.gsub(' ', '_')
+    key = key[-30..-1] if key.length > 30
+
+    bibtex.sub(/{([^,]+),/, "{#{key},")
   end
 
 end
