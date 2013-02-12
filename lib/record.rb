@@ -112,7 +112,7 @@ class Record
 
   def maybe_text paths
     if paths.is_a?(Array)
-      texts = paths.map do |path| 
+      texts = paths.map do |path|
         element = @record.at_xpath(path)
         element.text if element
       end
@@ -125,7 +125,14 @@ class Record
   end
 
   def doi
-    return @record.xpath('//doi_data/doi').last.text
+    dois = @record.xpath('//doi_data/doi')
+    non_component_dois = dois.reject {|doi| doi.parent.parent.name == 'component'}
+
+    if !non_component_dois.empty?
+      non_component_dois.last.text
+    else
+      dois.last.text
+    end
   end
 
   def publication_title
