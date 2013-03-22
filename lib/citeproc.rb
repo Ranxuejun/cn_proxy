@@ -1,6 +1,5 @@
 require "json"
 require "uri"
-require 'citeproc'
 
 require_relative "errors"
 
@@ -138,11 +137,7 @@ class CiteProcHelper
     Tempfile.open("js") do |file|
       file.write source
       file.close
-<<<<<<< HEAD
-    IO.popen("js -f #{file.path}") do |p|
-=======
       IO.popen("js -f #{file.path}") do |p|
->>>>>>> e8523e21c8529f1ea19b3ce1b6fae0348ff744e0
         result = p.read
       end
       file.unlink
