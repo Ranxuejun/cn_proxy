@@ -1,4 +1,4 @@
-class CrossrefMetadataRis
+class Ris
 
   def self.from_record record
     pairs = []
@@ -47,8 +47,12 @@ class CrossrefMetadataRis
   end
 
   def self.add_authors_to pairs, record
-    record.contributors.each do |c|
-      add_to pairs, "AU", "#{c.surname}, #{c.given_name}"
+    record.authors.each do |c|
+      if c.given_name
+        add_to pairs, "AU", "#{c.surname}, #{c.given_name}"
+      else
+        add_to pairs, "AU", "#{c.surname}"
+      end
     end
   end
 

@@ -7,10 +7,8 @@ require 'json'
 
 require_relative 'lib/helpers'
 require_relative 'lib/errors'
-require_relative 'lib/crossref_metadata_query'
-require_relative 'lib/crossref_metadata_results'
-require_relative 'lib/crossref_metadata_record'
-require_relative 'lib/crossref_latest'
+require_relative 'lib/query'
+require_relative 'lib/record'
 
 mime_type :rdf, "application/rdf+xml"
 mime_type :vnd_unixref, "application/vnd.crossref.unixref+xml"
@@ -69,7 +67,7 @@ configure do
 end
 
 before do
-  tidy_request_for_testing 
+  tidy_request_for_testing
   detect_doi
   detect_subdomain
 end
@@ -97,7 +95,7 @@ get '/heartbeat' do
   response = {:pid => Process.pid}
 
   begin
-    test_result_code = CrossrefMetadataQuery.test options.query_pid
+    test_result_code = Query.test options.query_pid
 
     if test_result_code == 200
       response[:status] = "OK"
@@ -114,50 +112,6 @@ get '/heartbeat' do
   response.to_json
 end
 
-def serve_published_list date
-  if date <= Date.today - 7
-    status 400
-    "Too far in the past."
-  else
-    cache = Latest::DailyListCache.new
-    cache.get_published representation, date
-  end
-end
-
-def serve_filed_list date
-  if date <= Date.today - 7
-    status 400
-    "Too far in the past."
-  else
-    cache = Latest::DailyListCache.new
-    cache.get_filed representation, date
-  end
-end
-
-get "/publishedlists/yesterday" do
-  serve_published_list Date.today - 1
-end
-
-get "/publishedlists/1-day-ago" do
-  serve_published_list Date.today - 1
-end
-
-get "/publishedlists/:days-days-ago" do
-  serve_published_list Date.today - params[:days].to_i
-end
-
-get "/filedlists/yesterday" do
-  serve_filed_list Date.today - 1
-end
-
-get "/filedlists/1-day-ago" do
-  serve_filed_list Date.today - 1
-end
-
-get "/filedlists/:days-days-ago" do
-  serve_filed_list Date.today - params[:days].to_i
-end
-
 get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do
   raise MalformedIssn unless is_valid_issn? params[:issn]
 
@@ -165,7 +119,7 @@ get '/issn/:issn', :provides => [:javascript, :rdf, :ttl, :jsonrdf] do
     redirect "http://data.crossref.org/issn/#{params[:issn]}", 303
   else
 
-    rdf = CrossrefMetadataRdf.create_for_issn params[:issn]
+    rdf = Rdf.create_for_issn params[:issn]
     case representation
     when ".rdf"
       render_rdf :rdfxml, rdf
@@ -198,7 +152,7 @@ get '/*', :provides => [:html, :javascript, :rdf, :json, :atom, :unixref, :ttl,
   if request.env['subdomain'] == 'id' then
     redirect "http://data.crossref.org/#{request.env['doi']}", 303
   else
-    uxr = CrossrefMetadataQuery.for_doi(request.env['doi'], options.query_pid)
+    uxr = Query.for_doi(request.env['doi'], options.query_pid)
     render_representation uxr
   end
 end

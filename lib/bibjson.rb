@@ -1,11 +1,11 @@
 require 'json'
 
-class CrossrefMetadataBibJson
+class BibJson
 
   def self.from_record record
     data = {
       :title => record.title,
-      :author => record.contributors.map { |c| {:name => c.name } },
+      :author => record.authors.map { |c| {:name => c.name} },
       :year => record.publication_year,
       :month => record.publication_month,
       :citation => citation_data(record),
@@ -52,7 +52,7 @@ class CrossrefMetadataBibJson
     record.citations.map do |citation|
       doi = citation[:doi]
       citation.delete(:doi)
-      if doi 
+      if doi
         citation.merge({:identifier => {:type => :doi, :id => doi}})
       else
         citation

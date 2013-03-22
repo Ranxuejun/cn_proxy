@@ -23,22 +23,6 @@ class CiteProcHelper
     {:"date-parts" => [date_parts]}
   end
 
-  def contributor role
-    @record.contributors.reject {|c| c.contributor_role != role }.map do |contributor|
-      c = {:family => contributor.surname}
-      c[:given] = contributor.given_name if contributor.given_name
-      c
-    end
-  end
-
-  def author
-    contributor "author"
-  end
-
-  def editor
-    contributor "editor"
-  end
-
   def page
     if @record.first_page && @record.last_page
       @record.first_page + "-" + @record.last_page
@@ -53,19 +37,26 @@ class CiteProcHelper
     as_data.to_json
   end
 
+  def to_name_map contributor
+    hsh = {:family => contributor.surname}
+    hsh[:given] = contributor.given_name if contributor.given_name
+    hsh
+  end
+
   def as_data
     data = {
       :volume => @record.volume,
       :issue => @record.issue,
       :number => @record.edition_number,
       :DOI => @record.doi,
+      :URL => "http://dx.doi.org/" + @record.doi,
       :ISBN => @record.isbn,
       :title => @record.title,
-      :"container-title" => @record.publication_title,
+      :'container-title' => @record.publication_title,
       :publisher => @record.publisher_name,
       :issued => issued,
-      :author => author,
-      :editor => editor,
+      :author => @record.authors.map {|c| to_name_map(c)},
+      :editor => @record.editors.map {|c| to_name_map(c)},
       :page => page
     }
 
@@ -78,7 +69,7 @@ class CiteProcHelper
                   else
                     "misc"
                   end
-    
+
     data.each_pair do |k,v|
       if v.nil?
         # Remove items that aren't present in the CrossRef record.
@@ -147,7 +138,11 @@ class CiteProcHelper
     Tempfile.open("js") do |file|
       file.write source
       file.close
+<<<<<<< HEAD
     IO.popen("js -f #{file.path}") do |p|
+=======
+      IO.popen("js -f #{file.path}") do |p|
+>>>>>>> e8523e21c8529f1ea19b3ce1b6fae0348ff744e0
         result = p.read
       end
       file.unlink

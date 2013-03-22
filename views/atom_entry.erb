@@ -16,8 +16,8 @@
       <p>
 	Authors:
 	<% count = 0 %>
-	<% record.contributors.each do |contributor| %>
-	<%= contributor.given_name %> <%= contributor.surname %>
+	<% record.authors.each do |contributor| %>
+	<%= contributor.name %>
 	<% count += 1 %>
 	<%= (count < record.contributors.size) ? "," : "" %>
 	<% end %>
@@ -35,8 +35,8 @@
       <%= record.maybe_tag("dc:publisher", record.publisher_name) %>
       <%= record.maybe_tag("dc:isPartOf", record.preferred_issn) %>
       <prism:alternateTitle><%= record.publication_title %></prism:alternateTitle>
-      <% record.contributors.each do |contributor| %>
-      <dc:creator><%= contributor.given_name %> <%= contributor.surname %></dc:creator>
+      <% record.authors.each do |contributor| %>
+      <dc:creator><%= contributor.name %></dc:creator>
       <% end %>
       <prism:publicationName><%= record.publication_title %></prism:publicationName>
       <%= record.maybe_tag("prism:issn", record.pissn) %>

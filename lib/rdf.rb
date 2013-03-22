@@ -2,7 +2,7 @@ require 'rdf'
 
 require_relative 'errors'
 
-class CrossrefMetadataRdf
+class Rdf
 
   @@prism = RDF::Vocabulary.new 'http://prismstandard.org/namespaces/basic/2.1/'
   @@bibo = RDF::Vocabulary.new 'http://purl.org/ontology/bibo/'
@@ -150,7 +150,7 @@ class CrossrefMetadataRdf
       add_to graph, [id, prism.number, record.edition_number]
       add_to graph, [id, bibo.pageStart, record.first_page]
       add_to graph, [id, bibo.pageEnd, record.last_page]
-      add_to graph, [id, prism.startingPage, record.firstX_page]
+      add_to graph, [id, prism.startingPage, record.first_page]
       add_to graph, [id, prism.endingPage, record.last_page]
       add_to graph, [id, RDF::DC.title, record.title]
       add_to graph, [id, RDF::DC.alternative, record.subtitle]
@@ -229,7 +229,7 @@ class CrossrefMetadataRdf
 
       # We describe each contributor and attach them to the doi subject.
 
-      record.contributors.each do |c|
+      record.authors.each do |c|
         c_id = RDF::URI.new self.contributor_res(record.contributor_id(c))
 
         graph << [id, RDF::DC.creator, c_id]
@@ -242,5 +242,5 @@ class CrossrefMetadataRdf
 
     end
   end
-  
+
 end

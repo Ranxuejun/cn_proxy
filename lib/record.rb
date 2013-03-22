@@ -4,9 +4,9 @@ require 'unidecode'
 require 'digest/md5'
 require 'net/http'
 
-require_relative 'crossref_metadata_rdf'
+require_relative 'rdf'
 
-class CrossrefMetadataRecord
+class Record
 
   attr_reader :contributors
 
@@ -132,7 +132,14 @@ class CrossrefMetadataRecord
   end
 
   def doi
-    return @record.xpath('//doi_data/doi').last.text
+    dois = @record.xpath('//doi_data/doi')
+    non_component_dois = dois.reject {|doi| doi.parent.parent.name == 'component'}
+
+    if !non_component_dois.empty?
+      non_component_dois.last.text
+    else
+      dois.last.text
+    end
   end
 
   def target_doi_parent
@@ -270,7 +277,7 @@ class CrossrefMetadataRecord
         else
           raise QueryFailure
         end
-        
+
       rescue TimeoutError => e
         raise QueryTimeout
       end
@@ -288,8 +295,8 @@ class CrossrefMetadataRecord
 
   def issn_of_type type
     @record.xpath('//journal_metadata/issn').each { |issn|
-      if issn['media_type'] == type 
-        return normalise_issn(issn.text) 
+      if issn['media_type'] == type
+        return normalise_issn(issn.text)
       elsif issn['media_type'] == nil and type == 'print'
         return normalise_issn(issn.text)
       end
@@ -298,7 +305,7 @@ class CrossrefMetadataRecord
   end
 
   def add_contributors
-    @contributors = Array.new 
+    @contributors = Array.new
     @contributor_name_counts = Hash.new
     target_doi_parent.css("contributors person_name").each do |contributor_node|
       c = Contributor.new contributor_node
@@ -320,7 +327,7 @@ class CrossrefMetadataRecord
           c.ordinal = temp_counts[slug] = temp_counts[slug].next
         else
           c.ordinal = temp_counts[slug] = 1
-        end  
+        end
       end
     end
   end
@@ -370,8 +377,20 @@ class CrossrefMetadataRecord
     end
   end
 
+  def contributors_with_role role
+    contributors.reject {|c| c.contributor_role != role }
+  end
+
+  def authors
+    contributors_with_role('author')
+  end
+
+  def editors
+    contributors_with_role('editor')
+  end
+
   def to_graph
-    CrossrefMetadataRdf.create_for_record self
+    Rdf.create_for_record self
   end
 
 end
