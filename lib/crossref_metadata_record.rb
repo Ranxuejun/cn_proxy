@@ -58,8 +58,9 @@ class CrossrefMetadataRecord
     end
   end
 
-  def initialize record
-    @record=record.root  
+  def initialize record, doi
+    @record = record.root 
+    @target_doi = doi
     add_contributors
   end
 
@@ -104,22 +105,28 @@ class CrossrefMetadataRecord
         :component => "owl:Thing"
       }
     when :book then {
-        :component => "bibo:Book"
+        :component => 'bibo:Book'
       }
     else {}
     end
   end
 
-  def maybe_text paths
+  def maybe_text paths, opts={}
+    target_node = opts[:target] || @record
+    type = opts[:type] || :xpath
+
     if paths.is_a?(Array)
-      texts = paths.map do |path| 
-        element = @record.at_xpath(path)
+      texts = paths.map do |path|
+        element = target_node.at_xpath(path)
         element.text if element
       end
 
       texts.compact.first
+    elsif type == :css
+      element = target_node.at_css(paths)
+      element.text if element
     else
-      element = @record.at_xpath(paths)
+      element = target_node.at_xpath(paths)
       element.text if element
     end
   end
@@ -128,12 +135,23 @@ class CrossrefMetadataRecord
     return @record.xpath('//doi_data/doi').last.text
   end
 
+  def target_doi_parent
+    # Find the doi_data element that represents our target DOI.
+    target_parent = nil
+    @record.xpath('//doi_data').each do |doi_data_element|
+      if doi_data_element.at_xpath('doi').text == @target_doi
+        target_parent = doi_data_element.parent
+      end
+    end
+    target_parent
+  end
+
   def publication_title
     maybe_text '//full_title' or maybe_text '//proceedings_title'
   end
 
   def title
-    maybe_text '//titles/title'
+    maybe_text('titles title', {:target => target_doi_parent, :type => :css})
   end
 
   def subtitle
@@ -282,7 +300,7 @@ class CrossrefMetadataRecord
   def add_contributors
     @contributors = Array.new 
     @contributor_name_counts = Hash.new
-    @record.xpath("//contributors/person_name").each do |contributor_node|
+    target_doi_parent.css("contributors person_name").each do |contributor_node|
       c = Contributor.new contributor_node
 
       old_count = @contributor_name_counts[c.slug]

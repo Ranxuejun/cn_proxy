@@ -44,7 +44,7 @@ helpers do
   end
 
   def is_valid_doi? text
-    text =~ /^10\.\d{4,5}(\.[\.\w]+)*\/\S+$/
+    text =~ /^10\.\d{4,6}(\.[\.\w]+)*\/\S+$/
   end
 
   def is_valid_issn? issn
@@ -104,7 +104,7 @@ helpers do
     # Fake several results. Will need to support this for eventual search results.
     metadata = CrossrefMetadataResults.new()
     record = Nokogiri::XML unixref
-    metadata.records << CrossrefMetadataRecord.new(record)
+    metadata.records << CrossrefMetadataRecord.new(record, request.env['doi'])
     uuid = UUID.new
     erb feed_template, :locals => {
       :metadata => metadata,
@@ -118,7 +118,7 @@ helpers do
     # Bascially translate the ATOM XML into JSON using Tilt to bind redenering to variable.
     metadata = CrossrefMetadataResults.new()
     record = Nokogiri::XML unixref
-    metadata.records << CrossrefMetadataRecord.new(record)
+    metadata.records << CrossrefMetadataRecord.new(record, request.env['doi'])
     uuid = UUID.new
     template = Tilt.new("#{Sinatra::Application.root}/views/atom_feed.erb", :trim => '<>')
     xml = template.render( self, :metadata=>metadata, :feed_link => entire_url, :uuid => uuid, :feed_updated => Time.now.iso8601 )
@@ -128,7 +128,7 @@ helpers do
   def render_unixref format, unixref
     metadata = CrossrefMetadataResults.new
     record = Nokogiri::XML unixref
-    metadata.records << CrossrefMetadataRecord.new(record)
+    metadata.records << CrossrefMetadataRecord.new(record, request.env['doi'])
 
     render_rdf format, metadata.to_graph
   end
@@ -149,13 +149,13 @@ helpers do
 
   def render_citeproc unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = CrossrefMetadataRecord.new(xml, request.env['doi'])
     CiteProcHelper.new(record, settings).as_json
   end
 
   def render_bib_style unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = CrossrefMetadataRecord.new(xml, request.env['doi'])
     params = accept_parameters[0][:params]
 
     opts = {}
@@ -169,25 +169,25 @@ helpers do
 
   def render_bibjson unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = CrossrefMetadataRecord.new(xml, request.env['doi'])
     CrossrefMetadataBibJson.from_record record
   end
 
   def render_ris unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = CrossrefMetadataRecord.new(xml, request.env['doi'])
     CrossrefMetadataRis.from_record record
   end
 
   def render_bibtex unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = CrossrefMetadataRecord.new(xml, request.env['doi'])
     CiteProc.new(record, settings).as_style({:style => "bibtex"})
   end
 
   def as_crawled_redirect unixref
     xml = Nokogiri::XML unixref
-    record = CrossrefMetadataRecord.new xml
+    record = CrossrefMetadataRecord.new(xml, request.env['doi'])
 
     full_text_resource = record.full_text_resource
 
