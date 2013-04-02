@@ -19,7 +19,7 @@ mime_type :vnd_citeproc, "application/vnd.citationstyles.csl+json"
 mime_type :x_bibo, "text/x-bibliography"
 mime_type :x_ris, "application/x-research-info-systems"
 mime_type :x_bibtex, "application/x-bibtex"
-mime_type :item, "application/vnd.crossref.item"
+mine_type :pdf, "application/pdf"
 mime_type :bibjson, "application/bibjson+json"
 
 # Deprecated types
@@ -62,8 +62,8 @@ configure do
                        ".jsonrdf", ".ntriples", ".javascript",
                        ".citeproc", ".bibo", ".vnd_citeproc",
                        ".vnd_unixref", ".x_bibo", ".x_ris",
-                       ".x_bibtex", ".html", ".atom", ".item",
-                       ".bibjson"]
+                       ".x_bibtex", ".html", ".atom",
+                       ".bibjson", ".pdf"]
 end
 
 before do
@@ -144,16 +144,32 @@ get '/issn/:issn' do
   end
 end
 
+get '/full-text/*', :provides => [:pdf] do
+  raise MalformedDoi unless request.env['doi']
+
+  if request.env['subdomain'] != 'data'
+    raise BadPath
+  else
+    uxr = Query.for_doi(request.env['doi'], options.query_pid)
+    link = fulltext_link(uxr)
+    if link
+      redirect(link, 303)
+    else
+      raise NoFullTextLink
+    end
+  end
+end
+
 get '/*', :provides => [:html, :javascript, :rdf, :json, :atom, :unixref, :ttl,
                         :jsonrdf, :citeproc, :bibo, :x_bibo, :vnd_unixref, :vnd_citeproc,
-                        :x_ris, :x_bibtex, :item, :bibjson] do
+                        :x_ris, :x_bibtex, :bibjson] do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id' then
     redirect "http://data.crossref.org/#{request.env['doi']}", 303
   else
     uxr = Query.for_doi(request.env['doi'], options.query_pid)
-    render_representation uxr
+    render_with_fulltext_link(uxr)
   end
 end
 

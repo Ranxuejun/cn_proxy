@@ -21,10 +21,22 @@ class UnknownStyle < UnknownContentType; end
 class UnknownLocale < UnknownContentType; end
 class UnknownFormat < UnknownContentType; end
 
+class BadPath < StandardError; end
+
+class NoFullTextLink < StandardError; end
+
 def e details
   status details[:status] if details.has_key? :status
   content_type 'text/html'
   details[:msg] if details.has_key? :msg
+end
+
+error NoFullTextLink do
+  e :status => 406, :msg => "No full-text link for DOI"
+end
+
+error BadPath do
+  e :status => 404
 end
 
 error MalformedIdentifier do

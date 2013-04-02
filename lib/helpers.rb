@@ -17,6 +17,8 @@ require_relative 'results'
 
 helpers do
 
+  FULLTEXT_REL = 'http://id.crossref.org/schema/full-text'
+
   def dlog message
     pp(message,STDERR)
   end
@@ -186,18 +188,18 @@ helpers do
     CiteProcHelper.new(record, settings).as_style({:style => "bibtex"})
   end
 
-  def as_crawled_redirect unixref
+  def fulltext_link unixref
     xml = Nokogiri::XML unixref
     record = Record.new(xml, request.env['doi'])
+    record.full_text_resource
+  end
 
-    full_text_resource = record.full_text_resource
+  def fulltext_data_link
+    "http://data.crossref.org/full-text/#{URI.encode(request['doi'])}"
+  end
 
-    if full_text_resource.nil?
-      status 406
-      "No item URL for this DOI."
-    else
-      redirect full_text_resource, 303
-    end
+  def data_link
+    "http://data.crossref.org/#{URI.encode(request['doi'])}"
   end
 
   def render_representation unixref
@@ -226,11 +228,16 @@ helpers do
       render_citeproc unixref
     when ".bibo", ".x_bibo"
       render_bib_style unixref
-    when ".item"
-      as_crawled_redirect unixref
     when ".bibjson"
       render_bibjson unixref
     end
+  end
+
+  def render_with_fulltext_link unixref
+    if fulltext_link(unixref)
+      response['Link'] = "<#{fulltext_data_link}>; rel=\"#{FULLTEXT_REL}\"; anchor=\"#{data_link}\""
+    end
+    render_representation(unixref)
   end
 
 end
