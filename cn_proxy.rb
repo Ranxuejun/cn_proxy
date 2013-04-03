@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'rubygems'
 require 'sinatra'
 require 'json'
@@ -19,7 +20,7 @@ mime_type :vnd_citeproc, "application/vnd.citationstyles.csl+json"
 mime_type :x_bibo, "text/x-bibliography"
 mime_type :x_ris, "application/x-research-info-systems"
 mime_type :x_bibtex, "application/x-bibtex"
-mine_type :pdf, "application/pdf"
+mime_type :pdf, "application/pdf"
 mime_type :bibjson, "application/bibjson+json"
 
 # Deprecated types
@@ -144,10 +145,12 @@ get '/issn/:issn' do
   end
 end
 
+
+
 get '/full-text/*', :provides => [:pdf] do
   raise MalformedDoi unless request.env['doi']
 
-  if request.env['subdomain'] != 'data'
+  if request.env['subdomain'] == 'id'
     raise BadPath
   else
     uxr = Query.for_doi(request.env['doi'], options.query_pid)

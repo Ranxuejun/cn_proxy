@@ -195,11 +195,11 @@ helpers do
   end
 
   def fulltext_data_link
-    "http://data.crossref.org/full-text/#{URI.encode(request['doi'])}"
+    "http://data.crossref.org/full-text/#{URI.encode(request.env['doi'])}"
   end
 
   def data_link
-    "http://data.crossref.org/#{URI.encode(request['doi'])}"
+    "http://data.crossref.org/#{URI.encode(request.env['doi'])}"
   end
 
   def render_representation unixref
