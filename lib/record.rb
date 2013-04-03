@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'unidecode'
 require 'digest/md5'
 require 'net/http'
+require 'uri'
 
 require_relative 'rdf'
 

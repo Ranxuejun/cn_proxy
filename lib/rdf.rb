@@ -9,6 +9,7 @@ class Rdf
   @@rdf = RDF::Vocabulary.new 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 
   @@data = 'http://data.crossref.org'
+  @@full_text_data = 'http://data.crossref.org/full-text'
   @@id = 'http://id.crossref.org'
   @@periodicals = 'http://periodicals.dataincubator.org'
 
@@ -58,6 +59,10 @@ class Rdf
 
   def self.incubator_issue_res issn
     "#{@@periodicals}/issn/#{issn}"
+  end
+
+  def self.full_text_data_link doi
+     "http://data.crossref.org/full-text/#{URI.encode(doi)}"
   end
 
   def self.add_to graph, statement
@@ -157,7 +162,7 @@ class Rdf
       add_to graph, [id, RDF::DC.publisher, record.publisher_name]
 
       ft_link = record.full_text_resource
-      add_to(graph, [id, RDF::RDFS.value, RDF::URI.new(ft_link)]) unless ft_link.nil?
+      add_to(graph, [id, RDF::RDFS.value, RDF::URI.new(full_text_data_link(record.doi))]) unless ft_link.nil?
 
       # We record the type of the doi subject, and also note the isbn
       # for books. For proceedings the isbn is attached to the container
