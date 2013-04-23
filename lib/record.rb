@@ -61,7 +61,7 @@ class Record
 
   def initialize record, doi
     @record = record.root 
-    @target_doi = doi
+    @target_doi = doi.downcase
     add_contributors
   end
 
@@ -147,7 +147,7 @@ class Record
     # Find the doi_data element that represents our target DOI.
     target_parent = nil
     @record.xpath('//doi_data').each do |doi_data_element|
-      if doi_data_element.at_xpath('doi').text == @target_doi
+      if doi_data_element.at_xpath('doi').text.downcase == @target_doi
         target_parent = doi_data_element.parent
       end
     end
