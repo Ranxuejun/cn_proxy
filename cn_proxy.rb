@@ -145,8 +145,6 @@ get '/issn/:issn' do
   end
 end
 
-
-
 get '/full-text/*', :provides => [:pdf] do
   raise MalformedDoi unless request.env['doi']
 

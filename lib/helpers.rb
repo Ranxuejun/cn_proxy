@@ -234,8 +234,9 @@ helpers do
   end
 
   def render_with_fulltext_link unixref
-    if fulltext_link(unixref)
-      response['Link'] = "<#{fulltext_data_link}>; rel=\"#{FULLTEXT_REL}\"; anchor=\"#{data_link}\""
+    fulltext = fulltext_link(unixref)
+    if fulltext
+      response['Link'] = "<#{fulltext_data_link}>; rel=\"#{FULLTEXT_REL}\"; anchor=\"#{fulltext}\""
     end
     render_representation(unixref)
   end
