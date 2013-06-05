@@ -158,7 +158,7 @@ class CiteProcHelper
     key = key.gsub(' ', '_').gsub('.', '_')
     key = key[-30..-1] if key.length > 30
 
-    bibtex.sub(/{([^,]+),/, "{#{key},")
+    bibtex.sub(/{([^,]+),/, "{#{key},").sub(/\A_+/, '')
   end
 
 end
