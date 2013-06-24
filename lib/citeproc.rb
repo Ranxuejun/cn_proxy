@@ -1,5 +1,6 @@
 require "json"
 require "uri"
+require 'unidecode'
 
 require_relative "errors"
 
@@ -157,6 +158,7 @@ class CiteProcHelper
     key = bibtex.match(/\A@\w*{([^,]+),/)[1]
     key = key.gsub(' ', '_').gsub('.', '_')
     key = key[-30..-1] if key.length > 30
+    key = key.to_ascii
 
     bibtex.sub(/{([^,]+),/, "{#{key},").sub(/\A_+/, '')
   end
