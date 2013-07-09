@@ -6,11 +6,11 @@ EXPOSE 80
 RUN yum install -y js libxslt libxml2 httpd openssl raptor wget
 
 # Install ruby
-RUN wget -q ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
-RUN tar zxvf ruby-1.9.2-p180.tar.gz
-RUN cd ruby-1.9.2-p180/; ./configure --prefix=/usr/local/ruby
-RUN cd ruby-1.9.2-p180/; make
-RUN cd ruby-1.9.2-p180/; make install
+RUN cd /tmp; wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
+RUN cd /tmp; tar zxvf ruby-1.9.2-p180.tar.gz
+RUN cd /tmp/ruby-1.9.2-p180; ./configure --prefix=/usr/local/ruby
+RUN cd /tmp/ruby-1.9.2-p180; make
+RUN cd /tmp/ruby-1.9.2-p180; make install
 
 # Install passenger
 RUN rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc
