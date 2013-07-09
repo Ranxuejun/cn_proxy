@@ -2,14 +2,20 @@ FROM centos:6.4
 ADD . /src
 EXPOSE 80
 
+RUN iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+RUN iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
 # Bother to set a locale, mostly for ruby
-RUN update-locale LANG=en_US.UTF-8
+RUN localedef --no-archive -i en_US -f UTF-8 en_US.UTF-8 
+ENV LC_CTYPE en_US.UTF-8
+ENV LANG en_US.UTF-8
 
 # Install build tools
 RUN yum groupinstall -y 'Development Tools'
 
 # Install package dependencies
-RUN yum install -y js libxslt libxml2 httpd openssl raptor wget libev libev-devel zlib zlib-devel
+RUN yum install -y js libxslt libxml2 openssl openssl-devel raptor wget libev libev-devel
+RUN yum install -y apr-devel apr-util-devel httpd httpd-devel curl curl-devel zlib zlib-devel
 
 # Install ruby
 RUN cd /tmp; wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
@@ -19,7 +25,7 @@ RUN cd /tmp/ruby-1.9.2-p180; make
 RUN cd /tmp/ruby-1.9.2-p180; make install
 
 # Install gems
-RUN gem install bundler passenger
+RUN gem install --no-rdoc --no-ri bundler passenger
 RUN cd /src; bundle install
 
 # Install passenger
@@ -31,7 +37,6 @@ RUN cp /src/config/cn_proxy.conf /etc/httpd/conf.d/cn_proxy.conf
 
 # Disable selinux and iptables
 RUN echo 0 > /selinux/enforce
-RUN /etc/init.d/iptables stop 
 
 # Run!
 CMD service httpd restart
