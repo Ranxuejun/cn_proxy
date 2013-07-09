@@ -2,6 +2,9 @@ FROM centos:6.4
 ADD . /src
 EXPOSE 80
 
+# Install build tools
+RUN yum groupinstall -y 'Development Tools'
+
 # Install package dependencies
 RUN yum install -y js libxslt libxml2 httpd openssl raptor wget
 
