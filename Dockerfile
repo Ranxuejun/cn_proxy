@@ -3,7 +3,7 @@ ADD . /src
 EXPOSE 80
 
 # Install package dependencies
-RUN yum install -y libjs libxslt libxml2 git curl httpd openssl raptor wget
+RUN yum install -y js libxslt libxml2 httpd openssl raptor wget
 
 # Install ruby
 RUN wget -q ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
