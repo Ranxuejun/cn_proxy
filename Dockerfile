@@ -2,6 +2,9 @@ FROM centos:6.4
 ADD . /src
 EXPOSE 80
 
+# Bother to set a locale, mostly for ruby
+RUN update-locale LANG=en_US.UTF-8
+
 # Install build tools
 RUN yum groupinstall -y 'Development Tools'
 
