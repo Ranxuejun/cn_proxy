@@ -6,7 +6,7 @@ EXPOSE 80
 RUN yum groupinstall -y 'Development Tools'
 
 # Install package dependencies
-RUN yum install -y js libxslt libxml2 httpd openssl raptor wget
+RUN yum install -y js libxslt libxml2 httpd openssl raptor wget libev libev-devel
 
 # Install ruby
 RUN cd /tmp; wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
@@ -15,14 +15,13 @@ RUN cd /tmp/ruby-1.9.2-p180; ./configure --prefix=/usr/local/ruby
 RUN cd /tmp/ruby-1.9.2-p180; make
 RUN cd /tmp/ruby-1.9.2-p180; make install
 
-# Install passenger
-RUN rpm --import http://passenger.stealthymonkeys.com/RPM-GPG-KEY-stealthymonkeys.asc
-RUN yum install -y http://passenger.stealthymonkeys.com/rhel/6/passenger-release.noarch.rpm
-RUN yum install -y mod_passenger
-
 # Install gems
-RUN gem install bundler
+RUN gem install bundler passenger
 RUN cd /src; bundle install
+
+# Install passenger
+RUN passenger-install-apache2-module --auto
+RUN passenger-install-apache2-module --snippet >> /etc/httpd/conf/httpd.conf
 
 # Set up virtual hosts
 RUN cp /src/config/cn_proxy.conf /etc/httpd/conf.d/cn_proxy.conf
@@ -32,4 +31,4 @@ RUN echo 0 > /selinux/enforce
 RUN /etc/init.d/iptables stop 
 
 # Run!
-CMD apachectl start
+CMD service httpd restart
