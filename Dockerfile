@@ -11,7 +11,7 @@ RUN yum install -y js libxslt libxml2 httpd openssl raptor wget libev libev-deve
 # Install ruby
 RUN cd /tmp; wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
 RUN cd /tmp; tar zxvf ruby-1.9.2-p180.tar.gz
-RUN cd /tmp/ruby-1.9.2-p180; ./configure --prefix=/usr/local/ruby
+RUN cd /tmp/ruby-1.9.2-p180; ./configure
 RUN cd /tmp/ruby-1.9.2-p180; make
 RUN cd /tmp/ruby-1.9.2-p180; make install
 
