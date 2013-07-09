@@ -6,7 +6,7 @@ EXPOSE 80
 RUN yum groupinstall -y 'Development Tools'
 
 # Install package dependencies
-RUN yum install -y js libxslt libxml2 httpd openssl raptor wget libev libev-devel
+RUN yum install -y js libxslt libxml2 httpd openssl raptor wget libev libev-devel zlib zlib-devel
 
 # Install ruby
 RUN cd /tmp; wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
