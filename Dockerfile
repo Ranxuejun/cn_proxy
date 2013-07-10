@@ -1,9 +1,8 @@
 FROM centos:6.4
 ADD . /src
-EXPOSE 80
+EXPOSE 80:80
 
 RUN iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-RUN iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 
 # Bother to set a locale, mostly for ruby
 RUN localedef --no-archive -i en_US -f UTF-8 en_US.UTF-8 
@@ -39,4 +38,4 @@ RUN cp /src/config/cn_proxy.conf /etc/httpd/conf.d/cn_proxy.conf
 RUN echo 0 > /selinux/enforce
 
 # Run!
-CMD service httpd restart
+CMD httpd -f /etc/httpd/conf/httpd.conf -D FOREGROUND 
