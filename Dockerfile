@@ -38,4 +38,4 @@ RUN cp /src/config/cn_proxy.conf /etc/httpd/conf.d/cn_proxy.conf
 RUN echo 0 > /selinux/enforce
 
 # Run!
-CMD httpd -f /etc/httpd/conf/httpd.conf -D FOREGROUND 
+CMD httpd -f /etc/httpd/conf/httpd.conf -D FOREGROUND

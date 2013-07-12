@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ENV['RDF_RAPTOR_ENGINE'] = 'cli'
 
 require 'cgi'
@@ -17,7 +18,7 @@ require_relative 'results'
 
 helpers do
 
-  FULLTEXT_REL = 'http://id.crossref.org/schema/full-text'
+  FULLTEXT_REL = 'http://id.crossref.org/schema/fulltext'
 
   def dlog message
     pp(message,STDERR)
@@ -188,14 +189,14 @@ helpers do
     CiteProcHelper.new(record, settings).as_style({:style => "bibtex"})
   end
 
-  def fulltext_link unixref
+  def fulltext_resources unixref
     xml = Nokogiri::XML unixref
     record = Record.new(xml, request.env['doi'])
-    record.full_text_resource
+    record.full_text_resources
   end
 
   def fulltext_data_link
-    "http://data.crossref.org/full-text/#{URI.encode(request.env['doi'])}"
+    "http://data.crossref.org/fulltext/#{URI.encode(request.env['doi'])}"
   end
 
   def data_link
@@ -233,12 +234,38 @@ helpers do
     end
   end
 
+  def link_header resources
+    puts resources
+    links = []
+    resources.each_pair do |type, location|
+      if type == :generic
+        links << "<#{fulltext_data_link}>; rel=\"#{FULLTEXT_REL}\"; anchor=\"#{location}\""
+      else
+        links << "<#{fulltext_data_link}>; rel=\"#{FULLTEXT_REL}\"; type=\"#{type}\"; anchor=\"#{location}\""
+      end
+    end
+    links.join(', ')
+  end
+
   def render_with_fulltext_link unixref
-    fulltext = fulltext_link(unixref)
-    if fulltext
-      response['Link'] = "<#{fulltext_data_link}>; rel=\"#{FULLTEXT_REL}\"; anchor=\"#{fulltext}\""
+    resources = fulltext_resources(unixref)
+    if !resources.keys.empty?
+      response['Link'] = link_header(resources)
     end
     render_representation(unixref)
+  end
+
+  def redirect_fulltext_link resources
+    mime = Rack::Mime.mime_type(representation)
+    if resources.contains?(mime)
+      redirect(resource_links[mime])
+    elsif resources.contains?(:generic)
+      redirect(resource_links[:generic])
+    else
+      response['Link'] = link_header(resources)
+      status 406
+      body "Full text representation types for this DOI: #{resources.keys.join(', ')}"
+    end
   end
 
 end

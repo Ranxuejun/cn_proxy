@@ -32,7 +32,11 @@ class Munge
     item
   end
 
-  def self.munge_unixref unixref_doc
+  def self.munge_unixref unixref
+    munge_doc(Nokogiri::XML.new(unixref)).to_s
+  end
+
+  def self.munge_doc unixref_doc
     doi_data = unixref_doc.at_xpath('//doi_data')
     doi = unixref_doc.at_xpath('//doi_data/doi').text
     case munge?(unixref_doc)

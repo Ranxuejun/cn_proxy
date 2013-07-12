@@ -345,25 +345,24 @@ class Record
     end
   end
 
-  def full_text_resource
-    resource_url = nil
-
-    @record.xpath("//resource").each do |resource_node|
-      parent = resource_node.parent
-      parent_name = parent.name
-
-      case parent_name
-      when 'item'
-        # potentially a crawler full-text url
-        if parent.attributes.has_key?('crawler')
-          resource_url = resource_node.text
+  def full_text_resources
+    crawler_coll = @record.xpath("//collection[@property = 'crawler-based']").first
+    mining_coll = @record.xpath("//collection[@property = 'text-mining']").first
+    collection = mining_coll or crawler_coll
+    
+    resources = {}
+    
+    unless collection.nil?
+      collection.xpath('./item').each do |item_node|
+        if item_node.attributes.has_key?('mime_type')
+          resources[item_node.attributes['mime_type']] = item_node.text.strip
+        else
+          resources[:generic] = item_node.text.strip
         end
-      when 'doi_data'
-        # standard resolution url, ignore
       end
     end
-
-    resource_url
+       
+    resources
   end
 
   def citations

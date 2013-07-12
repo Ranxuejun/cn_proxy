@@ -145,19 +145,15 @@ get '/issn/:issn' do
   end
 end
 
-get '/full-text/*', :provides => [:pdf] do
+get '/fulltext/*' do
   raise MalformedDoi unless request.env['doi']
 
   if request.env['subdomain'] == 'id'
     raise BadPath
   else
     uxr = Query.for_doi(request.env['doi'], options.query_pid)
-    link = fulltext_link(uxr)
-    if link
-      redirect(link, 303)
-    else
-      raise NoFullTextLink
-    end
+    links = fulltext_links(uxr)
+    redirect_fulltext_link(links)
   end
 end
 

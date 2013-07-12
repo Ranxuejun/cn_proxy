@@ -3,6 +3,7 @@ require 'cgi'
 require 'net/http'
 
 require_relative 'errors'
+require_relative 'munge'
 
 class Query
 
@@ -20,7 +21,7 @@ class Query
         raise QueryFailure unless r.code == "200"
         unixref = r.body
         scrape_for_errors unixref
-        unixref
+        Munge.munge_unixref(unixref)
       rescue TimeoutError => e
         raise QueryTimeout
       end
