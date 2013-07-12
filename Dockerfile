@@ -13,8 +13,15 @@ ENV LANG en_US.UTF-8
 RUN yum groupinstall -y 'Development Tools'
 
 # Install package dependencies
-RUN yum install -y js libxslt libxml2 openssl openssl-devel raptor wget libev libev-devel
+RUN yum install -y libxslt libxml2 openssl openssl-devel raptor wget libev libev-devel
 RUN yum install -y apr-devel apr-util-devel httpd httpd-devel curl curl-devel zlib zlib-devel
+
+# Install js from EPEL (extra packages)
+RUN cd /tmp; wget http://ftp.riken.jp/Linux/fedora/epel/RPM-GPG-KEY-EPEL-6
+RUN cd /tmp; rpm --import RPM-GPG-KEY-EPEL-6
+RUN cd /tmp; wget http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+RUN cd /tmp; rpm -ivh epel-release-6-8.noarch.rpm
+RUN yum install -y js
 
 # Install ruby
 RUN cd /tmp; wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-1.9.2-p180.tar.gz
@@ -38,4 +45,4 @@ RUN cp /src/config/cn_proxy.conf /etc/httpd/conf.d/cn_proxy.conf
 RUN echo 0 > /selinux/enforce
 
 # Run!
-CMD httpd -f /etc/httpd/conf/httpd.conf -D FOREGROUND
+CMD httpd -f /etc/httpd/conf/httpd.conf -D FOREGROUND 
