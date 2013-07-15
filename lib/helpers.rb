@@ -78,7 +78,7 @@ helpers do
     end
   end
 
-  def representation
+  def detect_mimes
     accepts = accept_parameters.reject { |a| !a[:params].key?("q") }.sort_by do |a|
       begin
         -a[:params]["q"].to_f
@@ -86,10 +86,17 @@ helpers do
         0
       end
     end
-
+    
     accepts = accepts + accept_parameters.reject { |a| a[:params].key?("q") }
-    accepts = accepts.reverse
+    accepts.reverse
+  end
 
+  def detect_mime
+    detect_mimes.first
+  end
+
+  def representation
+    accepts = detect_mimes
     suffix = nil
     while suffix.nil? && !accepts.empty?
       rep = accepts.pop[:type]
@@ -255,7 +262,7 @@ helpers do
   end
 
   def redirect_fulltext_link resources
-    mime = Rack::Mime.mime_type(representation)
+    mime = detect_mime[:type]
     if resources.has_key?(mime)
       redirect(resources[mime])
     elsif resources.has_key?(:generic)

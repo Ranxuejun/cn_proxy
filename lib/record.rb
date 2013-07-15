@@ -348,7 +348,9 @@ class Record
   def full_text_resources
     crawler_coll = @record.xpath("//collection[@property = 'crawler-based']").first
     mining_coll = @record.xpath("//collection[@property = 'text-mining']").first
-    collection = mining_coll or crawler_coll
+    collection = mining_coll || crawler_coll
+
+    puts collection
     
     resources = {}
     
