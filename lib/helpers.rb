@@ -10,6 +10,7 @@ require 'rdf/raptor'
 require 'rdf/json'
 require 'rdf/ntriples'
 require 'date'
+require 'uri'
 
 require_relative 'citeproc'
 require_relative 'ris'
