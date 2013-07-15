@@ -152,7 +152,7 @@ get '/fulltext/*' do
     raise BadPath
   else
     uxr = Query.for_doi(request.env['doi'], options.query_pid)
-    links = fulltext_links(uxr)
+    links = fulltext_resources(uxr)
     redirect_fulltext_link(links)
   end
 end

@@ -36,6 +36,12 @@ class Munge
     item
   end
 
+  def self.make_collection doc
+    collection = Nokogiri::XML::Node.new('collection', doc)
+    collection['property'] = 'text-mining'
+    collection
+  end
+
   def self.munge_unixref unixref
     munge_doc(Nokogiri::XML(unixref)).to_s
   end
@@ -50,7 +56,7 @@ class Munge
       base_url = "#{ELSEVIER_RES_PREFIX}#{doi}"
       xml_url = "#{base_url}?httpAccept=text/xml"
       plain_url = "#{base_url}?httpAccept=text/plain"
-      collection = Nokogiri::XML::Node.new('collection', unixref_doc)
+      collection = make_collection(unixref_doc)
       collection.add_child(make_item(unixref_doc, :untyped, base_url))
       collection.add_child(make_item(unixref_doc, 'text/xml', xml_url))
       collection.add_child(make_item(unixref_doc, 'text/plain', plain_url))
@@ -67,7 +73,7 @@ class Munge
       xml_url = "#{base_url}&representation=XML"
       pdf_url = "#{base_url}&representation=PDF"
 
-      collection = Nokogiri::XML::Node.new('collection', unixref_doc)
+      collection = make_collection(unixref_doc)
       collection.add_child(make_item(unixref_doc, 'text/xml', xml_url))
       collection.add_child(make_item(unixref_doc, 'application/pdf', pdf_url))
       doi_data.add_child(collection)

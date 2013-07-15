@@ -235,7 +235,6 @@ helpers do
   end
 
   def link_header resources
-    puts resources
     links = []
     resources.each_pair do |type, location|
       if type == :generic
@@ -257,10 +256,10 @@ helpers do
 
   def redirect_fulltext_link resources
     mime = Rack::Mime.mime_type(representation)
-    if resources.contains?(mime)
-      redirect(resource_links[mime])
-    elsif resources.contains?(:generic)
-      redirect(resource_links[:generic])
+    if resources.has_key?(mime)
+      redirect(resources[mime])
+    elsif resources.has_key?(:generic)
+      redirect(resources[:generic])
     else
       response['Link'] = link_header(resources)
       status 406

@@ -4,12 +4,13 @@ require_relative 'errors'
 
 class Rdf
 
+  FULL_TEXT_DATA = 'http://data.crossref.org/fulltext'
+
   @@prism = RDF::Vocabulary.new 'http://prismstandard.org/namespaces/basic/2.1/'
   @@bibo = RDF::Vocabulary.new 'http://purl.org/ontology/bibo/'
   @@rdf = RDF::Vocabulary.new 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 
   @@data = 'http://data.crossref.org'
-  @@full_text_data = 'http://data.crossref.org/full-text'
   @@id = 'http://id.crossref.org'
   @@periodicals = 'http://periodicals.dataincubator.org'
 
@@ -62,7 +63,7 @@ class Rdf
   end
 
   def self.full_text_data_link doi
-     "http://data.crossref.org/full-text/#{URI.encode(doi)}"
+    "#{FULL_TEXT_DATA}/#{URI.encode(doi)}"
   end
 
   def self.add_to graph, statement
@@ -161,8 +162,9 @@ class Rdf
       add_to graph, [id, RDF::DC.alternative, record.subtitle]
       add_to graph, [id, RDF::DC.publisher, record.publisher_name]
 
-      ft_link = record.full_text_resource
-      add_to(graph, [id, RDF::RDFS.value, RDF::URI.new(full_text_data_link(record.doi))]) unless ft_link.nil?
+      unless record.full_text_resources.empty?
+        add_to(graph, [id, RDF::RDFS.value, RDF::URI.new(full_text_data_link(record.doi))])
+      end
 
       # We record the type of the doi subject, and also note the isbn
       # for books. For proceedings the isbn is attached to the container

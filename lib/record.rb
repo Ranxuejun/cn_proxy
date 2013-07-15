@@ -353,11 +353,11 @@ class Record
     resources = {}
     
     unless collection.nil?
-      collection.xpath('./item').each do |item_node|
-        if item_node.attributes.has_key?('mime_type')
-          resources[item_node.attributes['mime_type']] = item_node.text.strip
+      collection.xpath('./item/resource').each do |res_node|
+        if res_node['mime_type']
+          resources[res_node['mime_type']] = res_node.text.strip
         else
-          resources[:generic] = item_node.text.strip
+          resources[:generic] = res_node.text.strip
         end
       end
     end
