@@ -10,7 +10,6 @@ require 'rdf/raptor'
 require 'rdf/json'
 require 'rdf/ntriples'
 require 'date'
-require 'uri'
 
 require_relative 'citeproc'
 require_relative 'ris'
@@ -204,11 +203,11 @@ helpers do
   end
 
   def fulltext_data_link
-    "http://data.crossref.org/fulltext/#{URI.encode(request.env['doi'])}"
+    "http://data.crossref.org/fulltext/#{CGI.escape(request.env['doi'])}"
   end
 
   def data_link
-    "http://data.crossref.org/#{URI.encode(request.env['doi'])}"
+    "http://data.crossref.org/#{CGI.escape(request.env['doi'])}"
   end
 
   def render_representation unixref
