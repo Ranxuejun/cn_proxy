@@ -141,10 +141,10 @@ helpers do
     record = Nokogiri::XML unixref
     metadata.records << Record.new(record, request.env['doi'])
 
-    render_rdf format, metadata.to_graph
+    render_rdf(format, metadata.to_graph, record.doi)
   end
 
-  def render_rdf format, rdf
+  def render_rdf format, rdf, doi
     RDF::Writer.for(format).buffer do |writer|
       writer.prefixes = {
         :dct => RDF::DC,
@@ -154,6 +154,7 @@ helpers do
         :bibo => Rdf.bibo,
         :rdf => Rdf.rdf
       }
+      Munge.munge_rdf_output(writer, doi)
       writer << rdf
     end
   end

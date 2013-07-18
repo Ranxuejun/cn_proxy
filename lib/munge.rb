@@ -13,6 +13,11 @@ class Munge
   PLOS_BIO_PART = /journal\.pbio/
   PLOS_ONE_PART = /journal\.pone/
 
+  ELSEVIER_UNIXREF_COMMENT = 'The "apikey" attribute on these URIs is an Elsevier API key used to trigger a check for Prospect headers. It is not a Prospect API Token.'
+  ELSEVIER_RDF_COMMENT = 'The "apikey" attribute on the Link URIs is an Elsevier API key used to trigger a check for Prospect headers. It is not a Prospect API Token.'
+
+  ELSEVIER_PREFIX = /\A10\.1016/
+  
   def self.munge? unixref_doc
     resource = unixref_doc.at_xpath('//doi_data/resource').text
     puts resource
@@ -53,10 +58,11 @@ class Munge
     puts munge?(unixref_doc)
     case munge?(unixref_doc)
     when :elsevier
-      base_url = "#{ELSEVIER_RES_PREFIX}#{doi}"
-      xml_url = "#{base_url}?httpAccept=text/xml"
-      plain_url = "#{base_url}?httpAccept=text/plain"
+      base_url = "#{ELSEVIER_RES_PREFIX}#{doi}?apikey=48f668647fde5c80c46e10215a091781"
+      xml_url = "#{base_url}&httpAccept=text/xml"
+      plain_url = "#{base_url}&httpAccept=text/plain"
       collection = make_collection(unixref_doc)
+      collection.add_child(Nokogiri::XML::Comment.new(ELSEVIER_UNIXREF_COMMENT, doc)))
       collection.add_child(make_item(unixref_doc, :untyped, base_url))
       collection.add_child(make_item(unixref_doc, 'text/xml', xml_url))
       collection.add_child(make_item(unixref_doc, 'text/plain', plain_url))
@@ -79,6 +85,12 @@ class Munge
       doi_data.add_child(collection)
     end
     unixref_doc
+  end
+
+  def self.munge_rdf_output writer, doi
+    if doi.match(ELSEVIER_PREFIX)
+      writer.write_comment(ELSEVIER_RDF_COMMENT)
+    end
   end
 
 end
