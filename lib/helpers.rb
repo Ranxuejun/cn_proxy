@@ -141,7 +141,7 @@ helpers do
     record = Nokogiri::XML unixref
     metadata.records << Record.new(record, request.env['doi'])
 
-    render_rdf(format, metadata.to_graph, record.doi)
+    render_rdf(format, metadata.to_graph, request.env['doi'])
   end
 
   def render_rdf format, rdf, doi

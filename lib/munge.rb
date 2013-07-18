@@ -48,7 +48,7 @@ class Munge
   end
 
   def self.munge_unixref unixref
-    munge_doc(Nokogiri::XML(unixref)).to_s
+    munge_doc(Nokogiri::XML(unixref)).to_xml(:indent => 2)
   end
 
   def self.munge_doc unixref_doc
@@ -62,7 +62,7 @@ class Munge
       xml_url = "#{base_url}&httpAccept=text/xml"
       plain_url = "#{base_url}&httpAccept=text/plain"
       collection = make_collection(unixref_doc)
-      collection.add_child(Nokogiri::XML::Comment.new(ELSEVIER_UNIXREF_COMMENT, unixref_doc))
+      collection.add_child(Nokogiri::XML::Comment.new(unixref_doc, ELSEVIER_UNIXREF_COMMENT))
       collection.add_child(make_item(unixref_doc, :untyped, base_url))
       collection.add_child(make_item(unixref_doc, 'text/xml', xml_url))
       collection.add_child(make_item(unixref_doc, 'text/plain', plain_url))
