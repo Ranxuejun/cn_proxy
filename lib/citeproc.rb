@@ -114,7 +114,7 @@ class CiteProcHelper
     bib_data = as_data
     bib_data["id"] = "item"
 
-    source = open(@settings.xmle4xjs).read + "\n" + open(@settings.citeprocjs).read
+    source = open(@settings.xmle4xjs, "r:UTF-8").read + "\n" + open(@settings.citeprocjs, "r:UTF-8").read
     source += "\n" + <<-JS
       var style = #{style_data.to_json};
       var locale = #{locale_data.to_json};
@@ -166,3 +166,4 @@ class CiteProcHelper
 
 end
 
+05cr12svc11b96
