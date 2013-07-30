@@ -156,9 +156,10 @@ class CiteProcHelper
   # We also shorten very long bibtex keys, which CSL sometimes creates.
   def fix_bibtex_key bibtex
     key = bibtex.match(/\A@\w*{([^,]+),/)[1]
-    key = key.gsub(' ', '_').gsub('.', '_').sub(/\A_+/, '')
+    key = key.gsub(' ', '_').gsub('.', '_')
     key = key[-30..-1] if key.length > 30
     key = key.to_ascii
+    key = key.sub(/\A_+/, '')
 
     bibtex.sub(/{([^,]+),/, "{#{key},")
   end
