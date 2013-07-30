@@ -165,5 +165,3 @@ class CiteProcHelper
   end
 
 end
-
-05cr12svc11b96
